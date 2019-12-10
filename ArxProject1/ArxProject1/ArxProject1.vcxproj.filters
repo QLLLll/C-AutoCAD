@@ -42,6 +42,30 @@
     <ClCompile Include="PolylineUtil.cpp">
       <Filter>源文件\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="EllipseUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="GePointUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="ConvertUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="SplieUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="RegionUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="HatchUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="TextUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -53,13 +77,37 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="RunCommand.h">
-      <Filter>源文件</Filter>
-    </ClInclude>
     <ClInclude Include="PolylineUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="DwgDataBaseUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EllipseUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GePointUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RunCommand.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ConvertUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SplieUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RegionUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TextUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HatchUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

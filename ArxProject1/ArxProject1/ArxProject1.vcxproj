@@ -77,24 +77,40 @@
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
     <ClCompile Include="ArxProject1.cpp" />
+    <ClCompile Include="ConvertUtil.cpp" />
     <ClCompile Include="DocData.cpp" />
     <ClCompile Include="DwgDataBaseUtil.cpp" />
+    <ClCompile Include="EllipseUtil.cpp" />
+    <ClCompile Include="GePointUtil.cpp" />
+    <ClCompile Include="HatchUtil.cpp" />
+    <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="PolylineUtil.cpp" />
+    <ClCompile Include="RegionUtil.cpp" />
     <ClCompile Include="RunCommand.cpp" />
+    <ClCompile Include="SplieUtil.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TextUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConvertUtil.h" />
     <ClInclude Include="DocData.h" />
     <ClInclude Include="DwgDataBaseUtil.h" />
+    <ClInclude Include="EllipseUtil.h" />
+    <ClInclude Include="GePointUtil.h" />
+    <ClInclude Include="HatchUtil.h" />
+    <ClInclude Include="MathUtil.h" />
     <ClInclude Include="PolylineUtil.h" />
+    <ClInclude Include="RegionUtil.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunCommand.h" />
+    <ClInclude Include="SplieUtil.h" />
     <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="TextUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ArxProject1.rc" />

@@ -5,6 +5,6 @@ public:
 	CDwgDataBaseUtil();
 	~CDwgDataBaseUtil();
 
-	static AcDbObjectId CDwgDataBaseUtil::PostToModelSpace(AcDbEntity *pEnt, AcDbDatabase *pDb=acdbHostApplicationServices()->workingDatabase);
+	static AcDbObjectId CDwgDataBaseUtil::PostToModelSpace(AcDbEntity *pEnt, AcDbDatabase *pDb=acdbHostApplicationServices()->workingDatabase());
 };
 
