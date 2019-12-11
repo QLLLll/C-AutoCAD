@@ -76,13 +76,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
-    <ClCompile Include="ArxProject1.cpp" />
     <ClCompile Include="ArxProject2.cpp" />
+    <ClCompile Include="CircleUtil.cpp" />
     <ClCompile Include="ConvertUtil.cpp" />
+    <ClCompile Include="Dimension.cpp" />
     <ClCompile Include="DocData.cpp" />
     <ClCompile Include="DwgDataBaseUtil.cpp" />
     <ClCompile Include="EllipseUtil.cpp" />
-    <ClCompile Include="CPointUtil.cpp" />
+    <ClCompile Include="CGePointUtil.cpp" />
+    <ClCompile Include="HatchUtil.cpp" />
+    <ClCompile Include="LineUtil.cpp" />
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="PolylineUtil.cpp" />
     <ClCompile Include="RegionUtil.cpp" />
@@ -97,11 +100,15 @@
     <ClCompile Include="TextUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CircleUtil.h" />
     <ClInclude Include="ConvertUtil.h" />
+    <ClInclude Include="Dimension.h" />
     <ClInclude Include="DocData.h" />
     <ClInclude Include="DwgDataBaseUtil.h" />
     <ClInclude Include="EllipseUtil.h" />
     <ClInclude Include="GePointUtil.h" />
+    <ClInclude Include="HatchUtil.h" />
+    <ClInclude Include="LineUtil.h" />
     <ClInclude Include="MathUtil.h" />
     <ClInclude Include="PolylineUtil.h" />
     <ClInclude Include="RegionUtil.h" />

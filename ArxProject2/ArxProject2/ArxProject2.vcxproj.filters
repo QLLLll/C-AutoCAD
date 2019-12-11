@@ -36,14 +36,8 @@
     <ClCompile Include="ArxProject2.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ArxProject1.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="RunCommand.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CPointUtil.cpp">
-      <Filter>源文件\Entity</Filter>
     </ClCompile>
     <ClCompile Include="PolylineUtil.cpp">
       <Filter>源文件\Entity</Filter>
@@ -63,11 +57,26 @@
     <ClCompile Include="MathUtil.cpp">
       <Filter>源文件\Tool</Filter>
     </ClCompile>
-    <ClCompile Include="RegionUtil.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="HatchUtil.cpp">
+      <Filter>源文件\Entity</Filter>
     </ClCompile>
     <ClCompile Include="TextUtil.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="CGePointUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Dimension.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="LineUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="RegionUtil.cpp">
+      <Filter>源文件\Entity</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +117,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="TextUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HatchUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dimension.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LineUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

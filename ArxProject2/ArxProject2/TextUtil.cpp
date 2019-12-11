@@ -21,10 +21,10 @@ AcDbObjectId CTextUtil::AddText(AcGePoint3d & ptInsert, const wchar_t * text, Ac
 AcDbObjectId CTextUtil::AddMText(AcGePoint3d & ptInsert, wchar_t * text, AcDbObjectId style, double height, double width)
 {
 	AcDbMText *mt = new AcDbMText();
-	mt->setContents = text;
-	mt->setTextHeight = height;
-	mt->setWidth = width;
-	mt->setLocation = ptInsert;
+	mt->setContents(text);
+	mt->setTextHeight(height);
+	mt->setWidth( width);
+	mt->setLocation(ptInsert);
 	mt->setDatabaseDefaults();
 
 	return CDwgDataBaseUtil::PostToModelSpace(mt);

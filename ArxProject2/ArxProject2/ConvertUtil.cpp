@@ -11,7 +11,7 @@ CConvertUtil::~CConvertUtil()
 {
 }
 
-AcGePoint3d CConvertUtil::ToPoint3d(AcGePoint2d & pt)
+AcGePoint3d CConvertUtil::ToPoint3d(AcGePoint2d  pt)
 {
 
 

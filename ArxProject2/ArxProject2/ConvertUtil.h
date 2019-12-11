@@ -4,6 +4,6 @@ class CConvertUtil
 public:
 	CConvertUtil();
 	~CConvertUtil();
-	static AcGePoint3d CConvertUtil::ToPoint3d(AcGePoint2d &pt);
+	static AcGePoint3d CConvertUtil::ToPoint3d(AcGePoint2d pt);
 };
 

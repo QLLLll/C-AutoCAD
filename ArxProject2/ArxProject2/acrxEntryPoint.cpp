@@ -10,6 +10,11 @@
 #include"MathUtil.h"
 #include"RegionUtil.h"
 #include"TextUtil.h"
+#include"HatchUtil.h"
+#include"Dimension.h"
+#include"GePointUtil.h"
+#include"LineUtil.h"
+#include"CircleUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -169,6 +174,101 @@ public:
 		CTextUtil::AddMText(ptInsert, TEXT("多行文字\n123\n"));
 
 	}
+
+	static void ECDMyGroupAddHatch() {
+
+		ads_name ss;
+
+		int rt = acedSSGet(NULL, NULL, NULL, NULL, ss);
+
+		AcDbObjectIdArray objIds;
+
+		if (rt == RTNORM) {
+
+			int length;
+			acedSSLength(ss, &length);
+
+			for (int i = 0; i < length; i++)
+			{
+
+				ads_name ent;
+
+				acedSSName(ss, i, ent);
+
+				AcDbObjectId objId;
+
+				acdbGetObjectId(objId, ent);
+
+				objIds.append(objId);
+
+			}
+
+		}
+		acedSSFree(ss);
+
+		CHatchUtil::Add(objIds, TEXT("BOX"), 0.1);
+	}
+
+	static void ECDMyGroupAddDimension() {
+		// 指定起始点位置
+		AcGePoint3d pt1(200, 160, 0);
+		AcGePoint3d pt2 = CGePointUtil::RelativePoint(pt1, -40, 0);
+		AcGePoint3d pt3 = CGePointUtil::PolarPoint(pt2,
+			7 * CMathUtil::PI() / 6, 20);
+		AcGePoint3d pt4 = CGePointUtil::RelativePoint(pt3, 6, -10);
+		AcGePoint3d pt5 = CGePointUtil::RelativePoint(pt1, 0, -20);
+
+		// 绘制外轮廓线
+		CLineUtil::Add(pt1, pt2);
+		CLineUtil::Add(pt2, pt3);
+		CLineUtil::Add(pt3, pt4);
+		CLineUtil::Add(pt4, pt5);
+		CLineUtil::Add(pt5, pt1);
+
+		// 绘制圆形
+		AcGePoint3d ptCenter1, ptCenter2;
+		ptCenter1 = CGePointUtil::RelativePoint(pt3, 16, 0);
+		ptCenter2 = CGePointUtil::RelativePoint(ptCenter1, 25, 0);
+		CCircleUtil::Add(ptCenter1, 3);
+		CCircleUtil::Add(ptCenter2, 4);
+
+		AcGePoint3d ptTemp1, ptTemp2;
+		// 水平标注
+		ptTemp1 = CGePointUtil::RelativePoint(pt1, -20, 3);
+		CDimension::AddDimRotated(0,pt1, pt2, ptTemp1,NULL);
+
+		// 垂直标注
+		ptTemp1 = CGePointUtil::RelativePoint(pt1, 4, 10);
+		CDimension::AddDimRotated(CMathUtil::PI() / 2,pt1, pt5, ptTemp1,NULL);
+
+		// 转角标注
+		ptTemp1 = CGePointUtil::RelativePoint(pt3, -3, -6);
+		CDimension::AddDimRotated(7 * CMathUtil::PI() / 4,pt3, pt4, ptTemp1,NULL);
+
+		// 对齐标注
+		ptTemp1 = CGePointUtil::RelativePoint(pt2, -3, 4);
+		CDimension::AddDimAligned(pt2, pt3, ptTemp1,
+			AcGeVector3d(4, 10, 0), TEXT("new position"));
+
+		// 角度标注
+		ptTemp1 = CGePointUtil::RelativePoint(pt5, -5, 5);
+		CDimension::AddDim3PtAngular(pt5, pt1, pt4, ptTemp1);
+
+		// 半径标注
+		ptTemp1 = CGePointUtil::PolarPoint(ptCenter1,
+			CMathUtil::PI() / 4, 3);
+		CDimension::AddDimRadial(ptCenter1, ptTemp1, -3);
+
+		// 直径标注
+		ptTemp1 = CGePointUtil::PolarPoint(ptCenter2, CMathUtil::PI() / 4, 4);
+		ptTemp2 = CGePointUtil::PolarPoint(ptCenter2, CMathUtil::PI() / 4, -4);
+		CDimension::AddDimDiametric(ptTemp1, ptTemp2, 0);
+
+		// 坐标标注
+		CDimension::AddDimOrdinate(ptCenter2, AcGeVector3d(0, -10, 0),
+			AcGeVector3d(10, 0, 0));
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -181,3 +281,5 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddSpline, AddSpline, AC
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddPolyline, AddPolyline, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddRegion, AddRegion, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddText, AddText, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddHatch, AddHatch, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddDimension, AddDimension, ACRX_CMD_MODAL, NULL)
