@@ -67,5 +67,16 @@ static AcDbObjectIdArray AddDimOrdinate(const AcGePoint3d& ptDef,
 static AcDbObjectIdArray AddDimOrdinate(const AcGePoint3d& ptDef,
 	const AcGeVector3d& vecOffsetX, const AcGeVector3d& vecOffsetY);
 
+
+//Èýüc±ê×¢
+static AcDbObjectId AddDim3PointAngular(
+	const AcGePoint3d& centerPoint,
+	const AcGePoint3d& xLine1Point,
+	const AcGePoint3d& xLine2Point,
+	const AcGePoint3d& arcPoint,
+	const ACHAR * dimText = NULL,
+	AcDbObjectId dimStyle = AcDbObjectId::kNull
+	);
+
 };
 

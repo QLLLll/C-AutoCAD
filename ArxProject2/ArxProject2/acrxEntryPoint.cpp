@@ -269,6 +269,162 @@ public:
 			AcGeVector3d(10, 0, 0));
 
 	}
+
+	static void ECDMyGroupMyDrag() {
+
+		ads_name  entName;
+		ads_point pt;
+
+		if (acedEntSel(TEXT("请选择圆弧"), entName, pt) != RTNORM) {
+			return;
+		}
+		//获得对象的指针
+		AcDbObjectId arcId = NULL;
+		if (acdbGetObjectId(arcId, entName) != ErrorStatus::eOk)
+			return;
+		
+		//通过id获得实体对象
+		AcDbEntity *pEnt = NULL;
+		if (acdbOpenAcDbEntity(pEnt, arcId, AcDb::OpenMode::kForRead) != ErrorStatus::eOk)
+			return;
+
+		//判断实体对象是否是圆弧
+		if (!pEnt->isKindOf(AcDbArc::desc())) {
+
+			pEnt->close();
+			return;
+
+		}
+
+		//将实体转换为圆弧
+		AcDbArc *pArc = AcDbArc::cast(pEnt);
+		
+		AcGePoint3d ptCenter = pArc->center();
+		AcGePoint3d ptStart,ptEnd,ptMiddle;
+		pArc->getStartPoint(ptStart);
+		pArc->getEndPoint(ptEnd);
+
+		double length = 0.0;
+		pArc->getDistAtPoint(ptEnd,length);
+		pArc->getPointAtDist(length / 2, ptMiddle);
+
+		pEnt->close();
+
+		//创建三点角度标注
+		CString strLength;
+		strLength.Format(_T("%.2f"), length);
+
+		AcDbObjectId dimId;
+
+		dimId = CDimension::AddDim3PointAngular(ptCenter, ptStart, ptEnd, ptMiddle, strLength, NULL);
+
+		//拖动鼠标改变标注文字的位置
+		AcGePoint3d ptText;
+		int track = 1, type;
+		struct resbuf result;
+
+		while (track > 0) {
+
+			acedGrRead(track, &type, &result);
+
+			ptText.x = result.resval.rpoint[X];
+			ptText.y = result.resval.rpoint[Y];
+
+			//重新设置dim的文字标注位置
+
+			if (acdbOpenAcDbEntity(pEnt, dimId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
+
+				AcDb3PointAngularDimension *dim3;
+
+				if (pEnt->isKindOf(AcDb3PointAngularDimension::desc())) {
+
+					dim3 = AcDb3PointAngularDimension::cast(pEnt);
+
+					dim3->setTextPosition(ptText);
+				}
+
+				pEnt->close();
+			}
+
+			if (type == 3) {
+
+				track = 0;
+
+			}
+		}
+	}
+
+	static void ECDMyGroupMyDrag2() {
+
+		ads_name entName;
+		ads_point ptBase, ptPick;
+
+		if (acedEntSel(_T("请选择单行文字"), entName, ptPick) != RTNORM)
+			return;
+		
+		AcDbObjectId textId;
+		if (acdbGetObjectId(textId, entName) != Acad::eOk)
+			return;
+
+		AcDbEntity *pEnt = NULL;
+		if (acdbOpenAcDbEntity(pEnt, textId, AcDb::OpenMode::kForRead) != Acad::eOk)
+			return;
+		
+		AcDbText *t;
+
+		if (!pEnt->isKindOf(AcDbText::desc())) {
+			pEnt->close();
+			return;
+		}
+		t = AcDbText::cast(pEnt);
+		
+		AcGePoint3d ptInsertOld=t->position();
+         
+		pEnt->close();
+
+		if (acedGetPoint(NULL, _T("\n选择基点"), ptBase) != RTNORM)
+			return;
+
+
+		acedPrompt(_T("\n请输入第二个点"));
+		
+		AcGePoint3d ptInsertNew(0, 0, 0);
+		AcGePoint3d ptPick3d = asPnt3d(ptBase);
+
+		int track = 1;
+		int type;
+		struct resbuf result;
+
+		while (track > 0) {
+
+			acedGrRead(track, &type, &result);
+
+			if (acdbOpenAcDbEntity(pEnt, textId, AcDb::OpenMode::kForWrite) == Acad::eOk) {
+
+				AcDbText *text = AcDbText::cast(pEnt);
+
+				if (text != NULL) {
+
+					ptInsertNew.x = result.resval.rpoint[X] - (ptPick3d.x - ptInsertOld.x);
+					ptInsertNew.y= result.resval.rpoint[Y] - (ptPick3d.y - ptInsertOld.y);
+
+					text->setPosition(ptInsertNew);
+
+				}
+				pEnt->close();
+
+			}
+
+			if (type == 3) {
+				track = 0;
+			}
+
+		}
+
+
+
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -283,3 +439,5 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddRegion, AddRegion, AC
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddText, AddText, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddHatch, AddHatch, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddDimension, AddDimension, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag, MyDrag, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag2, MyDrag2, ACRX_CMD_MODAL, NULL)

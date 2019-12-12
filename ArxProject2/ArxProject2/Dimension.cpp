@@ -139,3 +139,11 @@ AcDbObjectIdArray CDimension::AddDimOrdinate(const AcGePoint3d& ptDef, const AcG
 
 	return AddDimOrdinate(ptDef, ptTextX, ptTextY);
 }
+
+AcDbObjectId CDimension::AddDim3PointAngular(const AcGePoint3d & centerPoint, const AcGePoint3d & xLine1Point, const AcGePoint3d & xLine2Point, const AcGePoint3d & arcPoint, const ACHAR * dimText, AcDbObjectId dimStyle)
+{
+	AcDb3PointAngularDimension *dim=new AcDb3PointAngularDimension(centerPoint,xLine1Point,xLine2Point,arcPoint,dimText,dimStyle);
+
+	return CDwgDataBaseUtil::PostToModelSpace(dim);
+
+}
