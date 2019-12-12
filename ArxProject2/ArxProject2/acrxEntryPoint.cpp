@@ -15,6 +15,7 @@
 #include"GePointUtil.h"
 #include"LineUtil.h"
 #include"CircleUtil.h"
+#include"TransUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -425,6 +426,29 @@ public:
 
 
 	}
+
+	static void ECDMyGroupMyTrans() {
+
+		AcDbObjectId oId=CTransUtil::GetId(TEXT("选择"));
+
+		AcDbObjectId newId=CTransUtil::MyClone(oId);
+
+		ads_point basePt;
+		//ads_point movePt;
+
+		acedGetPoint(NULL, _T("请输入基点"), basePt);
+		//acedGetPoint(NULL, _T("请输入终点"), movePt);
+
+		AcGePoint3d pt1, pt2;
+		pt1 = asPnt3d(basePt);
+		//pt2 = asPnt3d(movePt);
+
+		//CTransUtil::Move(pt1, pt2, oId);
+
+		//CTransUtil::Rotate(pt1, CMathUtil::PI() / 2, oId);
+		CTransUtil::Scale(newId,3,pt1);
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -441,3 +465,4 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddHatch, AddHatch, ACRX
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddDimension, AddDimension, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag, MyDrag, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag2, MyDrag2, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTrans, MyTrans, ACRX_CMD_MODAL, NULL)

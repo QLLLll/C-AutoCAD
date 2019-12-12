@@ -98,6 +98,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TextUtil.cpp" />
+    <ClCompile Include="TransUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircleUtil.h" />
@@ -117,6 +118,7 @@
     <ClInclude Include="SplieUtil.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="TextUtil.h" />
+    <ClInclude Include="TransUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ArxProject2.rc" />

@@ -78,6 +78,9 @@
     <ClCompile Include="RegionUtil.cpp">
       <Filter>源文件\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="TransUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -129,6 +132,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CircleUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TransUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
