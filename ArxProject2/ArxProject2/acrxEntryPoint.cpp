@@ -16,6 +16,7 @@
 #include"LineUtil.h"
 #include"CircleUtil.h"
 #include"TransUtil.h"
+#include"BlockUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -449,6 +450,46 @@ public:
 		CTransUtil::Scale(newId,3,pt1);
 
 	}
+
+	static void ECDMyGroupMyBlk() {
+
+		AcDbObjectId recId=BlockUtil::CreateBlk();
+
+		//BlockUtil::InsertBlk(recId);
+
+		//wchar_t brName[40];
+
+		//acedGetString(1, L"\n请输入块名：", brName);
+
+		//BlockUtil::InsertBlk(brName);
+
+    	BlockUtil::InsertBlkWidthAttr(recId, AcGePoint3d(0, 0, 0));
+
+		AcDbBlockReference *br = NULL;
+
+		AcDbObjectId brId = CTransUtil::GetId(L"选择块参照");
+		AcDbEntity *pEnt = NULL;
+
+		if (acdbOpenObject(pEnt, brId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
+
+			br = AcDbBlockReference::cast(pEnt);
+
+			if (br != NULL) {
+
+
+				BlockUtil::SetAttribute2Br(br, _T("周长"), _T("10"));
+				BlockUtil::SetAttribute2Br(br, _T("面积"), _T("200"));
+
+				br->close();
+				
+
+			}
+			pEnt->close();
+
+		}
+
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -466,3 +507,4 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, AddDimension, AddDimensi
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag, MyDrag, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag2, MyDrag2, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTrans, MyTrans, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyBlk, MyBlk, ACRX_CMD_MODAL, NULL)

@@ -77,6 +77,7 @@
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
     <ClCompile Include="ArxProject2.cpp" />
+    <ClCompile Include="BlockUtil.cpp" />
     <ClCompile Include="CircleUtil.cpp" />
     <ClCompile Include="ConvertUtil.cpp" />
     <ClCompile Include="Dimension.cpp" />
@@ -101,6 +102,7 @@
     <ClCompile Include="TransUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BlockUtil.h" />
     <ClInclude Include="CircleUtil.h" />
     <ClInclude Include="ConvertUtil.h" />
     <ClInclude Include="Dimension.h" />
