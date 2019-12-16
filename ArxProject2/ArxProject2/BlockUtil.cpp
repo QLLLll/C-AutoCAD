@@ -22,9 +22,9 @@ AcDbObjectId BlockUtil::CreateBlk(AcDbDatabase * db)
 
 	AcDbBlockTableRecord * pBlkRec = new AcDbBlockTableRecord();
 
-	wchar_t  buff[40];
+	
 	bool isNameOK = true;
-
+	wchar_t  buff[40];
 	if (acedGetString(1, L"\nÇëÊäÈë¿éÃû", buff) == RTNORM)
 	{
 		while (pBlkTable->has(buff)) {

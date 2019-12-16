@@ -22,6 +22,9 @@
     <Filter Include="源文件\Tool">
       <UniqueIdentifier>{b0e68cee-11e0-4e78-9482-caf5b8a1940f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\SymbolTable">
+      <UniqueIdentifier>{c0bbe0fb-cfc0-4867-b78b-788112f5c28a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp">
@@ -78,10 +81,16 @@
     <ClCompile Include="RegionUtil.cpp">
       <Filter>源文件\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="BlockUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
     <ClCompile Include="TransUtil.cpp">
+      <Filter>源文件\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BlockUtil.cpp">
+    <ClCompile Include="StringUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -141,6 +150,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="BlockUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

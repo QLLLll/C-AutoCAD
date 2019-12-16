@@ -17,6 +17,7 @@
 #include"CircleUtil.h"
 #include"TransUtil.h"
 #include"BlockUtil.h"
+#include"LayerUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -490,6 +491,100 @@ public:
 
 
 	}
+	
+	static void ECDMyGroupMyLayer() {
+
+		CLayerUtil::Add(TEXT("TT"), 1);
+		/*AcDbObjectId lId = CLayerUtil::GetLayerId(L"TT");
+
+		int64_t t = lId.asOldId();
+
+		//ACHAR* s = reinterpret_cast<ACHAR*>(t);
+
+		//acutPrintf(s);
+
+		if (CLayerUtil::SetColor(L"TT", 2))
+			acutPrintf(L"setColor success\n");
+		else
+			acutPrintf(L"setColor fail");*/
+		
+		
+		/*AcDbObjectIdArray lIds;
+
+		CLayerUtil::GetLayerList(lIds);
+		
+		int a = lIds.length();
+
+		//int 转 ACHAR
+		wchar_t m_reportFileName[256];
+		swprintf_s(m_reportFileName, L"%d", a);
+		
+		acutPrintf(m_reportFileName);*/
+	
+		//删除层
+		/*wchar_t layerName[100];
+
+		acedGetString(1, L"\n请输入层名:", layerName);
+
+		AcDbObjectId lId = CLayerUtil::GetLayerId(layerName);
+		if (!lId.isNull()) {
+			
+			AcDbBlockTable *pTable = NULL;
+
+			if (acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pTable, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk) {
+
+				acutPrintf(L"\n未能打开块表。");
+				return;
+			}
+			AcDbBlockTableIterator *bIter = NULL;
+
+			pTable->newIterator(bIter);
+
+			for (bIter->start(); !bIter->done(); bIter->step()) {
+
+				AcDbBlockTableRecord *bRec = NULL;
+
+				bIter->getRecord(bRec, AcDb::OpenMode::kForWrite);
+
+				AcDbBlockTableRecordIterator *bRecIter = NULL;
+
+				bRec->newIterator(bRecIter);
+
+				for (bRecIter->start(); !bRecIter->done(); bRecIter->step()) {
+				
+					AcDbEntity* pEnt = NULL;
+					bRecIter->getEntity(pEnt, AcDb::OpenMode::kForWrite);
+
+					if (pEnt->layerId() == lId) {
+
+						pEnt->erase();
+
+					}
+
+					pEnt->close();
+				}
+				
+				delete bRecIter;
+
+				bRec->close();
+			     
+			
+
+			}
+
+			delete bIter;
+
+			pTable->close();
+			acutPrintf(L"\n操作成功。");
+
+		}
+		else {
+			acutPrintf(L"\n层名输入有误。");
+		}
+		*/
+
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -508,3 +603,4 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag, MyDrag, ACRX_CMD
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag2, MyDrag2, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTrans, MyTrans, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyBlk, MyBlk, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyLayer, MyLayer, ACRX_CMD_MODAL, NULL)
