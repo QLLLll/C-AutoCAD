@@ -18,6 +18,9 @@
 #include"TransUtil.h"
 #include"BlockUtil.h"
 #include"LayerUtil.h"
+#include"TextFileUtil.h"
+#include"StringUtil.h"
+#include"ConvertUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -26,42 +29,42 @@
 class CArxProject1App : public AcRxArxApp {
 
 public:
-	CArxProject1App () : AcRxArxApp () {}
+	CArxProject1App() : AcRxArxApp() {}
 
-	virtual AcRx::AppRetCode On_kInitAppMsg (void *pkt) {
+	virtual AcRx::AppRetCode On_kInitAppMsg(void *pkt) {
 		// TODO: Load dependencies here
 
 		// You *must* call On_kInitAppMsg here
-		AcRx::AppRetCode retCode =AcRxArxApp::On_kInitAppMsg (pkt) ;
-		
+		AcRx::AppRetCode retCode = AcRxArxApp::On_kInitAppMsg(pkt);
+
 		// TODO: Add your initialization code here
 
-		return (retCode) ;
+		return (retCode);
 	}
 
-	virtual AcRx::AppRetCode On_kUnloadAppMsg (void *pkt) {
+	virtual AcRx::AppRetCode On_kUnloadAppMsg(void *pkt) {
 		// TODO: Add your code here
 
 		// You *must* call On_kUnloadAppMsg here
-		AcRx::AppRetCode retCode =AcRxArxApp::On_kUnloadAppMsg (pkt) ;
+		AcRx::AppRetCode retCode = AcRxArxApp::On_kUnloadAppMsg(pkt);
 
 		// TODO: Unload dependencies here
 
-		return (retCode) ;
+		return (retCode);
 	}
 
-	virtual void RegisterServerComponents () {
+	virtual void RegisterServerComponents() {
 	}
-	
+
 	// ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyCommand, MyCommandLocal, ACRX_CMD_MODAL)
-	static void ECDMyGroupMyCommand () {
+	static void ECDMyGroupMyCommand() {
 		// Put your command code here
 		AfxMessageBox(TEXT("Hello World!"));
 	}
 	//创建直线
 	static void ECDMyGroupMyLine() {
-		
-		RunCommand run= RunCommand();
+
+		RunCommand run = RunCommand();
 
 		AcDbObjectId lineId = run.CreateLine();
 
@@ -69,7 +72,7 @@ public:
 
 	}
 
-	static void ECDMyGroupAddEllipse(){
+	static void ECDMyGroupAddEllipse() {
 
 		AcGeVector3d vecNormal(0, 0, 1);
 
@@ -84,7 +87,7 @@ public:
 		CEllipseUtil::Add(pt1, pt2);
 
 	}
-	
+
 	static void ECDMyGroupAddSpline() {
 
 		AcGePoint3d pt1(0, 0, 0), pt2(10, 30, 0), pt3(60, 80, 0), pt4(100, 100, 0);
@@ -113,9 +116,9 @@ public:
 		CSplieUtil::Add(points, startTangent, endTangent, 4, 0.0);
 
 	}
-	
+
 	static void ECDMyGroupAddPolyline() {
-	
+
 		AcGePoint2d &ptCenter = AcGePoint2d(200, 200);
 
 		AcGePoint2d &ptCenter2 = AcGePoint2d(300, 300);
@@ -126,7 +129,7 @@ public:
 
 		CPolylineUtil::AddPolyCircle(ptCenter2, 40, 1);
 	}
-	
+
 	static void ECDMyGroupAddRegion() {
 
 		ads_name ss;
@@ -138,7 +141,7 @@ public:
 		if (rt == RTNORM) {
 
 			int length;
-			
+
 			acedSSLength(ss, &length);
 
 			for (int i = 0; i < length; i++)
@@ -150,7 +153,7 @@ public:
 				AcDbObjectId objId;
 
 				acdbGetObjectId(objId, ent);
-			   
+
 				objIds.append(objId);
 			}
 		}
@@ -165,7 +168,7 @@ public:
 		acutPrintf(TEXT("\n已经创建了%d个面域"), number);
 
 	}
-	
+
 	static void ECDMyGroupAddText() {
 
 		AcGePoint3d ptInsert(0, 4, 0);
@@ -238,15 +241,15 @@ public:
 		AcGePoint3d ptTemp1, ptTemp2;
 		// 水平标注
 		ptTemp1 = CGePointUtil::RelativePoint(pt1, -20, 3);
-		CDimension::AddDimRotated(0,pt1, pt2, ptTemp1,NULL);
+		CDimension::AddDimRotated(0, pt1, pt2, ptTemp1, NULL);
 
 		// 垂直标注
 		ptTemp1 = CGePointUtil::RelativePoint(pt1, 4, 10);
-		CDimension::AddDimRotated(CMathUtil::PI() / 2,pt1, pt5, ptTemp1,NULL);
+		CDimension::AddDimRotated(CMathUtil::PI() / 2, pt1, pt5, ptTemp1, NULL);
 
 		// 转角标注
 		ptTemp1 = CGePointUtil::RelativePoint(pt3, -3, -6);
-		CDimension::AddDimRotated(7 * CMathUtil::PI() / 4,pt3, pt4, ptTemp1,NULL);
+		CDimension::AddDimRotated(7 * CMathUtil::PI() / 4, pt3, pt4, ptTemp1, NULL);
 
 		// 对齐标注
 		ptTemp1 = CGePointUtil::RelativePoint(pt2, -3, 4);
@@ -285,7 +288,7 @@ public:
 		AcDbObjectId arcId = NULL;
 		if (acdbGetObjectId(arcId, entName) != ErrorStatus::eOk)
 			return;
-		
+
 		//通过id获得实体对象
 		AcDbEntity *pEnt = NULL;
 		if (acdbOpenAcDbEntity(pEnt, arcId, AcDb::OpenMode::kForRead) != ErrorStatus::eOk)
@@ -301,14 +304,14 @@ public:
 
 		//将实体转换为圆弧
 		AcDbArc *pArc = AcDbArc::cast(pEnt);
-		
+
 		AcGePoint3d ptCenter = pArc->center();
-		AcGePoint3d ptStart,ptEnd,ptMiddle;
+		AcGePoint3d ptStart, ptEnd, ptMiddle;
 		pArc->getStartPoint(ptStart);
 		pArc->getEndPoint(ptEnd);
 
 		double length = 0.0;
-		pArc->getDistAtPoint(ptEnd,length);
+		pArc->getDistAtPoint(ptEnd, length);
 		pArc->getPointAtDist(length / 2, ptMiddle);
 
 		pEnt->close();
@@ -364,7 +367,7 @@ public:
 
 		if (acedEntSel(_T("请选择单行文字"), entName, ptPick) != RTNORM)
 			return;
-		
+
 		AcDbObjectId textId;
 		if (acdbGetObjectId(textId, entName) != Acad::eOk)
 			return;
@@ -372,7 +375,7 @@ public:
 		AcDbEntity *pEnt = NULL;
 		if (acdbOpenAcDbEntity(pEnt, textId, AcDb::OpenMode::kForRead) != Acad::eOk)
 			return;
-		
+
 		AcDbText *t;
 
 		if (!pEnt->isKindOf(AcDbText::desc())) {
@@ -380,9 +383,9 @@ public:
 			return;
 		}
 		t = AcDbText::cast(pEnt);
-		
-		AcGePoint3d ptInsertOld=t->position();
-         
+
+		AcGePoint3d ptInsertOld = t->position();
+
 		pEnt->close();
 
 		if (acedGetPoint(NULL, _T("\n选择基点"), ptBase) != RTNORM)
@@ -390,7 +393,7 @@ public:
 
 
 		acedPrompt(_T("\n请输入第二个点"));
-		
+
 		AcGePoint3d ptInsertNew(0, 0, 0);
 		AcGePoint3d ptPick3d = asPnt3d(ptBase);
 
@@ -409,7 +412,7 @@ public:
 				if (text != NULL) {
 
 					ptInsertNew.x = result.resval.rpoint[X] - (ptPick3d.x - ptInsertOld.x);
-					ptInsertNew.y= result.resval.rpoint[Y] - (ptPick3d.y - ptInsertOld.y);
+					ptInsertNew.y = result.resval.rpoint[Y] - (ptPick3d.y - ptInsertOld.y);
 
 					text->setPosition(ptInsertNew);
 
@@ -431,9 +434,9 @@ public:
 
 	static void ECDMyGroupMyTrans() {
 
-		AcDbObjectId oId=CTransUtil::GetId(TEXT("选择"));
+		AcDbObjectId oId = CTransUtil::GetId(TEXT("选择"));
 
-		AcDbObjectId newId=CTransUtil::MyClone(oId);
+		AcDbObjectId newId = CTransUtil::MyClone(oId);
 
 		ads_point basePt;
 		//ads_point movePt;
@@ -448,13 +451,13 @@ public:
 		//CTransUtil::Move(pt1, pt2, oId);
 
 		//CTransUtil::Rotate(pt1, CMathUtil::PI() / 2, oId);
-		CTransUtil::Scale(newId,3,pt1);
+		CTransUtil::Scale(newId, 3, pt1);
 
 	}
 
 	static void ECDMyGroupMyBlk() {
 
-		AcDbObjectId recId=BlockUtil::CreateBlk();
+		AcDbObjectId recId = BlockUtil::CreateBlk();
 
 		//BlockUtil::InsertBlk(recId);
 
@@ -464,7 +467,7 @@ public:
 
 		//BlockUtil::InsertBlk(brName);
 
-    	BlockUtil::InsertBlkWidthAttr(recId, AcGePoint3d(0, 0, 0));
+		BlockUtil::InsertBlkWidthAttr(recId, AcGePoint3d(0, 0, 0));
 
 		AcDbBlockReference *br = NULL;
 
@@ -482,7 +485,7 @@ public:
 				BlockUtil::SetAttribute2Br(br, _T("面积"), _T("200"));
 
 				br->close();
-				
+
 
 			}
 			pEnt->close();
@@ -491,7 +494,7 @@ public:
 
 
 	}
-	
+
 	static void ECDMyGroupMyLayer() {
 
 		CLayerUtil::Add(TEXT("TT"), 1);
@@ -507,85 +510,157 @@ public:
 			acutPrintf(L"setColor success\n");
 		else
 			acutPrintf(L"setColor fail");*/
-		
-		
-		/*AcDbObjectIdArray lIds;
 
-		CLayerUtil::GetLayerList(lIds);
-		
-		int a = lIds.length();
 
-		//int 转 ACHAR
-		wchar_t m_reportFileName[256];
-		swprintf_s(m_reportFileName, L"%d", a);
-		
-		acutPrintf(m_reportFileName);*/
-	
-		//删除层
-		/*wchar_t layerName[100];
+			/*AcDbObjectIdArray lIds;
 
-		acedGetString(1, L"\n请输入层名:", layerName);
+			CLayerUtil::GetLayerList(lIds);
 
-		AcDbObjectId lId = CLayerUtil::GetLayerId(layerName);
-		if (!lId.isNull()) {
-			
-			AcDbBlockTable *pTable = NULL;
+			int a = lIds.length();
 
-			if (acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pTable, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk) {
+			//int 转 ACHAR
+			wchar_t m_reportFileName[256];
+			swprintf_s(m_reportFileName, L"%d", a);
 
-				acutPrintf(L"\n未能打开块表。");
-				return;
-			}
-			AcDbBlockTableIterator *bIter = NULL;
+			acutPrintf(m_reportFileName);*/
 
-			pTable->newIterator(bIter);
+			//删除层
+			/*wchar_t layerName[100];
 
-			for (bIter->start(); !bIter->done(); bIter->step()) {
+			acedGetString(1, L"\n请输入层名:", layerName);
 
-				AcDbBlockTableRecord *bRec = NULL;
+			AcDbObjectId lId = CLayerUtil::GetLayerId(layerName);
+			if (!lId.isNull()) {
 
-				bIter->getRecord(bRec, AcDb::OpenMode::kForWrite);
+				AcDbBlockTable *pTable = NULL;
 
-				AcDbBlockTableRecordIterator *bRecIter = NULL;
+				if (acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pTable, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk) {
 
-				bRec->newIterator(bRecIter);
+					acutPrintf(L"\n未能打开块表。");
+					return;
+				}
+				AcDbBlockTableIterator *bIter = NULL;
 
-				for (bRecIter->start(); !bRecIter->done(); bRecIter->step()) {
-				
-					AcDbEntity* pEnt = NULL;
-					bRecIter->getEntity(pEnt, AcDb::OpenMode::kForWrite);
+				pTable->newIterator(bIter);
 
-					if (pEnt->layerId() == lId) {
+				for (bIter->start(); !bIter->done(); bIter->step()) {
 
-						pEnt->erase();
+					AcDbBlockTableRecord *bRec = NULL;
 
+					bIter->getRecord(bRec, AcDb::OpenMode::kForWrite);
+
+					AcDbBlockTableRecordIterator *bRecIter = NULL;
+
+					bRec->newIterator(bRecIter);
+
+					for (bRecIter->start(); !bRecIter->done(); bRecIter->step()) {
+
+						AcDbEntity* pEnt = NULL;
+						bRecIter->getEntity(pEnt, AcDb::OpenMode::kForWrite);
+
+						if (pEnt->layerId() == lId) {
+
+							pEnt->erase();
+
+						}
+
+						pEnt->close();
 					}
 
-					pEnt->close();
-				}
-				
-				delete bRecIter;
+					delete bRecIter;
 
-				bRec->close();
-			     
-			
+					bRec->close();
+
+
+
+				}
+
+				delete bIter;
+
+				pTable->close();
+				acutPrintf(L"\n操作成功。");
+
+			}
+			else {
+				acutPrintf(L"\n层名输入有误。");
+			}
+			*/
+
+		//导出图层
+		/*AcDbObjectIdArray lIds2;
+
+		CLayerUtil::GetLayerList(lIds2);
+
+		std::vector<CString>lines;
+
+		for (int i = 0; i < lIds2.length(); i++)
+		{
+			AcDbLayerTableRecord *lRec = NULL;
+			std::vector<CString>layerRecInfos;
+
+			if (acdbOpenObject(lRec, lIds2[i]) == ErrorStatus::eOk) {
+
+				//图层名称
+				TCHAR* layerName;
+
+				lRec->getName(layerName);
+
+				layerRecInfos.push_back(layerName);
+
+				acutDelString(layerName);
+
+				//图层颜色
+				AcCmColor color = lRec->color();
+
+				layerRecInfos.push_back(CConvertUtil::ToString(color.colorIndex()));
+
+				//图层线性
+				AcDbLinetypeTableRecord *lineRec = NULL;
+
+				acdbOpenObject(lineRec, lRec->linetypeObjectId());
+
+				TCHAR*lineName;
+
+				lineRec->getName(lineName);
+				layerRecInfos.push_back(lineName);
+
+				acutDelString(lineName);
+				lineRec->close();
+
+
+				//图层线宽
+				int lineWight = (int)lRec->lineWeight();
+
+				layerRecInfos.push_back(CConvertUtil::ToString(lineWight));
+
+				CString lineInfos = CStringUtil::Join(layerRecInfos, TEXT(","));
+
+				lines.push_back(lineInfos);
+
+				lRec->close();
 
 			}
 
-			delete bIter;
-
-			pTable->close();
-			acutPrintf(L"\n操作成功。");
 
 		}
-		else {
-			acutPrintf(L"\n层名输入有误。");
-		}
+
+		const wchar_t* filea = TEXT("导出层");
+
+		resbuf result;
+
+		acedGetFileD(filea, L"exportLayer.txt", L"txt", 33, &result);
+
+		const wchar_t* fileName=result.resval.rstring;
+
+		// 写入文本文件
+		CTextFileUtil::Save(fileName, lines);
 		*/
+
+		//导入层
 
 
 	}
-} ;
+};
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CArxProject1App)
