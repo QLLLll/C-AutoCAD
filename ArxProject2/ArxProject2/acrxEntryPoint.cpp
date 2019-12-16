@@ -496,8 +496,7 @@ public:
 	}
 
 	static void ECDMyGroupMyLayer() {
-
-		CLayerUtil::Add(TEXT("TT"), 1);
+		//CLayerUtil::Add(TEXT("TT"), 1);
 		/*AcDbObjectId lId = CLayerUtil::GetLayerId(L"TT");
 
 		int64_t t = lId.asOldId();
@@ -507,87 +506,88 @@ public:
 		//acutPrintf(s);
 
 		if (CLayerUtil::SetColor(L"TT", 2))
-			acutPrintf(L"setColor success\n");
+		acutPrintf(L"setColor success\n");
 		else
-			acutPrintf(L"setColor fail");*/
+		acutPrintf(L"setColor fail");*/
 
 
-			/*AcDbObjectIdArray lIds;
+		/*AcDbObjectIdArray lIds;
 
-			CLayerUtil::GetLayerList(lIds);
+		CLayerUtil::GetLayerList(lIds);
 
-			int a = lIds.length();
+		int a = lIds.length();
 
-			//int 转 ACHAR
-			wchar_t m_reportFileName[256];
-			swprintf_s(m_reportFileName, L"%d", a);
+		//int 转 ACHAR
+		wchar_t m_reportFileName[256];
+		swprintf_s(m_reportFileName, L"%d", a);
 
-			acutPrintf(m_reportFileName);*/
+		acutPrintf(m_reportFileName);*/
 
-			//删除层
-			/*wchar_t layerName[100];
+		//删除层
+		/*wchar_t layerName[100];
 
-			acedGetString(1, L"\n请输入层名:", layerName);
+		acedGetString(1, L"\n请输入层名:", layerName);
 
-			AcDbObjectId lId = CLayerUtil::GetLayerId(layerName);
-			if (!lId.isNull()) {
+		AcDbObjectId lId = CLayerUtil::GetLayerId(layerName);
+		if (!lId.isNull()) {
 
-				AcDbBlockTable *pTable = NULL;
+		AcDbBlockTable *pTable = NULL;
 
-				if (acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pTable, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk) {
+		if (acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pTable, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk) {
 
-					acutPrintf(L"\n未能打开块表。");
-					return;
-				}
-				AcDbBlockTableIterator *bIter = NULL;
+		acutPrintf(L"\n未能打开块表。");
+		return;
+		}
+		AcDbBlockTableIterator *bIter = NULL;
 
-				pTable->newIterator(bIter);
+		pTable->newIterator(bIter);
 
-				for (bIter->start(); !bIter->done(); bIter->step()) {
+		for (bIter->start(); !bIter->done(); bIter->step()) {
 
-					AcDbBlockTableRecord *bRec = NULL;
+		AcDbBlockTableRecord *bRec = NULL;
 
-					bIter->getRecord(bRec, AcDb::OpenMode::kForWrite);
+		bIter->getRecord(bRec, AcDb::OpenMode::kForWrite);
 
-					AcDbBlockTableRecordIterator *bRecIter = NULL;
+		AcDbBlockTableRecordIterator *bRecIter = NULL;
 
-					bRec->newIterator(bRecIter);
+		bRec->newIterator(bRecIter);
 
-					for (bRecIter->start(); !bRecIter->done(); bRecIter->step()) {
+		for (bRecIter->start(); !bRecIter->done(); bRecIter->step()) {
 
-						AcDbEntity* pEnt = NULL;
-						bRecIter->getEntity(pEnt, AcDb::OpenMode::kForWrite);
+		AcDbEntity* pEnt = NULL;
+		bRecIter->getEntity(pEnt, AcDb::OpenMode::kForWrite);
 
-						if (pEnt->layerId() == lId) {
+		if (pEnt->layerId() == lId) {
 
-							pEnt->erase();
+		pEnt->erase();
 
-						}
+		}
 
-						pEnt->close();
-					}
+		pEnt->close();
+		}
 
-					delete bRecIter;
+		delete bRecIter;
 
-					bRec->close();
+		bRec->close();
 
 
 
-				}
+		}
 
-				delete bIter;
+		delete bIter;
 
-				pTable->close();
-				acutPrintf(L"\n操作成功。");
+		pTable->close();
+		acutPrintf(L"\n操作成功。");
 
-			}
-			else {
-				acutPrintf(L"\n层名输入有误。");
-			}
-			*/
+		}
+		else {
+		acutPrintf(L"\n层名输入有误。");
+		}
+		*/
 
 		//导出图层
-		/*AcDbObjectIdArray lIds2;
+		/*
+		AcDbObjectIdArray lIds2;
 
 		CLayerUtil::GetLayerList(lIds2);
 
@@ -595,51 +595,51 @@ public:
 
 		for (int i = 0; i < lIds2.length(); i++)
 		{
-			AcDbLayerTableRecord *lRec = NULL;
-			std::vector<CString>layerRecInfos;
+		AcDbLayerTableRecord *lRec = NULL;
+		std::vector<CString>layerRecInfos;
 
-			if (acdbOpenObject(lRec, lIds2[i]) == ErrorStatus::eOk) {
+		if (acdbOpenObject(lRec, lIds2[i]) == ErrorStatus::eOk) {
 
-				//图层名称
-				TCHAR* layerName;
+		//图层名称
+		TCHAR* layerName;
 
-				lRec->getName(layerName);
+		lRec->getName(layerName);
 
-				layerRecInfos.push_back(layerName);
+		layerRecInfos.push_back(layerName);
 
-				acutDelString(layerName);
+		acutDelString(layerName);
 
-				//图层颜色
-				AcCmColor color = lRec->color();
+		//图层颜色
+		AcCmColor color = lRec->color();
 
-				layerRecInfos.push_back(CConvertUtil::ToString(color.colorIndex()));
+		layerRecInfos.push_back(CConvertUtil::ToString(color.colorIndex()));
 
-				//图层线性
-				AcDbLinetypeTableRecord *lineRec = NULL;
+		//图层线性
+		AcDbLinetypeTableRecord *lineRec = NULL;
 
-				acdbOpenObject(lineRec, lRec->linetypeObjectId());
+		acdbOpenObject(lineRec, lRec->linetypeObjectId());
 
-				TCHAR*lineName;
+		TCHAR*lineName;
 
-				lineRec->getName(lineName);
-				layerRecInfos.push_back(lineName);
+		lineRec->getName(lineName);
+		layerRecInfos.push_back(lineName);
 
-				acutDelString(lineName);
-				lineRec->close();
+		acutDelString(lineName);
+		lineRec->close();
 
 
-				//图层线宽
-				int lineWight = (int)lRec->lineWeight();
+		//图层线宽
+		int lineWight = (int)lRec->lineWeight();
 
-				layerRecInfos.push_back(CConvertUtil::ToString(lineWight));
+		layerRecInfos.push_back(CConvertUtil::ToString(lineWight));
 
-				CString lineInfos = CStringUtil::Join(layerRecInfos, TEXT(","));
+		CString lineInfos = CStringUtil::Join(layerRecInfos, TEXT(","));
 
-				lines.push_back(lineInfos);
+		lines.push_back(lineInfos);
 
-				lRec->close();
+		lRec->close();
 
-			}
+		}
 
 
 		}
@@ -656,9 +656,75 @@ public:
 		CTextFileUtil::Save(fileName, lines);
 		*/
 
-		//导入层
+		//导入图层
+
+		//resbuf *result = NULL;
+
+		//acedGetFileNavDialog(L"打开要导入的图层文件", L"aa.txt", L"txt", L"My File Dialog", 33, &result);
+
+		//const wchar_t* fileName = (*result).resval.rstring;
+		CString fileName = TEXT("C:\\Users\\LLLLL_PC\\Desktop\\aa.txt");
+		if (_taccess(fileName, 0) != -1)
+		{
+			std::vector<CString>lines;
+			CTextFileUtil::Load(fileName, lines);
+
+			for (int i = 0; i < (int)lines.size(); i++)
+			{
+				CString l = lines[i];
+				std::vector<CString>lInfo;
+
+				CStringUtil::Split(l, TEXT(","), lInfo, false);
+
+				CString layerName = lInfo[0];
+				AcDbObjectId lId = CLayerUtil::GetLayerId(layerName);
+				if (lId.isNull())
+				{
+					CLayerUtil::Add(layerName);
+					lId = CLayerUtil::GetLayerId(layerName);
+				}
+				if (lId.isNull()) {
+					acutPrintf(TEXT("\nid为null."));
+
+				}
+				AcDbLayerTableRecord *lRec = NULL;
+				if (acdbOpenObject(lRec, lId, AcDb::kForWrite) == Acad::eOk)
+				{
+
+					AcCmColor c;
+					Adesk::UInt16 colorIndex = _ttoi(lInfo[1]);
+					c.setColorIndex(colorIndex);
+					lRec->setColor(c);
 
 
+					// 设置线型
+					AcDbLinetypeTable *pLinetypeTbl = NULL;
+					AcDbObjectId linetypeId;
+					acdbHostApplicationServices()->workingDatabase()
+						->getLinetypeTable(pLinetypeTbl, AcDb::kForRead);
+					if (pLinetypeTbl->has(lInfo[2]))
+					{
+						pLinetypeTbl->getAt(lInfo[2], linetypeId);
+						lRec->setLinetypeObjectId(linetypeId);
+					}
+					pLinetypeTbl->close();
+
+					// 设置线宽
+					AcDb::LineWeight lineWeight = (AcDb::LineWeight)_ttoi(lInfo[3]);
+					lRec->setLineWeight(lineWeight);
+
+					lRec->close();
+				}
+				else {
+					acutPrintf(TEXT("\n打开层表失败."));
+				}
+
+			}
+
+		}
+		else {
+			acutPrintf(TEXT("\n未找到指定的文件."));
+		}
 	}
 };
 

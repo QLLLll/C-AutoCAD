@@ -13,7 +13,7 @@ CTextFileUtil::~CTextFileUtil()
 void CTextFileUtil::Save(const TCHAR* fileName, const std::vector<CString> &lines)
 {
 	CStdioFile file(fileName, CFile::modeCreate | CFile::modeWrite | CFile::typeText);
-	for (int i = 0; i < lines.size(); i++)
+	for (int i = 0; i < (int)lines.size(); i++)
 	{
 		file.WriteString(lines[i]);
 		file.WriteString(TEXT("\n"));

@@ -61,7 +61,7 @@ void CStringUtil::Split(const CString & text, const TCHAR * separator, std::vect
 CString CStringUtil::Join(const std::vector<CString>& items, const TCHAR * separator)
 {
 	CString strResult;
-	for (int i = 0; i < items.size(); i++)
+	for (int i = 0; i < (int)items.size(); i++)
 	{
 		strResult += items[i] + separator;
 	}

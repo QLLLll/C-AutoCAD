@@ -1,0 +1,5 @@
+﻿  acrxEntryPoint.cpp
+    正在创建库 Debug\ECDArxProject2.lib 和对象 Debug\ECDArxProject2.exp
+rxapi.lib(libinit.obj) : warning LNK4099: 未找到 PDB“rxapi.pdb”(使用“rxapi.lib(libinit.obj)”或在“I:\C++学习代码\REPRO2\Debug\rxapi.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+  ArxProject2.vcxproj -> I:\C++学习代码\REPRO2\Debug\ECDArxProject2.arx
+  ArxProject2.vcxproj -> I:\C++学习代码\REPRO2\Debug\ECDArxProject2.pdb (Full PDB)
