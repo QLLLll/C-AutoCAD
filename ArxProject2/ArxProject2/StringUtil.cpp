@@ -14,7 +14,8 @@ CStringUtil::~CStringUtil()
 void CStringUtil::Split(const CString & text, const TCHAR * separator, std::vector<CString>& result, bool bAddEmptyItem)
 {
 
-	int prev = 0, current = 0;		// 找到的当前匹配和上一个匹配
+	int prev = 0;
+	int current = 0;		// 找到的当前匹配和上一个匹配
 	CString strCopyText = text;
 	strCopyText.TrimRight(TEXT(" "));
 
@@ -51,7 +52,8 @@ void CStringUtil::Split(const CString & text, const TCHAR * separator, std::vect
 		{
 			break;
 		}
-		prev = current + _tcslen(separator);
+
+		prev = current + (int)_tcslen(separator);
 	}
 
 }
