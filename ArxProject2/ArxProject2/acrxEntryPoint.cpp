@@ -21,6 +21,7 @@
 #include"TextFileUtil.h"
 #include"StringUtil.h"
 #include"ConvertUtil.h"
+#include"TextStyleUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -658,12 +659,12 @@ public:
 
 		//导入图层
 
-		//resbuf *result = NULL;
+		resbuf *result = NULL;
 
-		//acedGetFileNavDialog(L"打开要导入的图层文件", L"aa.txt", L"txt", L"My File Dialog", 33, &result);
+		acedGetFileNavDialog(L"打开要导入的图层文件", L"aa.txt", L"txt", L"My File Dialog", 33, &result);
 
-		//const wchar_t* fileName = (*result).resval.rstring;
-		CString fileName = TEXT("C:\\Users\\LLLLL_PC\\Desktop\\aa.txt");
+		const wchar_t* fileName = (*result).resval.rstring;
+		//CString fileName = TEXT("C:\\Users\\LLLLL_PC\\Desktop\\aa.txt");
 		if (_taccess(fileName, 0) != -1)
 		{
 			std::vector<CString>lines;
@@ -726,6 +727,34 @@ public:
 			acutPrintf(TEXT("\n未找到指定的文件."));
 		}
 	}
+
+	static void ECDMyGroupMyTextStyle(){
+	
+		//添加字体样式
+		CString textStyleName = TEXT("测试字体");
+
+		AcDbObjectId styleId = CTextStyleUtil::GetAt(textStyleName);
+
+		if (styleId.isNull()) {
+
+			styleId = CTextStyleUtil::Add(textStyleName, TEXT("C:\\Program Files\\Autodesk\\AutoCAD 2018\\Fonts\\txt.shx"),
+				TEXT("C:\\Program Files\\Autodesk\\AutoCAD 2018\\Fonts\\romanc.shx"));
+		}
+
+		std::vector<CString> vec;
+
+		CTextStyleUtil::GetAll(vec);
+
+		int a =(int) vec.size();
+
+		//int 转 ACHAR
+		wchar_t m_reportFileName[20];
+		swprintf_s(m_reportFileName, L"%d", a);
+
+		acutPrintf(m_reportFileName); 
+
+
+	}
 };
 
 //-----------------------------------------------------------------------------
@@ -745,3 +774,4 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyDrag2, MyDrag2, ACRX_C
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTrans, MyTrans, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyBlk, MyBlk, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyLayer, MyLayer, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTextStyle, MyTextStyle, ACRX_CMD_MODAL, NULL)

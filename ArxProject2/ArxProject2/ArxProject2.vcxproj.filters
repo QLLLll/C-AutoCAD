@@ -87,14 +87,17 @@
     <ClCompile Include="TransUtil.cpp">
       <Filter>源文件\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="LayerUtil.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="StringUtil.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Tool</Filter>
     </ClCompile>
     <ClCompile Include="TextFileUtil.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerUtil.cpp">
+      <Filter>源文件\SymbolTable</Filter>
+    </ClCompile>
+    <ClCompile Include="TextStyleUtil.cpp">
+      <Filter>源文件\SymbolTable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +165,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="TextFileUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TextStyleUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -101,6 +101,7 @@
     </ClCompile>
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="TextFileUtil.cpp" />
+    <ClCompile Include="TextStyleUtil.cpp" />
     <ClCompile Include="TextUtil.cpp" />
     <ClCompile Include="TransUtil.cpp" />
   </ItemGroup>
@@ -125,6 +126,7 @@
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="StringUtil.h" />
     <ClInclude Include="TextFileUtil.h" />
+    <ClInclude Include="TextStyleUtil.h" />
     <ClInclude Include="TextUtil.h" />
     <ClInclude Include="TransUtil.h" />
   </ItemGroup>
