@@ -99,6 +99,9 @@
     <ClCompile Include="TextStyleUtil.cpp">
       <Filter>源文件\SymbolTable</Filter>
     </ClCompile>
+    <ClCompile Include="GetInputUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -168,6 +171,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="TextStyleUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GetInputUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

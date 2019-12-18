@@ -22,6 +22,8 @@
 #include"StringUtil.h"
 #include"ConvertUtil.h"
 #include"TextStyleUtil.h"
+#include"acedCmdNF.h"
+#include"GetInputUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -728,8 +730,8 @@ public:
 		}
 	}
 
-	static void ECDMyGroupMyTextStyle(){
-	
+	static void ECDMyGroupMyTextStyle() {
+
 		//添加字体样式
 		CString textStyleName = TEXT("测试字体");
 
@@ -745,13 +747,238 @@ public:
 
 		CTextStyleUtil::GetAll(vec);
 
-		int a =(int) vec.size();
+		int a = (int)vec.size();
 
 		//int 转 ACHAR
 		wchar_t m_reportFileName[20];
 		swprintf_s(m_reportFileName, L"%d", a);
 
-		acutPrintf(m_reportFileName); 
+		acutPrintf(m_reportFileName);
+
+
+	}
+
+	static void ECDMyGroupMyAcedCmd() {
+		//acedCommandS
+/* acedCommandS(
+	  RTSTR, TEXT("Rectangle"),
+	  RTSTR, TEXT("10,10,10"),
+	  RTSTR,TEXT("D"),
+	  RTSTR, TEXT("25"),
+	  RTSTR, TEXT("15"),
+	  RTSTR, TEXT("10,10"),
+	  RTNONE
+	  );*/
+	  //acedCmdS
+	  /*
+	  struct resbuf *rb;
+
+	  int rc = RTNORM;
+
+	  ads_point pt1 = { 10,10,10 };
+	  ads_real w = 25;
+	  ads_real h = 15;
+
+	  rb = acutBuildList(RTSTR, TEXT("Rectangle"),
+		  RTPOINT, pt1,
+		  RTSTR, TEXT("D"),
+		  RTREAL, w,
+		  RTREAL, h,
+		  RTSTR, TEXT("10,10"),
+		  RTNONE
+		  );
+
+	  if (rb != NULL) {
+		  rc = acedCmdS(rb);
+	  }
+
+	  if (rc != RTNORM){
+
+		  acutPrintf(L"\n創建矩形失敗。");
+
+	  }
+
+	  acedCommandS(RTSTR, TEXT("Zoom"), RTSTR, TEXT("E"), RTNONE);
+	  */
+
+	  //查看实体resbuf的信息
+	  /*
+	  ads_name entName;
+	  ads_point pt;
+	  if (acedEntSel(L"请选择实体", entName, pt) != RTNORM)
+		  return;
+
+	  resbuf *rbEnt;
+	  resbuf *rb;
+
+	  rbEnt = acdbEntGet(entName);
+	  rb = rbEnt;
+
+	  while (rb != NULL) {
+
+		  switch (rb->restype)
+		  {
+		  case -1:
+			  acutPrintf(L"\n图元名：%x", rb->resval.rstring);
+			  break;
+		  case 0:
+			  acutPrintf(L"\n图元类型,%s", rb->resval.rstring);
+			  break;
+		  case 8:
+			  acutPrintf(L"\n图层：%s", rb->resval.rstring);
+			  break;
+		  case 10:
+			  acutPrintf(L"\n主要点：(%.2f,%.2f,%.2f)",
+				  rb->resval.rpoint[X],
+				  rb->resval.rpoint[Y],
+				  rb->resval.rpoint[Z]);
+			  break;
+		  case 40:
+			  acutPrintf(L"\n40:双精度浮点值：%.4f", rb->resval.rreal);
+			  break;
+		  case 210:
+			  acutPrintf(L"\n平面法向量:(%.2f,%.2f,%.2f)",
+				  rb->resval.rpoint[X],
+				  rb->resval.rpoint[Y],
+				  rb->resval.rpoint[Z]);
+			  break;
+		  default:
+			  break;
+		  }
+		  rb = rb->rbnext;
+	  }
+	  if (rbEnt != NULL) {
+		  acutRelRb(rbEnt);
+	  }
+	  */
+
+
+	}
+
+	static void ECDMyGroupMyPL() {
+
+		int index = 2;
+		AcGePoint3d ptStart;
+
+		if (!CGetInputUtil::GetPoint(L"\n请输入第一个点：", ptStart)) {
+			return;
+		}
+
+		AcGePoint3d ptPrevious, ptCurrent;
+
+		ptPrevious = ptStart;
+
+		AcDbObjectId polyId;
+
+		while (CGetInputUtil::GetPoint(ptPrevious, L"\n请输入一下个点:", ptCurrent)) {
+
+			if (index == 2) {
+
+				polyId = CPolylineUtil::Add(CConvertUtil::ToPoint2d(ptPrevious), CConvertUtil::ToPoint2d(ptCurrent));
+			}
+			else if (index > 2) {
+
+				AcDbPolyline *pl = NULL;
+
+				if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk)
+					return;
+				pl->addVertexAt(index -1, CConvertUtil::ToPoint2d(ptCurrent), 0, 0, 0);
+				pl->close();
+
+			}
+			index++;
+			ptPrevious = ptCurrent;
+		}
+	}
+	
+	static void ECDMyGroupMyPL2() {
+
+		int plIndex = 2;
+
+		AcGePoint3d basePt;
+
+		if (!CGetInputUtil::GetPoint(L"\n请输入第一个点:", basePt)) {
+			return;
+		}
+		int rc;
+		TCHAR keyword[20];
+		AcGePoint3d ptPrevious, ptCurrent;
+
+		ptPrevious = basePt;
+		AcDbObjectId pId;
+
+		acedInitGet(NULL, TEXT("C W O"));
+
+		
+		
+		rc = CGetInputUtil::GetPointReturnCode(ptPrevious, L"\n请输入下一个点或[颜色C/线宽W/完成O]:", ptCurrent);
+		int colorIndex = -1;
+		ads_real width=-1;
+
+		while (rc==RTKWORD||rc==RTNORM) {
+			
+			switch (rc) {
+			case RTKWORD:
+				if (acedGetInput(keyword) != RTNORM)
+					return;
+
+				if (_tcscmp(keyword, TEXT("C")) == 0) {
+					if (acedGetInt(L"\n请输入颜色编号0-255", &colorIndex) == RTNORM) {
+
+						colorIndex = colorIndex % 256;
+					}
+				}
+				else if (_tcscmp(keyword, TEXT("W")) == 0) {
+
+					if (acedGetReal(L"\n请输入线宽", &width)!= RTNORM) {
+						width = 0;
+					
+					}
+				}
+				else if (_tcscmp(keyword, TEXT("O")) == 0) {
+
+					return;
+
+				}
+
+				break;
+			case RTNORM:
+			if (plIndex == 2) {
+
+				pId = CPolylineUtil::Add(CConvertUtil::ToPoint2d(ptPrevious), CConvertUtil::ToPoint2d(ptCurrent));
+			}
+
+			else if (plIndex > 2) {
+
+				AcDbPolyline *pl = NULL;
+
+				if (acdbOpenObject(pl, pId, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk)
+					return;
+
+					pl->addVertexAt(plIndex - 1, CConvertUtil::ToPoint2d(ptCurrent), 0, 0, 0);
+					
+					if (colorIndex >= 0) {
+						AcCmColor c;
+
+						c.setColorIndex(colorIndex);
+						pl->setColor(c);
+					}
+					if(width>-1)
+					pl->setConstantWidth(width);
+
+					pl->close();
+					
+				}
+			
+			plIndex++;
+			ptPrevious = ptCurrent;	
+
+			break;
+			}
+			
+			acedInitGet(NULL, TEXT("C W O"));
+			rc = CGetInputUtil::GetPointReturnCode(ptPrevious, L"\n请输入下一个点或[颜色C/线宽W/完成O]:", ptCurrent);
+		}
 
 
 	}
@@ -775,3 +1002,6 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTrans, MyTrans, ACRX_C
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyBlk, MyBlk, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyLayer, MyLayer, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTextStyle, MyTextStyle, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyAcedCmd, MyAcedCmd, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyPL, MyPL, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyPL2, MyPL2, ACRX_CMD_MODAL, NULL)

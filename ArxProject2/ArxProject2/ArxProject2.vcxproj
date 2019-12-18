@@ -85,6 +85,7 @@
     <ClCompile Include="DwgDataBaseUtil.cpp" />
     <ClCompile Include="EllipseUtil.cpp" />
     <ClCompile Include="CGePointUtil.cpp" />
+    <ClCompile Include="GetInputUtil.cpp" />
     <ClCompile Include="HatchUtil.cpp" />
     <ClCompile Include="LayerUtil.cpp" />
     <ClCompile Include="LineUtil.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="DwgDataBaseUtil.h" />
     <ClInclude Include="EllipseUtil.h" />
     <ClInclude Include="GePointUtil.h" />
+    <ClInclude Include="GetInputUtil.h" />
     <ClInclude Include="HatchUtil.h" />
     <ClInclude Include="LayerUtil.h" />
     <ClInclude Include="LineUtil.h" />
