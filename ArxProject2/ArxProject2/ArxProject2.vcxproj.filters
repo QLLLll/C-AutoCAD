@@ -33,9 +33,6 @@
     <ClCompile Include="DocData.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="acrxEntryPoint.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="ArxProject2.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -107,6 +104,12 @@
     </ClCompile>
     <ClCompile Include="GetInputUtil.cpp">
       <Filter>源文件\Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawRecJig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="acrxEntryPoint.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +186,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SelectUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawRecJig.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

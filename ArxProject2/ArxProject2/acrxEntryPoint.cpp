@@ -1054,7 +1054,7 @@ public:
 
 		}*/
 
-		std::vector<AcRxClass*>descs;
+		/*std::vector<AcRxClass*>descs;
 		descs.push_back(AcDbLine::desc());
 		descs.push_back(AcDbCircle::desc());
 
@@ -1074,7 +1074,7 @@ public:
 
 				}
 			}
-		}
+		}*/
 	}
 
 	static void ECDMyGroupMyJig() {

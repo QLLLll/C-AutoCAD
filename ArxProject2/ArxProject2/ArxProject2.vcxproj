@@ -82,6 +82,7 @@
     <ClCompile Include="ConvertUtil.cpp" />
     <ClCompile Include="Dimension.cpp" />
     <ClCompile Include="DocData.cpp" />
+    <ClCompile Include="DrawRecJig.cpp" />
     <ClCompile Include="DwgDataBaseUtil.cpp" />
     <ClCompile Include="EllipseUtil.cpp" />
     <ClCompile Include="CGePointUtil.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="ConvertUtil.h" />
     <ClInclude Include="Dimension.h" />
     <ClInclude Include="DocData.h" />
+    <ClInclude Include="DrawRecJig.h" />
     <ClInclude Include="DwgDataBaseUtil.h" />
     <ClInclude Include="EllipseUtil.h" />
     <ClInclude Include="GePointUtil.h" />
