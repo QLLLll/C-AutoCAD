@@ -93,6 +93,8 @@
     <ClCompile Include="PolylineUtil.cpp" />
     <ClCompile Include="RegionUtil.cpp" />
     <ClCompile Include="RunCommand.cpp" />
+    <ClCompile Include="SelectionSetCommands.cpp" />
+    <ClCompile Include="SelectUtil.cpp" />
     <ClCompile Include="SplieUtil.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -124,6 +126,7 @@
     <ClInclude Include="RegionUtil.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunCommand.h" />
+    <ClInclude Include="SelectUtil.h" />
     <ClInclude Include="SplieUtil.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="StringUtil.h" />

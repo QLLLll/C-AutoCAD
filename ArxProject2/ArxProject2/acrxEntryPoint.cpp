@@ -982,6 +982,66 @@ public:
 
 
 	}
+
+	static void ECDMyGroupMySel() {
+
+		//单条件过滤选择集
+		/*struct resbuf rb;
+		TCHAR sbuf[10];
+		ads_name ssname;
+
+		rb.restype = 0;//实体名
+		_tcscpy(sbuf, TEXT("CIRCLE"));
+		rb.resval.rstring = sbuf;
+		rb.rbnext = NULL;
+
+		acedSSGet(TEXT("X"), NULL, NULL, &rb, ssname);
+
+		acedSSFree(ssname);*/
+
+		//多条件过滤选择集
+		/*struct resbuf *rb;
+		ads_name ssname;
+
+		rb = acutBuildList(RTDXF0, TEXT("LINE"),
+			8, TEXT("0"),
+			RTNONE);
+
+		acedSSGet(TEXT("X"), NULL, NULL, rb, ssname);
+		acedSSFree(ssname);*/
+
+		//ads_name sset;
+
+		//选择图形数据库中所有的实体
+		//acedSSGet(L"A", NULL, NULL, NULL, sset);
+
+		//用户选择
+		//int rc=acedSSGet(NULL, NULL, NULL, NULL, sset);
+
+		//如果存在就获得当前的PICKFIRST选择集
+		//acedSSGet(TEXT("I"), NULL, NULL, NULL, sset);
+
+		//选择被指定的多边形包围的所有实体
+		/*ads_point pt1, pt2, pt3, pt4;
+		struct resbuf *pointlist;
+
+		pt1[X] = pt1[Y] = -100.0; pt1[Z] =0.0 ;
+		pt2[X] = -100; pt2[Y] = 100.0; pt2[Z] = 0.0;
+		pt3[X] = 100.0; pt3[Y] = 100.0; pt3[Z] = 0.0;
+		pt4[X] = 100.0; pt4[Y] = -100; pt4[Z] = 0.0;
+
+		pointlist = acutBuildList(RTPOINT, pt1, RTPOINT, pt2, RTPOINT, pt3,
+			RTPOINT, pt4, 0);
+		acedSSGet(L"WP", pointlist, NULL, NULL, sset);*/
+			
+		/*int32_t length;
+
+			acedSSLength(sset, &length);
+
+			acutPrintf(L"\n实体数：%d", length);
+
+			acedSSFree(sset);*/
+	}
 };
 
 //-----------------------------------------------------------------------------
@@ -1005,3 +1065,6 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyTextStyle, MyTextStyle
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyAcedCmd, MyAcedCmd, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyPL, MyPL, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyPL2, MyPL2, ACRX_CMD_MODAL, NULL)
+//ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MySel, MySel, ACRX_CMD_USEPICKSET|ACRX_CMD_REDRAW, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MySel, MySel, ACRX_CMD_MODAL, NULL)
+

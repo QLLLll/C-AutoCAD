@@ -16,6 +16,8 @@ public:
 
 	static bool GetKeyword(const TCHAR *prompt, const TCHAR *keywords,
 		const TCHAR *firstDefault, int defaultKeyIndex, int &nRet);
-
+	
+	static bool GetReal(const TCHAR *prompt, double defaulVal, int precision,
+		double &ret);
 };
 
