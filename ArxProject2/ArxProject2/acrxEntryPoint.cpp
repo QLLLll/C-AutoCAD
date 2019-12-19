@@ -24,6 +24,8 @@
 #include"TextStyleUtil.h"
 #include"acedCmdNF.h"
 #include"GetInputUtil.h"
+#include"SelectUtil.h"
+#include"DrawRecJig.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -851,8 +853,7 @@ public:
 		  acutRelRb(rbEnt);
 	  }
 	  */
-
-
+		
 	}
 
 	static void ECDMyGroupMyPL() {
@@ -1012,7 +1013,7 @@ public:
 
 		//ads_name sset;
 
-		//选择图形数据库中所有的实体
+		//选择图形数据库中所有的实体		
 		//acedSSGet(L"A", NULL, NULL, NULL, sset);
 
 		//用户选择
@@ -1041,6 +1042,56 @@ public:
 			acutPrintf(L"\n实体数：%d", length);
 
 			acedSSFree(sset);*/
+
+		/*AcDbEntity *pEnt = NULL;
+		AcGePoint3d pickPoint;
+		AcRxClass *type = AcDbCircle::desc();
+
+		if (CSelectUtil::PromptSelectEntity(TEXT("\n请选择圆："), type, pEnt, pickPoint)) {
+
+			pEnt->setColorIndex(1);
+			pEnt->close();
+
+		}*/
+
+		std::vector<AcRxClass*>descs;
+		descs.push_back(AcDbLine::desc());
+		descs.push_back(AcDbCircle::desc());
+
+		AcDbObjectIdArray entIds;
+
+		if (CSelectUtil::PromptSelectEnts(L"\n请选择圆和直线:", NULL, descs, entIds)) {
+
+			for (int i = 0; i < entIds.length(); i++)
+			{
+
+
+				AcDbEntity *pEnt = NULL;
+				if (acdbOpenObject(pEnt, entIds[i], AcDb::kForWrite) == Acad::eOk) {
+
+					pEnt->setColorIndex(3);
+					pEnt->close();
+
+				}
+			}
+		}
+	}
+
+	static void ECDMyGroupMyJig() {
+
+		DrawRecJig jig;
+		ads_point pt;
+		acedGetPoint(NULL, L"请选择插入点：", pt);
+
+		AcDbObjectId oId;
+
+		if (jig.DoIt(asPnt3d(pt), oId)) {
+
+			jig.entity()->close();
+
+		}
+		
+
 	}
 };
 
@@ -1067,4 +1118,5 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyPL, MyPL, ACRX_CMD_MOD
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyPL2, MyPL2, ACRX_CMD_MODAL, NULL)
 //ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MySel, MySel, ACRX_CMD_USEPICKSET|ACRX_CMD_REDRAW, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MySel, MySel, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyJig, MyJig, ACRX_CMD_MODAL, NULL)
 
