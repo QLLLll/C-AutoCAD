@@ -1093,6 +1093,16 @@ public:
 		
 
 	}
+	
+	static void ECDMyGGroupMyXData() {
+
+		AcDbEntity * pEnt = NULL;
+
+
+
+
+	}
+
 };
 
 //-----------------------------------------------------------------------------
@@ -1119,4 +1129,5 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyPL2, MyPL2, ACRX_CMD_M
 //ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MySel, MySel, ACRX_CMD_USEPICKSET|ACRX_CMD_REDRAW, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MySel, MySel, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyJig, MyJig, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject1App, ECDMyGroup, MyXData, MyXData, ACRX_CMD_MODAL, NULL)
 
