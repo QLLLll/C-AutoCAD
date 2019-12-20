@@ -1,5 +1,5 @@
 #pragma once
-#include "C:\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\inc\dbjig.h"
+#include "dbjig.h"
 class DrawRecJig :
 	public AcEdJig
 {
