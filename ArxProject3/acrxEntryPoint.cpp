@@ -4,6 +4,8 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include"SelectUtil.h"
+#include"MirrorJig.h"
+#include"BlockUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -440,7 +442,25 @@ public:
 		//ViewNamedDic();
 		DeleteNamedDic();
 	}
+	static void ECDMyGroupMyMirJig() {
 
+		MirrorJig jig;
+
+		ads_point pt;
+
+		AcDbObjectIdArray idArr;
+
+		if (CSelectUtil::PromptSelectEnts(L"\n请选择要镜像的实体集\n",NULL, idArr)) {
+
+			if (acedGetPoint(NULL, L"\n请输入镜像线\n", pt) == RTNORM) {
+
+				jig.DoIt(asPnt3d(pt), idArr, false);
+			}
+		}
+
+	}
+
+	
 } ;
 
 //-----------------------------------------------------------------------------
@@ -448,4 +468,4 @@ IMPLEMENT_ARX_ENTRYPOINT(CArxProject3App)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyXData, MyXData, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyXRec, MyXRec, ACRX_CMD_MODAL, NULL)
-
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyMirJig, MyMirJig, ACRX_CMD_MODAL, NULL)
