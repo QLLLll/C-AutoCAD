@@ -4,6 +4,8 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include"SelectUtil.h"
+#include"BlockUtil.h"
+#include"DwgDataBaseUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -394,6 +396,120 @@ public:
 		pNameDic->close();
 	}
 
+	static void AddGroup() {
+
+		AcDbObjectIdArray entIds;
+
+		AcRxClass *clas = AcDbEntity::desc();
+
+		if (CSelectUtil::PromptSelectEnts(L"\n請選擇實體：", NULL, clas, entIds)) {
+
+			AcDbGroup *pGroup = new AcDbGroup();
+
+			for (int i = 0; i < entIds.length (); i++)
+			{
+				pGroup->append(entIds[i]);
+			}
+			AcDbDictionary *pGroupDict = NULL;
+
+			acdbHostApplicationServices()->workingDatabase()
+				->getGroupDictionary(pGroupDict, AcDb::kForWrite);
+
+			CString groupName = "*";
+			AcDbObjectId groupId;
+			pGroupDict->setAt(groupName, pGroup, groupId);
+
+			pGroupDict->close();
+			pGroup->close();
+		}
+	}
+
+	static void DeleteGroup() {
+
+		AcDbObjectIdArray entIds;
+		AcRxClass *clas = AcDbEntity::desc();
+
+		if (CSelectUtil::PromptSelectEnts(L"\n選擇要分解的組中的實體：", NULL, entIds)) {
+
+			AcDbDictionary *pGroupDict = NULL;
+			acdbHostApplicationServices()->workingDatabase()->getGroupDictionary(
+				pGroupDict, AcDb::kForWrite);
+			
+			AcDbDictionaryIterator *it = pGroupDict->newIterator();
+
+			for (; !it->done(); it->next()) {
+
+				AcDbGroup *pGroup = NULL;
+
+				if (it->getObject((AcDbObject*&)pGroup, AcDb::kForWrite)== Acad::eOk) {
+
+					AcDbObjectIdArray groupEntIds;
+					pGroup->allEntityIds(groupEntIds);
+					bool bFound = false;
+
+					for (int i = 0; i < entIds.length(); i++) {
+
+						if (groupEntIds.contains(entIds[i])) {
+
+							bFound = true;
+							break;
+						}
+					}
+					if (bFound) {
+
+						pGroup->erase();
+						acutPrintf(L"delete success");
+					}
+					pGroup->close();
+				}
+			}
+			pGroupDict->close();
+		}
+	}
+
+	static void CreateDwgFile() {
+
+		CString fileName = L"D:\\Users\\liu.qiang\\Desktop\\cad图纸\\New.Dwg";
+
+		AcDbDatabase *pDb = new AcDbDatabase(true, false);
+
+		BlockUtil::CreateBlk(pDb);
+
+		pDb->saveAs(fileName);
+
+		delete pDb;
+
+	}
+	
+	static void ReadDwgFile() {
+
+		CString fileName = L"D:\\Users\\liu.qiang\\Desktop\\cad图纸\\New.Dwg";
+
+		AcDbDatabase *pDb = new AcDbDatabase(false);
+
+		pDb->readDwgFile(fileName, AcDbDatabase::kForReadAndReadShare);
+
+		AcDbObjectIdArray oIds = CDwgDataBaseUtil::GetAllEntityIds(NULL, pDb);
+
+
+		for (AcDbObjectId oId : oIds) {
+
+			AcDbEntity* pEnt = NULL;
+
+			if (acdbOpenObject(pEnt, oId, AcDb::kForRead) == Acad::eOk) {
+
+				acutPrintf(L"類名稱：%s\n", pEnt->isA()->name());
+			}
+			else {
+
+				acutPrintf(L"open fail");
+
+			}
+			pEnt->close();
+		}
+	}
+
+
 	static void ECDMyGroupMyXData() {
 		//创建Xdata数据
 		/*AcDbEntity *pEnt = NULL;
@@ -429,8 +545,6 @@ public:
 		//DeleteXData();
 
 	}
-
-
 	static void ECDMyGroupMyXRec() {
 
 		//AddXDicRecord();
@@ -440,7 +554,26 @@ public:
 		//ViewNamedDic();
 		DeleteNamedDic();
 	}
+	static void ECDMyGroupMyAddGroup() {
+		AddGroup();
+	}
+	static void ECDMyGroupMyDelGroup() {
+		DeleteGroup();
+	}
+	static void ECDMyGroupMyCreateDwgFile() {
+	
+		CreateDwgFile();
+	}
+	static void ECDMyGroupMyReadFile() {
+		ReadDwgFile();
+	
+	}
+	static void ECDMyGroupMyFileToFile() {
 
+		//BlockUtil::CopyBlockDefFromOtherDwg(L"D:\\Users\\liu.qiang\\Desktop\\cad图纸\\New.Dwg", L"ABCD");
+		BlockUtil::InsertDwgBlockDef(L"D:\\Users\\liu.qiang\\Desktop\\cad图纸\\New.Dwg", L"LL_ABCD", true);
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -448,4 +581,10 @@ IMPLEMENT_ARX_ENTRYPOINT(CArxProject3App)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyXData, MyXData, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyXRec, MyXRec, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyAddGroup, MyAddGroup, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyDelGroup, MyDelGroup, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyCreateDwgFile, MyCreateDwgFile, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyReadFile, MyReadFile, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyFileToFile, MyFileToFile, ACRX_CMD_MODAL, NULL)
+
 

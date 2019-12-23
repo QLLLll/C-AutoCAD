@@ -243,3 +243,107 @@ void BlockUtil::SetAttribute2Br(AcDbBlockReference * br,  const TCHAR * tag, con
 	attr->close();
 
 }
+
+AcDbObjectId BlockUtil::CopyBlockDefFromOtherDwg(const TCHAR * fileName, const TCHAR * blkDefName)
+{
+	AcDbObjectId defId;
+
+	AcDbDatabase *pDb = new AcDbDatabase(false);
+
+	if (pDb->readDwgFile(fileName, AcDbDatabase::kForReadAndReadShare) != Acad::eOk) {
+		delete pDb;
+		return defId.kNull;
+
+	}
+	AcDbBlockTable *pTable = NULL;
+
+	if (pDb->getBlockTable(pTable, AcDb::kForRead) != Acad::eOk) {
+
+		delete pDb;
+		return defId.kNull;
+
+	}
+
+	if (pTable->has(blkDefName)) {
+
+		pTable->getAt(blkDefName, defId);
+
+		AcDbDatabase *pTempDb = NULL;
+
+		if (pDb->wblock(pTempDb, defId) == ErrorStatus::eOk)
+		{
+
+			acdbHostApplicationServices()->workingDatabase()->insert(defId, blkDefName, pTempDb);
+
+			delete pTempDb;
+			
+		}
+	}
+	else {
+		acutPrintf(L"該文件不存在該快名");
+	}
+
+	delete pDb;
+	pTable->close();
+
+	return defId;
+}
+
+AcDbObjectId BlockUtil::GetBlkDefId(const TCHAR * blkName, AcDbDatabase * pDb)
+{
+	AcDbObjectId oId;
+
+	AcDbBlockTable *pTable = NULL;
+
+	if (pDb->getBlockTable(pTable, AcDb::kForRead) == ErrorStatus::eOk) {
+
+		if (pTable->has(blkName)) {
+
+			pTable->getAt(blkName, oId);
+			pTable->close();
+			return oId;
+		}
+		pTable->close();
+		return oId.kNull;
+	}
+	return oId.kNull;
+}
+
+AcDbObjectId BlockUtil::InsertDwgBlockDef(const TCHAR * dwgFileName, const TCHAR * blkName, bool bOverwriteIfExist, AcDbDatabase * pDb)
+{
+	AcDbObjectId defId = GetBlkDefId(blkName, pDb);
+
+	if (defId.isNull() | bOverwriteIfExist) {
+
+		if(_taccess(dwgFileName,0)!=-1){
+		
+			AcDbDatabase *pBlkDb = new AcDbDatabase(false);
+
+			ErrorStatus es = pBlkDb->readDwgFile(dwgFileName, AcDbDatabase::kForReadAndReadShare);
+
+			if (es == Acad::eOk) {
+
+				defId.setNull();
+
+				es = pDb->insert(defId, blkName, pBlkDb);
+
+				if (es != Acad::eOk) {
+
+					acutPrintf(L"插入失敗");
+				}
+			}
+			else {
+				acutPrintf(L"打開文件失敗\n");
+			}
+			delete  pBlkDb;
+		}
+		else {
+			acutPrintf(L"文件訪問失敗\n");
+		}
+
+	}
+	else {
+		acutPrintf(L"未找到指定塊");
+	}
+	return defId;
+}
