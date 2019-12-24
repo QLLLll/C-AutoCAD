@@ -6,6 +6,7 @@
 #include"SelectUtil.h"
 #include"BlockUtil.h"
 #include"DwgDataBaseUtil.h"
+#include"AppDirectoryUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -509,6 +510,134 @@ public:
 		}
 	}
 
+	static void NewDocDrawEnts() {
+
+
+		acDocManager->lockDocument(acDocManager->curDocument());
+
+		AcDbObjectIdArray allEntIds = CDwgDataBaseUtil::GetAllEntityIds(NULL,acdbHostApplicationServices()
+			->workingDatabase());
+		int lineCount = 0;
+
+		for (int i = 0; i < allEntIds.length(); i++)
+		{
+
+			AcDbLine *pLine = NULL;
+
+			if (acdbOpenObject(pLine, allEntIds[i], AcDb::kForRead) == Acad::eOk) {
+
+
+				lineCount++;
+				pLine->close();
+			}
+		}
+
+		acDocManager->unlockDocument(acDocManager->curDocument());
+
+		Acad::ErrorStatus es = acDocManager->appContextNewDocument(NULL);
+
+		acDocManager->lockDocument(acDocManager->curDocument());
+
+		for (int i = 0; i < lineCount; i++) {
+
+			double y = i * 20;
+
+			AcGePoint3d startPoint(0, y, 0);
+			AcGePoint3d endPoint(100, y, 0);
+			AcDbLine *line = new AcDbLine(startPoint, endPoint);
+
+			CDwgDataBaseUtil::PostToModelSpace(line);
+
+			line->close();
+
+		}
+	
+		acDocManager->unlockDocument(acDocManager->curDocument());
+
+
+	}
+
+	static void SaveDwgOpenDoc() {
+	
+		acDocManager->lockDocument(acDocManager->curDocument());
+
+		AcDbObjectIdArray allEntIds = CDwgDataBaseUtil::GetAllEntityIds(NULL, acdbHostApplicationServices()
+			->workingDatabase());
+
+		int lineCount = 0, circleCount = 0;
+
+
+		for (int i = 0; i < allEntIds.length(); i++) {
+
+			AcDbEntity *pEnt = NULL;
+
+			if (acdbOpenObject(pEnt, allEntIds[i], AcDb::kForRead) == Acad::eOk) {
+
+				if (pEnt->isKindOf(AcDbLine::desc())) {
+
+					lineCount++;
+				}
+				else if (pEnt->isKindOf(AcDbCircle::desc())) {
+					
+					circleCount++;
+
+				}
+
+				pEnt->close();
+			}
+		}
+
+		AcDbDatabase *pDbl = new AcDbDatabase(true, false);
+
+
+		for (int i = 0; i < lineCount; i++) {
+
+			double y = i * 20;
+
+			AcGePoint3d startPoint(0, y, 0);
+			AcGePoint3d endPoint(100, y, 0);
+			AcDbLine *line = new AcDbLine(startPoint, endPoint);
+
+			CDwgDataBaseUtil::PostToModelSpace(line,pDbl);
+
+			line->close();
+
+		}
+
+		CString fileName1 = CAppDirectoryUtil::GetCurrentDirectoryW() + TEXT("\\db1.dwg");
+
+		pDbl->saveAs(fileName1);
+
+		delete pDbl;
+	
+		AcGeVector3d normal(0, 0, 1);
+
+		AcDbDatabase *pDb2 = new AcDbDatabase(true, false);
+
+		for (int i = 0; i < circleCount; i++) {
+
+			double y = i * 20;
+
+			AcGePoint3d center(0, y, 0);
+
+			AcDbCircle *c = new AcDbCircle(center, normal, 5);
+
+			CDwgDataBaseUtil::PostToModelSpace(c, pDb2);
+			c->close();
+		}
+		CString fileName2 = CAppDirectoryUtil::GetCurrentDirectoryW() + TEXT("\\db2.dwg");
+
+		pDb2->saveAs(fileName2);
+
+		delete pDb2;
+
+		acDocManager->unlockDocument(acDocManager->curDocument());
+
+		Acad::ErrorStatus es = acDocManager->appContextOpenDocument(fileName1);
+		es = acDocManager->appContextOpenDocument(fileName2);
+
+	
+	}
 
 	static void ECDMyGroupMyXData() {
 		//创建Xdata数据
@@ -574,6 +703,11 @@ public:
 		BlockUtil::InsertDwgBlockDef(L"D:\\Users\\liu.qiang\\Desktop\\cad图纸\\New.Dwg", L"LL_ABCD", true);
 
 	}
+	static void ECDMyGroupMyNewDoc() {
+		//NewDocDrawEnts();
+		SaveDwgOpenDoc();
+	}
+
 } ;
 
 //-----------------------------------------------------------------------------
@@ -586,5 +720,6 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyDelGroup, MyDelGroup, 
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyCreateDwgFile, MyCreateDwgFile, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyReadFile, MyReadFile, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyFileToFile, MyFileToFile, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyNewDoc, MyNewDoc, ACRX_CMD_MODAL, NULL)
 
 

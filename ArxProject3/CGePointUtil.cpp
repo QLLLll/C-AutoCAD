@@ -46,3 +46,85 @@ AcGePoint2d CGePointUtil::PolarPoint(const AcGePoint2d &basePoint, double angle,
 
 	return AcGePoint2d(x, y);
 }
+
+bool CGePointUtil::IsEqual(const AcGePoint2d & firstPoint, const AcGePoint2d & secondPoint, double tol)
+{
+	return (fabs(firstPoint.x - secondPoint.x) < tol&&
+		fabs(firstPoint.y - secondPoint.y) < tol);
+}
+
+bool CGePointUtil::IsEqual(const AcGePoint3d & firstPoint, const AcGePoint3d & secondPoint, double tol)
+{
+	return (fabs(firstPoint.x - secondPoint.x) < tol&&
+		fabs(firstPoint.y - secondPoint.y) < tol&&
+		fabs(firstPoint.z - firstPoint.z) < tol);
+}
+
+int CGePointUtil::FindPoint(const AcGePoint3dArray & points, const AcGePoint3d & point, double tol)
+{
+	for (int i = 0; i < points.length(); i++)
+	{
+
+		if (IsEqual(points[i], point, tol)) {
+			return i;
+		}
+
+	}
+	return -1;
+}
+
+int CGePointUtil::FindPoint(const AcGePoint2dArray & points, const AcGePoint2d & point, double tol)
+{
+	for (int i = 0; i < points.length(); i++)
+	{
+
+		if (IsEqual(points[i], point, tol)) {
+			return i;
+		}
+
+	}
+	return -1;
+}
+
+void CGePointUtil::FilterEqualPoints(AcGePoint3dArray & points, double tol)
+{
+	for (int i = points.length() - 1; i > 0; i--) {
+
+		for (int j = 0; j < i; j++) {
+
+			if (CMathUtil::IsEqual(points[i].x, points[j].x, tol) &&
+				CMathUtil::IsEqual(points[i].y, points[j].y, tol)) {
+
+				points.removeAt(i);
+				break;
+
+			}
+
+
+		}
+
+
+	}
+
+
+}
+
+void CGePointUtil::FilterEqualPoints(AcGePoint3dArray & points, const AcGePoint2d & pt, double tol)
+{
+
+	AcGePoint3dArray tempPoints;
+
+	for (int i = 0; i < points.length(); i++)
+	{
+
+		if (CConvertUtil::ToPoint2d(points[i]).distanceTo(pt)>tol) {
+
+			tempPoints.append(points[i]);
+
+		}
+
+	}
+
+	points = tempPoints;
+
+}

@@ -63,6 +63,12 @@
     <ClCompile Include="TransUtil.cpp">
       <Filter>源文件\Common</Filter>
     </ClCompile>
+    <ClCompile Include="AppDirectoryUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PolylineUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -105,6 +111,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="TransUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AppDirectoryUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PolylineUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
