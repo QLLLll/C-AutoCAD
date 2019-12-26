@@ -7,6 +7,8 @@
 #include"BlockUtil.h"
 #include"DwgDataBaseUtil.h"
 #include"AppDirectoryUtil.h"
+#include"PolylineUtil.h"
+#include"MathUtil.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -510,7 +512,7 @@ public:
 		}
 	}
 
-	static void NewDocDrawEnts() {
+	/*static void NewDocDrawEnts() {
 
 
 		acDocManager->lockDocument(acDocManager->curDocument());
@@ -638,6 +640,7 @@ public:
 
 	
 	}
+	*/
 
 	static void ECDMyGroupMyXData() {
 		//创建Xdata数据
@@ -705,9 +708,67 @@ public:
 	}
 	static void ECDMyGroupMyNewDoc() {
 		//NewDocDrawEnts();
-		SaveDwgOpenDoc();
+		//SaveDwgOpenDoc();
 	}
+	static void ECDMyGroupMyTestDotInPolyline() {
 
+		int count = 100000;
+
+		AcDbEntity* pEnt = NULL;
+		AcGePoint3d pickPoint;
+		AcRxClass *cls = AcDbEntity::desc();
+
+		if (CSelectUtil::PromptSelectEntity(L"请选择需要进行测试的闭合多段线：", cls, pEnt, pickPoint)) {
+
+			AcDbExtents ext;
+			pEnt->getGeomExtents(ext);
+			double margin = 10;
+			double xmin = ext.minPoint().x - margin;
+			double ymin = ext.minPoint().y - margin;
+			double xSpan = ext.maxPoint().x - ext.minPoint().x + 2 * margin;
+			double ySpan = ext.maxPoint().y - ext.minPoint().y + 2 * margin;
+
+			AcDbPolyline *pPoly = AcDbPolyline::cast(pEnt);
+			srand((unsigned)time(NULL));
+
+			for (int i = 0; i < count; i++) {
+
+				int maxRand = 100000;
+				int xRand = CMathUtil::GetRand(0, maxRand);
+				int yRand = CMathUtil::GetRand(0, maxRand);
+
+				double x = xmin + ((double)xRand / maxRand)*xSpan;
+				double y = ymin + ((double)yRand / maxRand)*ySpan;
+
+				int relation = CPolylineUtil::PtRelationToPoly(pPoly, AcGePoint2d(x, y), 1.0E-4);
+
+				int colorIndex = 0;
+
+				switch (relation) {
+
+				case -1:
+					colorIndex = 1;
+					break;
+				case 0:
+					colorIndex = 5;
+					break;
+				case 1:
+					colorIndex = 6;
+					break;
+				default:
+					break;
+				}
+				AcDbPoint *pPoint = new AcDbPoint(AcGePoint3d(x, y, 0));
+				pPoint->setColorIndex(colorIndex);
+				CDwgDataBaseUtil::PostToModelSpace(pPoint);
+
+				pPoint->close();
+
+			}
+			pEnt->close();
+		}
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -721,5 +782,6 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyCreateDwgFile, MyCreat
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyReadFile, MyReadFile, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyFileToFile, MyFileToFile, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyNewDoc, MyNewDoc, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyTestDotInPolyline, MyTestDotInPolyline, ACRX_CMD_MODAL, NULL)
 
 
