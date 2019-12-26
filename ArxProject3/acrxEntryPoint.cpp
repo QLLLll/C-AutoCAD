@@ -9,6 +9,7 @@
 #include"AppDirectoryUtil.h"
 #include"PolylineUtil.h"
 #include"MathUtil.h"
+#include"../CustomObjDBX/ECDDwgScaleCO.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -17,7 +18,10 @@
 class CArxProject3App : public AcRxArxApp {
 
 public:
-	CArxProject3App () : AcRxArxApp () {}
+	
+	 
+
+	CArxProject3App () : AcRxArxApp () { }
 
 	virtual AcRx::AppRetCode On_kInitAppMsg (void *pkt) {
 		// TODO: Load dependencies here
@@ -769,6 +773,58 @@ public:
 		}
 
 	}
+	
+	static void ECDMyGroupMySetDwgScale() {
+
+		CString DWG_SCALE_KEY = L"DwgScale";
+
+		AcDbDictionary *pNameObjDict = NULL;
+		acdbHostApplicationServices()->
+			workingDatabase()->
+			getNamedObjectsDictionary(pNameObjDict, 
+				AcDb::kForWrite);
+
+		AcDbObjectId dictObjId;
+
+		ECDDwgScaleCO *pDwgScale = new ECDDwgScaleCO();
+		pDwgScale->Set(1, 100);
+
+		pNameObjDict->setAt(DWG_SCALE_KEY, pDwgScale, dictObjId);
+
+		pDwgScale->close();
+		pNameObjDict->close();
+	}
+	static void ECDMyGroupMyGetDwgScale() {
+
+		CString DWG_SCALE_KEY = L"DwgScale";
+
+		AcDbDictionary *pNameObjDict = NULL;
+		Acad::ErrorStatus es;
+
+		acdbHostApplicationServices()->
+			workingDatabase()->
+			getNamedObjectsDictionary(pNameObjDict,
+				AcDb::kForRead);
+
+		ECDDwgScaleCO *pDwgScale = NULL;
+
+		es = pNameObjDict->getAt(DWG_SCALE_KEY, (AcDbObject*&)pDwgScale, AcDb::kForRead);
+
+		pNameObjDict->close();
+
+		if (es == Acad::eKeyNotFound) {
+
+			acutPrintf(L"\n不存在字典項%s", DWG_SCALE_KEY);
+			return;
+		}
+		acutPrintf(L"當前圖形條件圖比例:%d,出圖比例：%d", pDwgScale->GetInfoScale(), pDwgScale->GetLableScale());
+		pDwgScale->close();
+
+
+
+	}
+	
+
 } ;
 
 //-----------------------------------------------------------------------------
@@ -783,5 +839,7 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyReadFile, MyReadFile, 
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyFileToFile, MyFileToFile, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyNewDoc, MyNewDoc, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyTestDotInPolyline, MyTestDotInPolyline, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MySetDwgScale, MySetDwgScale, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyGetDwgScale, MyGetDwgScale, ACRX_CMD_MODAL, NULL)
 
 

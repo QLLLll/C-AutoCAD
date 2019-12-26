@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArxProject3", "ArxProject3\ArxProject3.vcxproj", "{4AE72970-BEED-4455-B21F-F0BE7DE2766C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE} = {4BD50B4A-AF33-4819-B2C1-03455DC21AAE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomObjDBX", "CustomObjDBX\CustomObjDBX.vcxproj", "{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,14 @@ Global
 		{4AE72970-BEED-4455-B21F-F0BE7DE2766C}.Release|x64.Build.0 = Release|x64
 		{4AE72970-BEED-4455-B21F-F0BE7DE2766C}.Release|x86.ActiveCfg = Release|Win32
 		{4AE72970-BEED-4455-B21F-F0BE7DE2766C}.Release|x86.Build.0 = Release|Win32
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Debug|x64.ActiveCfg = Debug|x64
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Debug|x64.Build.0 = Debug|x64
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Debug|x86.ActiveCfg = Debug|Win32
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Debug|x86.Build.0 = Debug|Win32
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Release|x64.ActiveCfg = Release|x64
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Release|x64.Build.0 = Release|x64
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Release|x86.ActiveCfg = Release|Win32
+		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
