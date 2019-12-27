@@ -93,6 +93,7 @@
     <ClCompile Include="GetInputUtil.cpp" />
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="MFCDialog.cpp" />
+    <ClCompile Include="ModelessDialog.cpp" />
     <ClCompile Include="PolylineUtil.cpp" />
     <ClCompile Include="SelectUtil.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -117,6 +118,7 @@
     <ClInclude Include="GetInputUtil.h" />
     <ClInclude Include="MathUtil.h" />
     <ClInclude Include="MFCDialog.h" />
+    <ClInclude Include="ModelessDialog.h" />
     <ClInclude Include="PolylineUtil.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectUtil.h" />

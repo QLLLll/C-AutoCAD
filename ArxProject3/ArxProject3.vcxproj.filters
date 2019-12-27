@@ -75,6 +75,9 @@
     <ClCompile Include="ArxDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ModelessDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -129,6 +132,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ArxDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelessDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

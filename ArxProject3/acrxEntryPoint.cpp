@@ -11,6 +11,23 @@
 #include"MathUtil.h"
 #include"MFCDialog.h"
 #include"ArxDialog.h"
+#include"ModelessDialog.h"
+#include"resource.h"
+CModelessDialog *pDialog = NULL;
+BOOL CloseDialog() {
+
+	if (pDialog == NULL)return TRUE;
+
+	BOOL bRet = pDialog->DestroyWindow();
+
+	if (bRet) {
+
+		pDialog = NULL;
+	}
+	return bRet;
+}
+
+
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -833,11 +850,25 @@ public:
 			AfxMessageBox(L"点击确定关闭了对话框");
 		}*/
 
-		CAcModuleResourceOverride resOverride;
+		/*CAcModuleResourceOverride resOverride;
 
 		CArxDialog theDialog;
 
-		theDialog.DoModal();
+		theDialog.DoModal();*/
+
+		CAcModuleResourceOverride resOverride;
+
+			if (pDialog==NULL) {
+
+				pDialog = new CModelessDialog(acedGetAcadFrame());
+				pDialog->Create(IDD_DIALOG_MODELESS);
+				pDialog->ShowWindow(SW_SHOW);
+			}
+			else {
+
+				pDialog->ShowWindow(SW_SHOW);
+
+			}
 
 
 	}
