@@ -25,7 +25,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>false</CLRSupport>
     <UseOfMfc>Dynamic</UseOfMfc>
     <!-- <UseOfAtl>false</UseOfAtl> -->
@@ -70,17 +70,19 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
     </Link>
     <Link>
       <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\C++AutocadCode\NewRepo\CustomObjDBX\x64\Debug\ECDCustomObjDBX.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
     <ClCompile Include="AppDirectoryUtil.cpp" />
+    <ClCompile Include="ArxDialog.cpp" />
     <ClCompile Include="ArxProject3.cpp" />
     <ClCompile Include="BlockUtil.cpp" />
     <ClCompile Include="CGePointUtil.cpp" />
@@ -90,6 +92,7 @@
     <ClCompile Include="DwgDataBaseUtil.cpp" />
     <ClCompile Include="GetInputUtil.cpp" />
     <ClCompile Include="MathUtil.cpp" />
+    <ClCompile Include="MFCDialog.cpp" />
     <ClCompile Include="PolylineUtil.cpp" />
     <ClCompile Include="SelectUtil.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -104,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppDirectoryUtil.h" />
+    <ClInclude Include="ArxDialog.h" />
     <ClInclude Include="BlockUtil.h" />
     <ClInclude Include="ConvertUtil.h" />
     <ClInclude Include="DocData.h" />
@@ -112,6 +116,7 @@
     <ClInclude Include="GePointUtil.h" />
     <ClInclude Include="GetInputUtil.h" />
     <ClInclude Include="MathUtil.h" />
+    <ClInclude Include="MFCDialog.h" />
     <ClInclude Include="PolylineUtil.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectUtil.h" />
@@ -129,4 +134,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="ArxProject3.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

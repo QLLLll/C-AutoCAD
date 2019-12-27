@@ -65,6 +65,17 @@ public:
 public:
 	AcGePoint3d m_verts[3];
 	AcDbFace*  GetFace();
+	AcDbPolyline* GetPolyline()const;
+	AcGePoint2d ToPoint2d(AcGePoint3d pt)const;
+	Acad::ErrorStatus transFormBy(const AcGeMatrix3d &xform);
+	Acad::ErrorStatus getSubGeomExtents(AcDbExtents &extents)const;
+	Acad::ErrorStatus subExplode(AcDbVoidPtrArray &entitySet)const;
+	void subList()const;
+
+	void GetVerts(AcGePoint3dArray &verts)const;
+	double GetArea()const;
+	void SetVertAt(int index, const AcGePoint3d &point);
+
 } ;
 
 #ifdef CUSTOMOBJDBX_MODULE

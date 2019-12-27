@@ -123,7 +123,12 @@ Acad::ErrorStatus ECDTriangleObj::subGetOsnapPoints (
 	AcDbIntArray &geomIds) const
 {
 	assertReadEnabled () ;
-	return (AcDbEntity::subGetOsnapPoints (osnapMode, gsSelectionMark, pickPoint, lastPoint, viewXform, snapPoints, geomIds)) ;
+
+	AcDbPolyline *pPoly = GetPolyline();
+	Acad::ErrorStatus es = pPoly->getOsnapPoints(osnapMode, gsSelectionMark,
+		pickPoint, lastPoint, viewXform, snapPoints, geomIds);
+	delete pPoly;
+	return es;
 }
 
 Acad::ErrorStatus ECDTriangleObj::subGetOsnapPoints (
@@ -148,7 +153,14 @@ Acad::ErrorStatus ECDTriangleObj::subGetGripPoints (
 	//----- This method is never called unless you return eNotImplemented 
 	//----- from the new getGripPoints() method below (which is the default implementation)
 
-	return (AcDbEntity::subGetGripPoints (gripPoints, osnapModes, geomIds)) ;
+	for (int i = 0; i < 3; i++) {
+
+		gripPoints.append(m_verts[i]);
+
+	}
+
+	return Acad::eOk;
+
 }
 
 Acad::ErrorStatus ECDTriangleObj::subMoveGripPointsAt (const AcDbIntArray &indices, const AcGeVector3d &offset) {
@@ -156,7 +168,10 @@ Acad::ErrorStatus ECDTriangleObj::subMoveGripPointsAt (const AcDbIntArray &indic
 	//----- This method is never called unless you return eNotImplemented 
 	//----- from the new moveGripPointsAt() method below (which is the default implementation)
 
-	return (AcDbEntity::subMoveGripPointsAt (indices, offset)) ;
+	m_verts[indices[0]] += offset;
+
+
+	return Acad::eOk ;
 }
 
 Acad::ErrorStatus ECDTriangleObj::subGetGripPoints (
@@ -188,5 +203,116 @@ AcDbFace * ECDTriangleObj::GetFace()
 	AcDbFace *pFace = new AcDbFace(m_verts[0], m_verts[1], m_verts[2]);
 	pFace->setColorIndex(this->colorIndex());
 	return pFace;
+}
+
+AcDbPolyline* ECDTriangleObj::GetPolyline()const
+{
+	AcDbPolyline *pPoly = new AcDbPolyline();
+
+	for (int i = 0; i < 3; i++) {
+
+		pPoly->addVertexAt(i, ToPoint2d(m_verts[i]));
+	}
+	pPoly->setClosed(Adesk::kTrue);
+	
+	return pPoly;
+}
+
+AcGePoint2d ECDTriangleObj::ToPoint2d(AcGePoint3d pt)const
+{
+	return AcGePoint2d(pt.x,pt.y);
+}
+
+Acad::ErrorStatus ECDTriangleObj::transFormBy(const AcGeMatrix3d & xform)
+{
+	for (int i = 0; i < 3; i++)
+	{
+
+		m_verts[i].transformBy(xform);
+
+	}
+	return Acad::eOk;
+}
+
+Acad::ErrorStatus ECDTriangleObj::getSubGeomExtents(AcDbExtents & extents) const
+{
+	for (int i = 0; i < 3; i++)
+	{
+
+		extents.addPoint(m_verts[i]);
+
+	}
+	return Acad::eOk;
+}
+
+Acad::ErrorStatus ECDTriangleObj::subExplode(AcDbVoidPtrArray & entitySet) const
+{
+	for (int i = 0; i < 3; i++) {
+
+		int nextIndex = i + 1;
+
+		if (i == 2) {
+
+			nextIndex = 0;
+
+		}
+
+		AcDbLine * pLine = new AcDbLine(m_verts[i], m_verts[nextIndex]);
+		pLine->setPropertiesFrom(this);
+
+		entitySet.append(pLine);
+	}
+
+	return Acad::eOk;
+}
+
+void ECDTriangleObj::subList() const
+{
+	AcDbEntity::subList();
+
+	for (int i = 0; i < 3; i++) {
+
+		acutPrintf(TEXT("\n¶¥µã£º%d:(%g,%g,%g)"), i + 1, m_verts[i].x,
+			m_verts[i].y, m_verts[i].z);
+
+	}
+
+
+}
+
+void ECDTriangleObj::GetVerts(AcGePoint3dArray & verts) const
+{
+	assertReadEnabled();
+
+	verts.setLogicalLength(0);
+
+	for (int i = 0; i < 3; i++) {
+
+		verts.append(m_verts[i]);
+
+	}
+
+}
+
+double ECDTriangleObj::GetArea() const
+{
+	AcDbPolyline * pPoly = GetPolyline();
+
+	double area = 0;
+	pPoly->getArea(area);
+	delete pPoly;
+	
+	return area;
+}
+
+void ECDTriangleObj::SetVertAt(int index, const AcGePoint3d & point)
+{
+	assertWriteEnabled();
+
+	if (index >= 0 && index <= 2) {
+		m_verts[index] = point;
+	}
+
+
 }
 

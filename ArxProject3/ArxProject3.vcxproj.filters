@@ -69,6 +69,12 @@
     <ClCompile Include="PolylineUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MFCDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ArxDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -117,6 +123,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="PolylineUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MFCDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ArxDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

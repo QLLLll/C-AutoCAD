@@ -9,7 +9,8 @@
 #include"AppDirectoryUtil.h"
 #include"PolylineUtil.h"
 #include"MathUtil.h"
-#include"../CustomObjDBX/ECDDwgScaleCO.h"
+#include"MFCDialog.h"
+#include"ArxDialog.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -774,7 +775,7 @@ public:
 
 	}
 	
-	static void ECDMyGroupMySetDwgScale() {
+	/*static void ECDMyGroupMySetDwgScale() {
 
 		CString DWG_SCALE_KEY = L"DwgScale";
 
@@ -822,8 +823,24 @@ public:
 
 
 
-	}
+	}*/
 	
+	static void ECDMyGroupEModalD() {
+
+		/*MFCDialog theDialog;
+
+		if (theDialog.DoModal() == IDOK) {
+			AfxMessageBox(L"点击确定关闭了对话框");
+		}*/
+
+		CAcModuleResourceOverride resOverride;
+
+		CArxDialog theDialog;
+
+		theDialog.DoModal();
+
+
+	}
 
 } ;
 
@@ -839,7 +856,8 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyReadFile, MyReadFile, 
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyFileToFile, MyFileToFile, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyNewDoc, MyNewDoc, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyTestDotInPolyline, MyTestDotInPolyline, ACRX_CMD_MODAL, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MySetDwgScale, MySetDwgScale, ACRX_CMD_MODAL, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyGetDwgScale, MyGetDwgScale, ACRX_CMD_MODAL, NULL)
+//ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MySetDwgScale, MySetDwgScale, ACRX_CMD_MODAL, NULL)
+//ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyGetDwgScale, MyGetDwgScale, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EModalD, EModalD, ACRX_CMD_MODAL, NULL)
 
 

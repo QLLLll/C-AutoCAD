@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArxProject3", "ArxProject3\ArxProject3.vcxproj", "{4AE72970-BEED-4455-B21F-F0BE7DE2766C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4BD50B4A-AF33-4819-B2C1-03455DC21AAE} = {4BD50B4A-AF33-4819-B2C1-03455DC21AAE}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomObjDBX", "CustomObjDBX\CustomObjDBX.vcxproj", "{4BD50B4A-AF33-4819-B2C1-03455DC21AAE}"
 EndProject
