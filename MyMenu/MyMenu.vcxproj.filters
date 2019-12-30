@@ -86,5 +86,6 @@
   <ItemGroup>
     <None Include="Autodesk.arx-2018.props" />
     <None Include="Autodesk.arx-2018-net.props" />
+    <None Include="crx.props" />
   </ItemGroup>
 </Project>
