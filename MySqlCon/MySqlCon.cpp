@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "MySqlCon.h"
 #include"ADOConn.h"
+#include"time.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -67,7 +68,16 @@ CString Convert(_variant_t var) {
 	}
 	return str;
 }
-
+string getTime()
+ {
+	     time_t timep;
+		tm t;
+	    time(&timep);
+	    char tmp[64];
+		localtime_s(&t, &timep);
+	     strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S",&t);
+	     return tmp;
+	 }
 void MySql() {
 	ADOConn m_adoConn;
 	m_adoConn.OnInitADOConn();
@@ -76,23 +86,55 @@ void MySql() {
 	m_pRecordset = m_adoConn.GetRecordSet((_bstr_t)sql);
 
 
-
-
 	while (m_pRecordset->adoEOF == 0)
 	{
 		//strcpy_s(node.nodeName, (char*)(_bstr_t)m_pRecordset->GetCollect("nodeName"));
 		//node.nodeLeft = m_pRecordset->GetCollect("nodeLeft");
 		//node.nodeRight = m_pRecordset->GetCollect("nodeRight");
 
+		
+		
+
+
+
 		_variant_t name = m_pRecordset->GetCollect("UserName");
+		_variant_t time1 = m_pRecordset->GetCollect("STime");
+		_variant_t time2 = m_pRecordset->GetCollect("ETime");
 
 		CString uName = Convert(name);
+		CString t1 = Convert(time1);
+		CString t2 = Convert(time2);
 
-		AfxMessageBox(uName);
 
+		//AfxMessageBox(uName);
+		printf("%S: %S ---- %S\n", uName.GetBuffer(),t1.GetBuffer(),t2.GetBuffer());
 		m_pRecordset->MoveNext();
 	}
 	//¶Ï¿ªÊý¾Ý¿â
+	string t = getTime();
+	char sdate[30];
+	strcpy_s(sdate, t.c_str());
+
+	const char * tt = sdate;
+	try {
+		
+		_variant_t vt;
+		
+		ATL::COleDateTime st =  ATL::COleDateTime(2020, 1, 2, 9, 0, 0);
+		
+		m_pRecordset->AddNew();
+		m_pRecordset->PutCollect("UserName", _variant_t("JKJK"));
+		m_pRecordset->PutCollect("ChuQing", _variant_t(1));
+		m_pRecordset->PutCollect("STime", _variant_t(st));
+		m_pRecordset->PutCollect("ETime", _variant_t(st));
+		m_pRecordset->PutCollect("JbLeiJi", _variant_t(0));
+
+		m_pRecordset->Update();
+	}
+	catch (_com_error e)
+	{
+		AfxMessageBox(e.ErrorMessage());
+	}
 	m_adoConn.ExitConnect();
 
 }
