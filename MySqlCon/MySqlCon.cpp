@@ -88,14 +88,6 @@ void MySql() {
 
 	while (m_pRecordset->adoEOF == 0)
 	{
-		//strcpy_s(node.nodeName, (char*)(_bstr_t)m_pRecordset->GetCollect("nodeName"));
-		//node.nodeLeft = m_pRecordset->GetCollect("nodeLeft");
-		//node.nodeRight = m_pRecordset->GetCollect("nodeRight");
-
-		
-		
-
-
 
 		_variant_t name = m_pRecordset->GetCollect("UserName");
 		_variant_t time1 = m_pRecordset->GetCollect("STime");
@@ -110,7 +102,7 @@ void MySql() {
 		printf("%S: %S ---- %S\n", uName.GetBuffer(),t1.GetBuffer(),t2.GetBuffer());
 		m_pRecordset->MoveNext();
 	}
-	//断开数据库
+	
 	string t = getTime();
 	char sdate[30];
 	strcpy_s(sdate, t.c_str());
@@ -135,6 +127,7 @@ void MySql() {
 	{
 		AfxMessageBox(e.ErrorMessage());
 	}
+	//断开数据库
 	m_adoConn.ExitConnect();
 
 }

@@ -21,7 +21,7 @@ void ADOConn::OnInitADOConn(void)
 		//创建connection对象
 		m_pConnection.CreateInstance("ADODB.Connection");
 		//设置连接字符串
-		//_bstr_t strConnect = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=sa;Initial Catalog=Learnning;Data Source=COMP-02-2433\SQLEXPRESS";
+		//_bstr_t strConnect = "driver={SQL Server};uid=sa;pwd=940619.lq;Server=.;Database=Learnning";
 		_bstr_t strConnect = "driver={SQL Server};uid=sa;pwd=940619.lq;Server=.;Database=Learnning";
 		m_pConnection->Open(strConnect, "sa", "940619.lq", adModeUnknown);
 	}
