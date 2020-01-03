@@ -69,15 +69,16 @@ CString Convert(_variant_t var) {
 	return str;
 }
 string getTime()
- {
-	     time_t timep;
-		tm t;
-	    time(&timep);
-	    char tmp[64];
-		localtime_s(&t, &timep);
-	     strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S",&t);
-	     return tmp;
-	 }
+{
+	time_t timep;
+	tm t;
+	time(&timep);
+	char tmp[64];
+	localtime_s(&t, &timep);
+	strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S", &t);
+	return tmp;
+}
+
 void MySql() {
 	ADOConn m_adoConn;
 	m_adoConn.OnInitADOConn();
@@ -92,11 +93,6 @@ void MySql() {
 		//node.nodeLeft = m_pRecordset->GetCollect("nodeLeft");
 		//node.nodeRight = m_pRecordset->GetCollect("nodeRight");
 
-		
-		
-
-
-
 		_variant_t name = m_pRecordset->GetCollect("UserName");
 		_variant_t time1 = m_pRecordset->GetCollect("STime");
 		_variant_t time2 = m_pRecordset->GetCollect("ETime");
@@ -107,68 +103,107 @@ void MySql() {
 
 
 		//AfxMessageBox(uName);
-		printf("%S: %S ---- %S\n", uName.GetBuffer(),t1.GetBuffer(),t2.GetBuffer());
+		//PrintfCStr(uName);
+		/*char *sName= uName.GetBuffer(uName.GetLength());
+		
+		uName.ReleaseBuffer();*/
+
+
+		int len = WideCharToMultiByte(CP_ACP, 0, uName, -1, NULL, 0, NULL, NULL);
+		char *ptxtTemp = new char[len + 1];
+		WideCharToMultiByte(CP_ACP, 0, uName, -1, ptxtTemp, len, NULL, NULL);
+
+		printf("%s: %S ---- %S\n",ptxtTemp, t1.GetBuffer(), t2.GetBuffer());
+		
+		t1.ReleaseBuffer();
+		t2.ReleaseBuffer();
+		
+		delete[] ptxtTemp;
+
 		m_pRecordset->MoveNext();
 	}
-	//断开数据库
+	//m_pRecordset->Close();
 	string t = getTime();
 	char sdate[30];
 	strcpy_s(sdate, t.c_str());
 
 	const char * tt = sdate;
 	try {
-		
-		_variant_t vt;
-		
-		ATL::COleDateTime st =  ATL::COleDateTime(2020, 1, 2, 9, 0, 0);
-		
-		m_pRecordset->AddNew();
-		m_pRecordset->PutCollect("UserName", _variant_t("JKJK"));
-		m_pRecordset->PutCollect("ChuQing", _variant_t(1));
-		m_pRecordset->PutCollect("STime", _variant_t(st));
-		m_pRecordset->PutCollect("ETime", _variant_t(st));
-		m_pRecordset->PutCollect("JbLeiJi", _variant_t(0));
 
-		m_pRecordset->Update();
+		//插入		
+		/*ATL::COleDateTime st =  ATL::COleDateTime(2020, 1, 2, 9, 0, 0);
+
+				m_pRecordset->AddNew();
+				m_pRecordset->PutCollect("UserName", _variant_t("JKJK"));
+				m_pRecordset->PutCollect("ChuQing", _variant_t(1));
+				m_pRecordset->PutCollect("STime", _variant_t(st));
+				m_pRecordset->PutCollect("ETime", _variant_t(st));
+				m_pRecordset->PutCollect("JbLeiJi", _variant_t(0));
+
+				m_pRecordset->Update();*/
+				//修改
+				/*
+						CString sql2("select UserName from Tbl_UserKq where (UserName='JKJK5')");
+						_RecordsetPtr m_pRecordset2;
+						m_pRecordset2 = m_adoConn.GetRecordSet((_bstr_t)sql2);
+
+
+						while (!m_pRecordset2->adoEOF) {
+							m_pRecordset2->PutCollect("UserName", _variant_t("JKJK6"));
+							m_pRecordset2->Update();
+							m_pRecordset2->MoveNext();
+
+						}
+						*/
+						//刪除
+						/*
+								CString sql3("delete from Tbl_UserKq where (UserName='JKJK6')");
+								if (m_adoConn.ExecuteSQL((_bstr_t)sql3)) {
+									AfxMessageBox(L"刪除成功");
+
+								}
+								*/
+
 	}
 	catch (_com_error e)
 	{
 		AfxMessageBox(e.ErrorMessage());
 	}
+	//断开数据库
 	m_adoConn.ExitConnect();
 
 }
 
 int main()
 {
-    int nRetCode = 0;
+	int nRetCode = 0;
 
-   /* HMODULE hModule = ::GetModuleHandle(nullptr);
+	/* HMODULE hModule = ::GetModuleHandle(nullptr);
 
-    if (hModule != nullptr)
-    {
-        // 初始化 MFC 并在失败时显示错误
-        if (!AfxWinInit(hModule, nullptr, ::GetCommandLine(), 0))
-        {
-            // TODO: 更改错误代码以符合您的需要
-            wprintf(L"错误: MFC 初始化失败\n");
-            nRetCode = 1;
-        }
-        else
-        {
-            // TODO: 在此处为应用程序的行为编写代码。
-        }
-    }
-    else
-    {
-        // TODO: 更改错误代码以符合您的需要
-        wprintf(L"错误: GetModuleHandle 失败\n");
-        nRetCode = 1;
-    }*/
+	 if (hModule != nullptr)
+	 {
+		 // 初始化 MFC 并在失败时显示错误
+		 if (!AfxWinInit(hModule, nullptr, ::GetCommandLine(), 0))
+		 {
+			 // TODO: 更改错误代码以符合您的需要
+			 wprintf(L"错误: MFC 初始化失败\n");
+			 nRetCode = 1;
+		 }
+		 else
+		 {
+			 // TODO: 在此处为应用程序的行为编写代码。
+		 }
+	 }
+	 else
+	 {
+		 // TODO: 更改错误代码以符合您的需要
+		 wprintf(L"错误: GetModuleHandle 失败\n");
+		 nRetCode = 1;
+	 }*/
 
 	MySql();
 
-    return nRetCode;
+	return nRetCode;
 }
 
 
