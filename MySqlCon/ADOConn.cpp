@@ -21,7 +21,6 @@ void ADOConn::OnInitADOConn(void)
 		//创建connection对象
 		m_pConnection.CreateInstance("ADODB.Connection");
 		//设置连接字符串
-		//_bstr_t strConnect = "driver={SQL Server};uid=sa;pwd=940619.lq;Server=.;Database=Learnning";
 		_bstr_t strConnect = "driver={SQL Server};uid=sa;pwd=940619.lq;Server=.;Database=Learnning";
 		m_pConnection->Open(strConnect, "sa", "940619.lq", adModeUnknown);
 	}
@@ -37,7 +36,7 @@ void ADOConn::OnInitADOConn(void)
 void ADOConn::ExitConnect(void)
 {
 	//关闭记录集和连接
-	if (m_pRecordset != NULL)
+	if (m_pRecordset != NULL&&m_pRecordset->State)
 		m_pRecordset->Close();
 	m_pConnection->Close();
 	//释放环境
@@ -57,6 +56,17 @@ _RecordsetPtr ADOConn::GetRecordSet(_bstr_t bstrSql)
 		//取得表中的记录
 		m_pRecordset->Open(bstrSql, m_pConnection.GetInterfacePtr(), adOpenDynamic,
 			adLockOptimistic, adCmdText);
+		
+		/*m_pRecordset.CreateInstance("ADODB.Recordset");
+		m_pRecordset->Open(bstrSql,
+
+			_variant_t((IDispatch*)m_pConnection, true),
+
+			adOpenStatic,
+
+			adLockOptimistic,
+
+			adCmdText);*/
 	}
 	catch (_com_error e)
 	{
