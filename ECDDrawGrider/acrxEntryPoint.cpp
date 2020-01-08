@@ -25,6 +25,7 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include"ECDMyHuaLiang.h"
+#include"EcdZhuangZhu.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -59,28 +60,17 @@ public:
 
 	virtual void RegisterServerComponents () {
 	}
-	
-	// The ACED_ARXCOMMAND_ENTRY_AUTO macro can be applied to any static member 
-	// function of the CECDDrawGriderApp class.
-	// The function should take no arguments and return nothing.
-	//
-	// NOTE: ACED_ARXCOMMAND_ENTRY_AUTO has overloads where you can provide resourceid and
-	// have arguments to define context and command mechanism.
-	
-	// ACED_ARXCOMMAND_ENTRY_AUTO(classname, group, globCmd, locCmd, cmdFlags, UIContext)
-	// ACED_ARXCOMMAND_ENTRYBYID_AUTO(classname, group, globCmd, locCmdId, cmdFlags, UIContext)
-	// only differs that it creates a localized name using a string in the resource file
-	//   locCmdId - resource ID for localized command
-
-	// Modal Command with localized name
-	// ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, MyCommand, MyCommandLocal, ACRX_CMD_MODAL)
-	static void ECDMyGroupMyCommand () {
+		
+	static void ECDMyGroupECDXieLiang() {
 		ECDMyHuaLiang *drawLiang = new ECDMyHuaLiang();
 		drawLiang->Command();
 	}
 
-	// Modal Command with pickfirst selection
-	// ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, MyPickFirst, MyPickFirstLocal, ACRX_CMD_MODAL | ACRX_CMD_USEPICKSET)
+	static void ECDMyGroupECDZhuangzhu() {
+		EcdZhuangZhu *drawZz = new EcdZhuangZhu();
+		drawZz->Command();
+	}
+	
 	static void ECDMyGroupMyPickFirst () {
 		ads_name result ;
 		int iRet =acedSSGet (ACRX_T("_I"), NULL, NULL, NULL, result) ;
@@ -96,49 +86,13 @@ public:
 		}
 	}
 
-	// Application Session Command with localized name
-	// ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, MySessionCmd, MySessionCmdLocal, ACRX_CMD_MODAL | ACRX_CMD_SESSION)
-	static void ECDMyGroupMySessionCmd () {
-		// Put your command code here
-	}
-
-	// The ACED_ADSFUNCTION_ENTRY_AUTO / ACED_ADSCOMMAND_ENTRY_AUTO macros can be applied to any static member 
-	// function of the CECDDrawGriderApp class.
-	// The function may or may not take arguments and have to return RTNORM, RTERROR, RTCAN, RTFAIL, RTREJ to AutoCAD, but use
-	// acedRetNil, acedRetT, acedRetVoid, acedRetInt, acedRetReal, acedRetStr, acedRetPoint, acedRetName, acedRetList, acedRetVal to return
-	// a value to the Lisp interpreter.
-	//
-	// NOTE: ACED_ADSFUNCTION_ENTRY_AUTO / ACED_ADSCOMMAND_ENTRY_AUTO has overloads where you can provide resourceid.
-	
-	//- ACED_ADSFUNCTION_ENTRY_AUTO(classname, name, regFunc) - this example
-	//- ACED_ADSSYMBOL_ENTRYBYID_AUTO(classname, name, nameId, regFunc) - only differs that it creates a localized name using a string in the resource file
-	//- ACED_ADSCOMMAND_ENTRY_AUTO(classname, name, regFunc) - a Lisp command (prefix C:)
-	//- ACED_ADSCOMMAND_ENTRYBYID_AUTO(classname, name, nameId, regFunc) - only differs that it creates a localized name using a string in the resource file
-
-	// Lisp Function is similar to ARX Command but it creates a lisp 
-	// callable function. Many return types are supported not just string
-	// or integer.
-	// ACED_ADSFUNCTION_ENTRY_AUTO(CECDDrawGriderApp, MyLispFunction, false)
-	static int ads_MyLispFunction () {
-		//struct resbuf *args =acedGetArgs () ;
-		
-		// Put your command code here
-
-		//acutRelRb (args) ;
-		
-		// Return a value to the AutoCAD Lisp Interpreter
-		// acedRetNil, acedRetT, acedRetVoid, acedRetInt, acedRetReal, acedRetStr, acedRetPoint, acedRetName, acedRetList, acedRetVal
-
-		return (RTNORM) ;
-	}
-	
 } ;
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CECDDrawGriderApp)
 
-ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, MyCommand, MyCommandLocal, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, ECDXieLiang, ECDXieLiang, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, ECDZhuangzhu, ECDZhuangzhu, ACRX_CMD_MODAL, NULL)
+
 ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, MyPickFirst, MyPickFirstLocal, ACRX_CMD_MODAL | ACRX_CMD_USEPICKSET, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, MySessionCmd, MySessionCmdLocal, ACRX_CMD_MODAL | ACRX_CMD_SESSION, NULL)
-ACED_ADSSYMBOL_ENTRY_AUTO(CECDDrawGriderApp, MyLispFunction, false)
 

@@ -66,6 +66,9 @@
     <ClCompile Include="ECDMyHuaLiang.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="EcdZhuangZhu.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -111,6 +114,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ECDMyHuaLiang.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EcdZhuangZhu.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

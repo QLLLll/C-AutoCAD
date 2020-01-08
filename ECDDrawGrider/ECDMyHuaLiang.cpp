@@ -33,23 +33,29 @@ AcDbEntity *ECDMyHuaLiang::GetEntity(const ACHAR *str) {
 
 }
 
-AcDbObjectId ECDMyHuaLiang::AddLayer(AcDbDatabase * db, const ACHAR * layerName, short colorIndex)
+AcDbObjectId ECDMyHuaLiang::AddLayer(AcDbDatabase * db, const ACHAR * layerName, AcCmColor color)
 {
 	AcDbObjectId layerId;
 
 	AcDbLayerTable *lyerTbl = NULL;
 
 	if (db->getSymbolTable(lyerTbl, AcDb::kForWrite) == ErrorStatus::eOk) {
+		ErrorStatus es = lyerTbl->getAt(layerName, layerId);
+		if (!layerId.isNull())
+		{
+			lyerTbl->close();
+			return layerId;
+
+		}
+
 
 		AcDbLayerTableRecord *lyerTblRec = new AcDbLayerTableRecord();
 
 		lyerTblRec->setName(layerName);
 
-		AcCmColor *color = new AcCmColor();
+		
 
-		color->setColorIndex(colorIndex);
-
-		lyerTblRec->setColor(*color);
+		lyerTblRec->setColor(color);
 
 		lyerTbl->add(layerId,lyerTblRec);
 
@@ -89,8 +95,12 @@ void ECDMyHuaLiang::CutLine(AcDbEntity * ent1, AcDbEntity * ent2, std::vector<Ac
 	AcDbLine *line2 = new AcDbLine(ptArr1[1], ptArr2[1]);
 	AcDbLine *line3 = new AcDbLine(ptArr1[2], ptArr2[2]);
 
-	AcDbObjectId layer1 = AddLayer(acdbHostApplicationServices()->workingDatabase(), TEXT("ECDÐ±Áº1"), 5);
-	AcDbObjectId layer2 = AddLayer(acdbHostApplicationServices()->workingDatabase(), TEXT("ECDÐ±Áº2"), 5);
+	AcCmColor colorDeepPink = AcCmColor();//Éî·ÛÉ«
+
+	colorDeepPink.setRGB(255, 20, 147);
+
+	AcDbObjectId layer1 = AddLayer(acdbHostApplicationServices()->workingDatabase(), TEXT("ECDÐ±Áº1"), colorDeepPink);
+	AcDbObjectId layer2 = AddLayer(acdbHostApplicationServices()->workingDatabase(), TEXT("ECDÐ±Áº2"), colorDeepPink);
 	
 	line2->setLayer(layer1);
 	line3->setLayer(layer2);
