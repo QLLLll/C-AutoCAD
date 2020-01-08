@@ -81,6 +81,7 @@
     <ClCompile Include="DocData.cpp" />
     <ClCompile Include="DwgDataBaseUtil.cpp" />
     <ClCompile Include="ECDDrawGrider.cpp" />
+    <ClCompile Include="EcdKuaiJX.cpp" />
     <ClCompile Include="ECDMyHuaLiang.cpp" />
     <ClCompile Include="EcdZhuangZhu.cpp" />
     <ClCompile Include="GetInputUtil.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="ConvertUtil.h" />
     <ClInclude Include="DocData.h" />
     <ClInclude Include="DwgDataBaseUtil.h" />
+    <ClInclude Include="EcdKuaiJX.h" />
     <ClInclude Include="ECDMyHuaLiang.h" />
     <ClInclude Include="EcdZhuangZhu.h" />
     <ClInclude Include="GePointUtil.h" />

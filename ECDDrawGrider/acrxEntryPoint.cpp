@@ -26,6 +26,8 @@
 #include "resource.h"
 #include"ECDMyHuaLiang.h"
 #include"EcdZhuangZhu.h"
+#include"DwgDataBaseUtil.h"
+#include"EcdKuaiJX.h"
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -61,16 +63,86 @@ public:
 	virtual void RegisterServerComponents () {
 	}
 		
+	static void TESTmrcmd()
+	{
+		ads_name name;
+		ads_point ptEnt;
+		AcDbObjectId id;
+		if (acedEntSel(_T("选择要镜像的实体"), name, ptEnt) != RTNORM)
+		{
+			acutPrintf(_T("\nno obj select"));
+			return;
+		}
+		if (Acad::ErrorStatus::eOk != acdbGetObjectId(id, name))
+		{
+			return;
+		}
+		AcDbEntity* pEnt;
+		if (Acad::ErrorStatus::eOk != acdbOpenObject(pEnt, id, AcDb::OpenMode::kForWrite))
+		{
+			acutPrintf(_T("\n打开实体失败"));
+			return;
+		}
+		ads_point ptDis1;
+		if (acedGetPoint(NULL, _T("\n选择镜像点1"), ptDis1) != RTNORM)
+		{
+			acutPrintf(_T("\nno point select"));
+			pEnt->close();
+			return;
+		}
+		ads_point ptDis2;
+		if (acedGetPoint(NULL, _T("\n选择镜像点2"), ptDis2) != RTNORM)
+		{
+			acutPrintf(_T("\nno point select"));
+			pEnt->close();
+			return;
+		}
+		AcGePoint3d ptDis3d1 = asPnt3d(ptDis1);
+		AcGePoint3d ptDis3d2 = asPnt3d(ptDis2);
+		AcGeLine3d line(ptDis3d1, ptDis3d2);
+		AcGeMatrix3d mat;
+		mat.setToMirroring(line);
+		acedInitGet(NULL, _T("Y N"));
+		
+		TCHAR kword[20];
+		if (acedGetKword(TEXT("删除原对象？Y/N"), kword) != RTNORM)
+		{
+			return;
+		}
+		
+		if (kword[0]=='N')
+		{
+			AcDbEntity* pEnt2 = AcDbEntity::cast(pEnt->clone());
+			CDwgDataBaseUtil::PostToModelSpace(pEnt2);
+			pEnt2->close();
+		}
+		pEnt->transformBy(mat);
+		pEnt->close();
+	}
+//》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》
+
 	static void ECDMyGroupECDXieLiang() {
 		ECDMyHuaLiang *drawLiang = new ECDMyHuaLiang();
 		drawLiang->Command();
+		delete drawLiang;
 	}
 
 	static void ECDMyGroupECDZhuangzhu() {
 		EcdZhuangZhu *drawZz = new EcdZhuangZhu();
 		drawZz->Command();
+		delete drawZz;
 	}
 	
+	static void ECDMyGroupECDTest() {
+	
+		EcdKuaiJX * ecdKuaiJx = new EcdKuaiJX();
+
+		ecdKuaiJx->Command();
+
+		delete ecdKuaiJx;
+	
+	}
+
 	static void ECDMyGroupMyPickFirst () {
 		ads_name result ;
 		int iRet =acedSSGet (ACRX_T("_I"), NULL, NULL, NULL, result) ;
@@ -93,6 +165,7 @@ IMPLEMENT_ARX_ENTRYPOINT(CECDDrawGriderApp)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, ECDXieLiang, ECDXieLiang, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, ECDZhuangzhu, ECDZhuangzhu, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, ECDTest, ECDTest, ACRX_CMD_MODAL, NULL)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CECDDrawGriderApp, ECDMyGroup, MyPickFirst, MyPickFirstLocal, ACRX_CMD_MODAL | ACRX_CMD_USEPICKSET, NULL)
 
