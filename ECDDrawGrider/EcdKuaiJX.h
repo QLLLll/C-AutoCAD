@@ -18,7 +18,7 @@ private :
 	void MyMirror(vector<AcDbEntity *> listEnt, AcGeLine3d l3d, char xY);
 
 private:
-	vector<AcDbEntity *> list;
+	vector<AcDbEntity *> listVec;
 	AcDbObjectIdArray listOId;
 };
 

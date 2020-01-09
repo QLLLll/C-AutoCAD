@@ -6,7 +6,7 @@
 //#include"GePointUtil.h"
 #include"GetInputUtil.h"
 //#include"MathUtil.h"
-//#include"ConvertUtil.h"
+#include"ConvertUtil.h"
 #include"time.h"
 using namespace std;
 EcdKuaiJX::EcdKuaiJX()
@@ -20,7 +20,7 @@ EcdKuaiJX::~EcdKuaiJX()
 
 void EcdKuaiJX::Command()
 {
-	list.clear();
+	listVec.clear();
 	listOId.removeAll();
 
 
@@ -33,6 +33,8 @@ void EcdKuaiJX::Command()
 	if (!CSelectUtil::PromptSelectEntity(L"\n请选择要镜像的块：", cls, (AcDbEntity*&)br, pt, true))
 		return;
 
+
+	//得到块名
 	AcDbObjectId pBlkTblRecId;
 	pBlkTblRecId = br->blockTableRecord();
 	AcDbBlockTableRecord *pBlkTblRec = NULL;
@@ -40,7 +42,7 @@ void EcdKuaiJX::Command()
 	ErrorStatus es = acdbOpenObject(pBlkTblRec, pBlkTblRecId, AcDb::kForRead);
 
 	if (es != ErrorStatus::eOk) {
-		acutPrintf(L"\n获取块名出错：%d", es);
+		acutPrintf(L"\n获取块记录出错：%d", es);
 		br->close();
 		return;
 	}
@@ -106,7 +108,7 @@ void EcdKuaiJX::Command()
 		MyMirror(listEnt, lineX, 'X');
 
 	}
-
+	//构建新块
 	AcDbObjectId breNewId;
 
 	AcDbBlockTable  * pTable = NULL;
@@ -129,46 +131,52 @@ void EcdKuaiJX::Command()
 
 	time(&m_time);
 	//char *timeStff=ctime(&m_time);
-	char *timeStff = "LL";
+
+	//char *timeStff = "LL";
 	//char*  转ACHAR
-	size_t len = strlen(timeStff) + 1;
+	/*size_t len = strlen(timeStff) + 1;
 	size_t converted = 0;
 	wchar_t *WStr;
 	WStr = (wchar_t*)malloc(len*sizeof(wchar_t));
 	mbstowcs_s(&converted, WStr, len, timeStff, _TRUNCATE);
+	*/
 
-	wcscat(name, WStr);
+	wchar_t wchar[11] = { 0 };
+
+	swprintf(wchar, 11, L"%d", m_time);
+
+	wcscat(name, wchar);
 
 	blkRec->setName(name);
-	blkRec->setOrigin(ptPosMirror);
 
-	for (int i = 0; i < (int)list.size(); i++) {
+	//把镜像后的实体添加到新记录中
+	for (int i = 0; i < (int)listVec.size(); i++) {
 
-		AcDbEntity * ent = list.at(i);
+		AcDbEntity * ent = listVec.at(i);
 
 		if (ent != NULL) {
 
 			blkRec->appendAcDbEntity(ent);
 		}
 	}
-
-	 es =pTable->add(breNewId, blkRec);
+	blkRec->setOrigin(ptPosMirror);
+	es = pTable->add(breNewId, blkRec);
 
 	if (es != ErrorStatus::eOk) {
 
 		acutPrintf(L"\n%d", es);
 
 	}
-
+	//把原文字删除，因为在镜像文字之前需要把炸开后的原文字加入到模型空间
 	for each (AcDbObjectId  oId in listOId)
 	{
 
 		AcDbEntity * ent = NULL;
 
-		if (acdbOpenObject(ent,oId, AcDb::kForWrite) == ErrorStatus::eOk) {
+		if (acdbOpenObject(ent, oId, AcDb::kForWrite) == ErrorStatus::eOk) {
 
 
-			ent->erase();
+			//ent->erase();
 
 			ent->close();
 
@@ -179,23 +187,35 @@ void EcdKuaiJX::Command()
 
 	listOId.removeAll();
 
-	for (int i = 0; i < (int)list.size(); i++)
+	//关闭镜像后的实体
+	for (int i = 0; i < (int)listVec.size(); i++)
 	{
 
-		list.at(i)->close();
+		listVec.at(i)->close();
 
 	}
 
-	AcDbBlockReference *brOld = new AcDbBlockReference(ptPos, pBlkTblRec->objectId());
-	AcDbBlockReference * brNew = new AcDbBlockReference(ptPosMirror, breNewId);
- 
+	//AcDbBlockReference *brOld = new AcDbBlockReference(ptPos, pBlkTblRec->objectId());
+	AcDbBlockReference *brNew = new AcDbBlockReference(ptPosMirror, breNewId);
+
+	//关闭新块记录
 	blkRec->close();
 	pTable->close();
 
-	CDwgDataBaseUtil::PostToModelSpace(brOld);
+	//CDwgDataBaseUtil::PostToModelSpace(brOld);
 	CDwgDataBaseUtil::PostToModelSpace(brNew);
 
-	
+
+	/*AcDbPoint *pt1 = new AcDbPoint(ptPos);
+	pt1->setColorIndex(1);
+	CDwgDataBaseUtil::PostToModelSpace(pt1);
+
+	AcDbPoint *pt2 = new AcDbPoint(ptPosMirror);
+	pt2->setColorIndex(3);
+	CDwgDataBaseUtil::PostToModelSpace(pt2);
+
+	pt1->close();
+	pt2->close();*/
 
 	br->close();
 	pBlkTblRec->close();
@@ -211,12 +231,30 @@ void EcdKuaiJX::MirrorText(AcDbText *text, AcGeLine3d mirrorLine)
 
 	AcDbText * mirroredTxt = AcDbText::cast(dbText->clone());
 
+	dbText->close();
+	text->close();
+
 	AcGeMatrix3d mirrorMatrix = AcGeMatrix3d::mirroring(mirrorLine);
+
+
+	mirroredTxt->transformBy(mirrorMatrix);
 
 	AcGePoint3d pt1, pt2, pt3, pt4;
 
-
 	GetTextBoxCorners(*dbText, pt1, pt2, pt3, pt4);
+
+	AcDbPolyline *pl = new AcDbPolyline();
+
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt1), 0, 0, 0);
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt2), 0, 0, 0);
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt3), 0, 0, 0);
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt4), 0, 0, 0);
+
+	pl->setColorIndex(1);
+
+	CDwgDataBaseUtil::PostToModelSpace(pl);
+
+	pl->close();
 
 	AcGeVector3d rotDir =
 		(pt4 - pt1.asVector()).asVector();
@@ -229,20 +267,20 @@ void EcdKuaiJX::MirrorText(AcDbText *text, AcGeLine3d mirrorLine)
 
 	if (abs(mirrorLine.direction().y) > abs(mirrorLine.direction().x)) {
 
-		mirroredTxt->mirrorInX(!mirroredTxt->isMirroredInX());
+		
+			 mirroredTxt->mirrorInX(!mirroredTxt->isMirroredInX());
 
 		mirroredTxt->setPosition(mirroredTxt->position() + mirLinDir);
 	}
 	else {
-
-		mirroredTxt->mirrorInY(!mirroredTxt->isMirroredInY());
+			
+			mirroredTxt->mirrorInY(!mirroredTxt->isMirroredInY());
 
 		mirroredTxt->setPosition(mirroredTxt->position() + mirRotDir);
 	}
-	list.push_back(mirroredTxt);
+	listVec.push_back(mirroredTxt);
 
-	dbText->close();
-	text->close();
+
 }
 
 void EcdKuaiJX::MirrorText(AcDbMText *mText, AcGeLine3d mirrorLine)
@@ -254,17 +292,61 @@ void EcdKuaiJX::GetTextBoxCorners(AcDbText &dbText, AcGePoint3d &pt1, AcGePoint3
 	ads_name name;
 
 	int result = acdbGetAdsName(name, dbText.objectId());
+	resbuf *buf = NULL;
+	buf = acdbEntGet(name);
 
-	resbuf * buf = acdbEntGet(name);
+
+	struct resbuf *rb=NULL;
+
+	//#define  OL_EBADTYPE   93  /* Bad value type */
+	 /*#define  OL_ENTSELPICK 7 Entity selection  (failed pick) */
+	acedGetVar(L"ERRNO", rb);
+	if(rb!=NULL)
+	acutPrintf(L"\nrb=%d", rb->resval.rint);
+
+
 
 	ads_point point1, point2;
 
-	acedTextBox(buf, point1, point2);
+	if (acedTextBox(buf, point1, point2) != RTNORM) {
+		
+		struct resbuf *rb1=NULL;
 
+		acedGetVar(L"ERRNO", rb1);
+
+		acutPrintf(L"\nrbbox=%d", rb1->resval.rint);
+		acutRelRb(rb1);
+	}
+	if (buf != NULL)
+	acutRelRb(buf);
+	if (rb != NULL)
+	acutRelRb(rb);
 	pt1 = asPnt3d(point1);
 	pt2 = asPnt3d(point2);
 
-	AcGeMatrix3d rotMat = AcGeMatrix3d::rotation(dbText.rotation(), dbText.normal(), pt1);
+	AcDbText * pEnt = NULL;
+
+	if (acdbOpenObject(pEnt, dbText.objectId(), AcDb::OpenMode::kForWrite) != ErrorStatus::eOk) {
+		return;
+	}
+	pEnt->mirrorInX(Adesk::kFalse);
+	pEnt->mirrorInY(Adesk::kFalse);
+
+	AcGeMatrix3d rotMat = AcGeMatrix3d::rotation(pEnt->rotation(), pEnt->normal(), pt1);
+
+	pt1 = pt1.transformBy(rotMat) + pEnt->position().asVector();
+	pt2 = pt2.transformBy(rotMat) + pEnt->position().asVector();
+
+	AcGeVector3d rotDir = AcGeVector3d(
+	-sin(pEnt->rotation()),
+	cos(pEnt->rotation()),
+	0
+	);
+	pEnt->close();
+	AcGeVector3d linDir = rotDir.crossProduct(dbText.normal());
+
+
+	/*AcGeMatrix3d rotMat = AcGeMatrix3d::rotation(dbText.rotation(),dbText.normal(), pt1);
 
 	pt1 = pt1.transformBy(rotMat) + dbText.position().asVector();
 	pt2 = pt2.transformBy(rotMat) + dbText.position().asVector();
@@ -275,7 +357,7 @@ void EcdKuaiJX::GetTextBoxCorners(AcDbText &dbText, AcGePoint3d &pt1, AcGePoint3
 		0
 		);
 
-	AcGeVector3d linDir = rotDir.crossProduct(dbText.normal());
+	AcGeVector3d linDir = rotDir.crossProduct(dbText.normal());*/
 
 	double actualWidth =
 		abs((pt2.asVector() - pt1.asVector()).dotProduct(linDir));
@@ -295,18 +377,19 @@ void EcdKuaiJX::MyMirror(vector<AcDbEntity*> listEnt, AcGeLine3d l3d, char xY)
 		AcDbEntity * ent2 = NULL;
 
 		if (ent->isKindOf(AcDbText::desc()) || ent->isKindOf(AcDbMText::desc())) {
+			AcDbObjectId textId = CDwgDataBaseUtil::PostToModelSpace(ent);
+			listOId.append(textId);
 
-			listOId.append(CDwgDataBaseUtil::PostToModelSpace(ent));
+			ent->close();
+
 		}
 		else {
 
 			ent->getTransformedCopy(AcGeMatrix3d::mirroring(l3d), ent2);
 
-
-			if ((AcDbDimension *)ent2 == NULL) {
-
-				list.push_back(ent2);
-
+			if (ent2->isKindOf(AcDbDimension::desc()) == false) {
+				listVec.push_back(ent2);
+				
 			}
 
 		}
@@ -332,7 +415,13 @@ void EcdKuaiJX::MyMirror(vector<AcDbEntity*> listEnt, AcGeLine3d l3d, char xY)
 	}
 	for (int i = 0; i < (int)listEnt.size(); i++)
 	{
-		listEnt.at(i)->close();
+		AcDbEntity *ent1 = listEnt.at(i);
+		if (ent1->isKindOf(AcDbText::desc()) || ent1->isKindOf(AcDbMText::desc())) {
+
+			continue;
+
+		}
+		ent1->close();
 	}
 
 }
