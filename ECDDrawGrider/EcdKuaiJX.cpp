@@ -5,7 +5,7 @@
 #include<vector>
 //#include"GePointUtil.h"
 #include"GetInputUtil.h"
-//#include"MathUtil.h"
+#include"MathUtil.h"
 #include"ConvertUtil.h"
 #include"time.h"
 using namespace std;
@@ -20,7 +20,11 @@ EcdKuaiJX::~EcdKuaiJX()
 
 void EcdKuaiJX::Command()
 {
+
+	
+	if(!listVec.empty())
 	listVec.clear();
+	if(!listOId.isEmpty())
 	listOId.removeAll();
 
 
@@ -185,7 +189,7 @@ void EcdKuaiJX::Command()
 
 	}
 
-	listOId.removeAll();
+
 
 	//关闭镜像后的实体
 	for (int i = 0; i < (int)listVec.size(); i++)
@@ -243,18 +247,7 @@ void EcdKuaiJX::MirrorText(AcDbText *text, AcGeLine3d mirrorLine)
 
 	GetTextBoxCorners(*dbText, pt1, pt2, pt3, pt4);
 
-	AcDbPolyline *pl = new AcDbPolyline();
 
-	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt1), 0, 0, 0);
-	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt2), 0, 0, 0);
-	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt3), 0, 0, 0);
-	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt4), 0, 0, 0);
-
-	pl->setColorIndex(1);
-
-	CDwgDataBaseUtil::PostToModelSpace(pl);
-
-	pl->close();
 
 	AcGeVector3d rotDir =
 		(pt4 - pt1.asVector()).asVector();
@@ -289,6 +282,11 @@ void EcdKuaiJX::MirrorText(AcDbMText *mText, AcGeLine3d mirrorLine)
 
 void EcdKuaiJX::GetTextBoxCorners(AcDbText &dbText, AcGePoint3d &pt1, AcGePoint3d &pt2, AcGePoint3d &pt3, AcGePoint3d &pt4)
 {
+
+	bool isMx = dbText.isMirroredInX();
+	bool isMy = dbText.isMirroredInY();
+
+
 	ads_name name;
 
 	int result = acdbGetAdsName(name, dbText.objectId());
@@ -297,14 +295,10 @@ void EcdKuaiJX::GetTextBoxCorners(AcDbText &dbText, AcGePoint3d &pt1, AcGePoint3
 
 
 	struct resbuf *rb=NULL;
-
-	//#define  OL_EBADTYPE   93  /* Bad value type */
-	 /*#define  OL_ENTSELPICK 7 Entity selection  (failed pick) */
+	
 	acedGetVar(L"ERRNO", rb);
 	if(rb!=NULL)
 	acutPrintf(L"\nrb=%d", rb->resval.rint);
-
-
 
 	ads_point point1, point2;
 
@@ -323,47 +317,104 @@ void EcdKuaiJX::GetTextBoxCorners(AcDbText &dbText, AcGePoint3d &pt1, AcGePoint3
 	acutRelRb(rb);
 	pt1 = asPnt3d(point1);
 	pt2 = asPnt3d(point2);
+	
+	AcDbLine *line8 = new AcDbLine(pt1, pt2);
 
-	AcDbText * pEnt = NULL;
+	line8->setColorIndex(220);
 
-	if (acdbOpenObject(pEnt, dbText.objectId(), AcDb::OpenMode::kForWrite) != ErrorStatus::eOk) {
-		return;
-	}
-	pEnt->mirrorInX(Adesk::kFalse);
-	pEnt->mirrorInY(Adesk::kFalse);
+	CDwgDataBaseUtil::PostToModelSpace(line8);
 
-	AcGeMatrix3d rotMat = AcGeMatrix3d::rotation(pEnt->rotation(), pEnt->normal(), pt1);
+	line8->close();
 
-	pt1 = pt1.transformBy(rotMat) + pEnt->position().asVector();
-	pt2 = pt2.transformBy(rotMat) + pEnt->position().asVector();
+	
+	AcGeVector3d vecZero = AcGePoint3d::kOrigin - pt1;
 
+	pt1 = AcGePoint3d::kOrigin;
+	pt2 = pt2 + vecZero;
+
+	//double ro = 236.0 / 180 * CMathUtil::PI();
+	//double ro1= 124.0 / 180 * CMathUtil::PI();
+	
+	
+	double ro = dbText.rotation();
+
+	//AcGeMatrix3d rotMat = AcGeMatrix3d::rotation(CMathUtil::PI() + ro, dbText.normal(), pt1);
+	
+
+	
+	AcGeMatrix3d rotMat = AcGeMatrix3d::rotation(ro, dbText.normal(), pt1);
+	
+	
+	//pt1 = pt1.transformBy(rotMat) + dbText.position().asVector();
+	//pt2 = pt2.transformBy(rotMat) + dbText.position().asVector();
+
+	pt1 = pt1.transformBy(rotMat);
+	pt2 = pt2.transformBy(rotMat);
+
+
+	AcDbLine *line2 = new AcDbLine(pt1, pt2);
+
+	line2->setColorIndex(2);
+
+	CDwgDataBaseUtil::PostToModelSpace(line2);
+
+	line2->close();
+
+	pt1=pt1+ dbText.position().asVector();
+	pt2 = pt2 + dbText.position().asVector();
+
+	AcDbLine *line4 = new AcDbLine(pt1, pt2);
+
+	line4->setColorIndex(10);
+
+	CDwgDataBaseUtil::PostToModelSpace(line4);
+
+	line4->close();
+
+	/*AcGeVector3d rotDir = AcGeVector3d(
+		-sin(2*dbText.rotation()),
+		cos(2*dbText.rotation()),
+		0
+		);*/
 	AcGeVector3d rotDir = AcGeVector3d(
-	-sin(pEnt->rotation()),
-	cos(pEnt->rotation()),
-	0
-	);
-	pEnt->close();
-	AcGeVector3d linDir = rotDir.crossProduct(dbText.normal());
-
-
-	/*AcGeMatrix3d rotMat = AcGeMatrix3d::rotation(dbText.rotation(),dbText.normal(), pt1);
-
-	pt1 = pt1.transformBy(rotMat) + dbText.position().asVector();
-	pt2 = pt2.transformBy(rotMat) + dbText.position().asVector();
-
-	AcGeVector3d rotDir = AcGeVector3d(
-		-sin(dbText.rotation()),
-		cos(dbText.rotation()),
+		-sin(ro),
+		cos(ro),
 		0
 		);
+		/*AcGeVector3d rotDir = AcGeVector3d(
+		-sin(ro1),
+		cos(ro1),
+		0
+		);*/
+		rotDir = -1 * rotDir;
+	
+		pt2 = pt2 + 2*(pt1 - pt2);
 
-	AcGeVector3d linDir = rotDir.crossProduct(dbText.normal());*/
-
+	//AcGeVector3d linDir = rotDir.crossProduct(-1 * dbText.normal());
+		AcGeVector3d linDir = rotDir.crossProduct(dbText.normal());
+		
 	double actualWidth =
 		abs((pt2.asVector() - pt1.asVector()).dotProduct(linDir));
 
+	
+
 	pt3 = pt1 + linDir*actualWidth;
 	pt4 = pt2 - linDir*actualWidth;
+	
+
+	AcDbPolyline *pl = new AcDbPolyline();
+
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt1), 0, 0, 0);
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt2), 0, 0, 0);
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt3), 0, 0, 0);
+	pl->addVertexAt(pl->numVerts(), CConvertUtil::ToPoint2d(pt4), 0, 0, 0);
+
+	pl->setColorIndex(1);
+	
+	CDwgDataBaseUtil::PostToModelSpace(pl);
+
+	pl->close();
+
 
 }
 
