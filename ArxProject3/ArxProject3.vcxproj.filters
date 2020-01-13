@@ -78,6 +78,15 @@
     <ClCompile Include="ModelessDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="DimMirror.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseJigEntity.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MoveJig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -135,6 +144,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ModelessDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DimMirror.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseJigEntity.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveJig.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

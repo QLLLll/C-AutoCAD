@@ -5,7 +5,7 @@ public:
 	CDatabaseJigEntity(const AcDbObjectIdArray & ids) : m_Ids(ids) {}
 	~CDatabaseJigEntity();
 	CDatabaseJigEntity();
-	virtual Adesk::Boolean subWorldDraw(AcGiWorldDraw *mode);
+	virtual Adesk::Boolean subWorldDraw(AcGiWorldDraw *mode);//实时显示改变
 	void setXform(const AcGeMatrix3d & xform) { m_Xform = xform; }
 	bool CDatabaseJigEntity::move();
 	BOOL transform();

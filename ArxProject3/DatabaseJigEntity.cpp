@@ -25,7 +25,7 @@ Adesk::Boolean CDatabaseJigEntity::subWorldDraw(AcGiWorldDraw * mode)
 	}
 	//这句不能少，恢复现场
 	mode->geometry().popModelTransform();
-	return (AcDbEntity::worldDraw(mode));
+	return (AcDbEntity::subWorldDraw(mode));
 }
 //用于拖动结束后，将实体变换到新位置
 BOOL CDatabaseJigEntity::transform()
@@ -33,8 +33,8 @@ BOOL CDatabaseJigEntity::transform()
 	AcTransaction * pTrans = acTransactionManagerPtr()->startTransaction();
 	if (NULL == pTrans)
 		return FALSE;
-	AcDbEntity *pEnt;
-	AcDbObject *pObj;
+	AcDbEntity *pEnt=NULL;
+	AcDbObject *pObj=NULL;
 	for (int i = 0; i < m_Ids.length(); i++)
 	{
 		if (Acad::eOk != pTrans->getObject(pObj, m_Ids[i], AcDb::kForWrite))
@@ -53,9 +53,9 @@ bool CDatabaseJigEntity::move() {
 	AcTransaction * pTrans = acTransactionManagerPtr()->startTransaction();
 	if (NULL == pTrans)
 		return FALSE;
-	AcDbEntity *pEnt;
+	AcDbEntity *pEnt=NULL;
 
-	AcDbObject *pObj;	
+	AcDbObject *pObj=NULL;	
 	for (int i = 0; i < m_Ids.length(); i++)
 	{
 		if (Acad::eOk != pTrans->getObject(pObj, m_Ids[i], AcDb::kForWrite))
@@ -77,9 +77,9 @@ BOOL CDatabaseJigEntity::transformedCopy()
 	AcTransaction * pTrans = acTransactionManagerPtr()->startTransaction();
 	if (NULL == pTrans)
 		return FALSE;
-	AcDbEntity *pEnt;
-	AcDbEntity *pNewEnt;
-	AcDbObject *pObj;
+	AcDbEntity *pEnt=NULL;
+	AcDbEntity *pNewEnt=NULL;
+	AcDbObject *pObj=NULL;
 	AcDbBlockTableRecord *pBlkRec;
 	AcDbObjectId blkRecId;
 	for (int i = 0; i < m_Ids.length(); i++)

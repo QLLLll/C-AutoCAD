@@ -13,6 +13,9 @@
 #include"ArxDialog.h"
 #include"ModelessDialog.h"
 #include"resource.h"
+#include"DimMirror.h"
+#include"DatabaseJigEntity.h"
+#include"MoveJig.h"
 CModelessDialog *pDialog = NULL;
 BOOL CloseDialog() {
 
@@ -873,6 +876,40 @@ public:
 
 	}
 
+	static void ECDMyGroupEMirroDim() {
+		CDimMirror dim =CDimMirror();
+		dim.Command();
+		dim.~CDimMirror();
+	}
+	static void ECDMyGroupEJigMove(void)
+	{
+		ads_name ename;
+		ads_point pt;
+		ads_name ss;
+		int rt;
+
+		if (rt = acedSSGet(NULL, NULL, NULL, NULL, ss) == RTCAN)
+			return;
+		int len;
+		acedSSLength(ss, &len);
+		if (0 == len) return;
+
+		AcDbObjectId id;
+		//acdbGetObjectId(id,ename);
+		AcDbObjectIdArray ids;
+		for (int i = 0; i < len; i++)
+		{
+			acedSSName(ss, i, ename);
+			acdbGetObjectId(id, ename);
+			ids.append(id);
+		}
+		acedSSFree(ss);
+		acedGetPoint(NULL, L"/nÆðµã£º", pt);
+
+		CMoveJig * pJig = new CMoveJig(asPnt3d(pt));
+		pJig->doIt(ids);
+	}
+
 } ;
 
 //-----------------------------------------------------------------------------
@@ -890,5 +927,5 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyTestDotInPolyline, MyT
 //ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MySetDwgScale, MySetDwgScale, ACRX_CMD_MODAL, NULL)
 //ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyGetDwgScale, MyGetDwgScale, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EModalD, EModalD, ACRX_CMD_MODAL, NULL)
-
-
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EMirroDim, EMirroDim, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EJigMove, EJigMove, ACRX_CMD_MODAL, NULL)
