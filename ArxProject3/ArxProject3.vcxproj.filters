@@ -87,6 +87,12 @@
     <ClCompile Include="MoveJig.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MyTuBao.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RegionUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -153,6 +159,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MoveJig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MyTuBao.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RegionUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

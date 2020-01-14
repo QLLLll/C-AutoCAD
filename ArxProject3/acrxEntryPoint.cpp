@@ -16,6 +16,9 @@
 #include"DimMirror.h"
 #include"DatabaseJigEntity.h"
 #include"MoveJig.h"
+#include"DrawRecJig.h"
+#include"MyTuBao.h"
+#include"ConvertUtil.h"
 CModelessDialog *pDialog = NULL;
 BOOL CloseDialog() {
 
@@ -909,6 +912,274 @@ public:
 		CMoveJig * pJig = new CMoveJig(asPnt3d(pt));
 		pJig->doIt(ids);
 	}
+	static void ECDMyGroupEJigRec() {
+
+		DrawRecJig recJig = DrawRecJig();
+
+		ads_point  pt;
+
+		AcDbPolyline *pl1 = NULL, *pl2 = NULL,*pl3;
+
+
+		if (acedGetPoint(NULL, L"\n请选择插入点：", pt) == RTNORM) {
+
+			AcDbObjectId  oId1, oId2;
+
+			if (recJig.DoIt(asPnt3d(pt), oId1)) {
+
+				pl1 = AcDbPolyline::cast(recJig.entity());
+			}
+
+			if (recJig.DoIt(asPnt3d(pt), oId2)) {
+
+				pl2 = AcDbPolyline::cast(recJig.entity());
+			}
+
+			AcGePoint3dArray ptArr;
+
+			for (int i = 0; i < pl1->numVerts(); i++) {
+
+				AcGePoint2d pt;
+				pl1->getPointAt(i, pt);
+
+				ptArr.append(CConvertUtil::ToPoint3d(pt));
+
+			}
+			for (int i = 0; i < pl2->numVerts(); i++) {
+
+				AcGePoint2d pt;
+				pl2->getPointAt(i, pt);
+
+				ptArr.append(CConvertUtil::ToPoint3d(pt));
+
+			}
+			pl1->close();
+			pl2->close();
+
+
+
+			AcDbEntity *pEnt1=NULL, *pEnt2=NULL;
+
+			if (acdbOpenObject(pEnt1, oId1, AcDb::kForWrite) == Acad::eOk) {
+
+				pEnt1->erase();
+				pEnt1->close();
+
+			}
+			if (acdbOpenObject(pEnt2, oId2, AcDb::kForWrite) == Acad::eOk) {
+
+				pEnt2->erase();
+				pEnt2->close();
+			}
+			
+			
+
+			MyTuBao tubao = MyTuBao(ptArr);
+
+			AcGePoint3dArray ptArrGet;
+				tubao.GetTuBao(ptArrGet);
+
+			pl3 = new AcDbPolyline();
+
+			for (int i = 0; i <ptArrGet.length(); i++)
+			{
+
+				pl3->addVertexAt(pl3->numVerts(), CConvertUtil::ToPoint2d(ptArrGet.at(i)), 0, 0, 0);
+			}
+
+			pl3->setClosed(Adesk::kTrue);
+
+		AcGePoint2d ptStart, ptEnd;
+	
+		for (int j = 0; j < pl3->numVerts(); j++)
+		{
+			AcGeLineSeg2d l2d;
+
+			pl3->getLineSegAt(j, l2d);
+
+			AcGeVector2d vec2d= l2d.direction();
+
+			double an = vec2d.angle();
+
+			if (!CMathUtil::IsEqual(vec2d.angle(), CMathUtil::PI(), 1e-4) &&
+				!CMathUtil::IsEqual(vec2d.angle(), CMathUtil::PI() / 2.0, 1e-4) &&
+				!CMathUtil::IsEqual(vec2d.angle(), CMathUtil::PI() * 2, 1e-4) &&
+				!CMathUtil::IsEqual(vec2d.angle(), CMathUtil::PI() * 3 / 2.0, 1e-4) &&
+				!CMathUtil::IsEqual(vec2d.angle(), 0, 1e-4))
+			{
+				ptStart = l2d.startPoint();
+				ptEnd = l2d.endPoint();
+				break;
+			}
+		}
+
+		AcDbObjectId pId = CDwgDataBaseUtil::PostToModelSpace(pl3);
+		pl3->close();
+
+		AcGePoint3d pt1 = CConvertUtil::ToPoint3d(ptStart), pt2 = CConvertUtil::ToPoint3d(ptEnd);
+		
+		double x1 = ptStart.x, x2 = ptEnd.x;
+		double y1 = ptStart.y, y2 = ptEnd.y;
+
+		// 计算矩形的角点
+		AcGePoint2d ptLeftBottom(min(x1, x2), min(y1, y2));
+		AcGePoint2d ptRightBottom(max(x1, x2), min(y1, y2));
+		AcGePoint2d ptRightTop(max(x1, x2), max(y1, y2));
+		AcGePoint2d ptLeftTop(min(x1, x2), max(y1, y2));
+
+		AcGePoint2dArray pt2dArr;
+		pt2dArr.append(ptLeftBottom);
+		pt2dArr.append(ptRightBottom);
+		pt2dArr.append(ptRightTop);
+		pt2dArr.append(ptLeftTop);
+
+		if (pt2dArr.contains(ptStart)) {
+			pt2dArr.remove(ptStart);
+		}
+		if (pt2dArr.contains(ptEnd)) {
+			pt2dArr.remove(ptEnd);
+		}
+
+		int index = ptArrGet.find(pt1);
+
+		if (index != -1) {
+
+			ptArrGet.insertAt(index+1, CConvertUtil::ToPoint3d(pt2dArr[0]));
+
+		}
+
+		AcDbPolyline *plTemp1 = new AcDbPolyline();
+
+
+		for (int i = 0; i <ptArrGet.length(); i++)
+		{
+
+			plTemp1->addVertexAt(plTemp1->numVerts(), CConvertUtil::ToPoint2d(ptArrGet.at(i)), 0, 0, 0);
+		}
+
+		plTemp1->setClosed(Adesk::kTrue);
+
+		plTemp1->setColorIndex(1);
+
+		
+
+		double area1 = 0.0;
+
+		plTemp1->getArea(area1);
+
+		//plTemp1->close();
+
+
+		//ptArrGet.insertAt(index, CConvertUtil::ToPoint3d(pt2dArr[0]));
+		ptArrGet.remove(CConvertUtil::ToPoint3d(pt2dArr[0]));
+		ptArrGet.insertAt(index+1, CConvertUtil::ToPoint3d(pt2dArr[1]));
+
+
+		AcDbPolyline *plTemp2 = new AcDbPolyline();
+
+
+		for (int i = 0; i <ptArrGet.length(); i++)
+		{
+
+			plTemp2->addVertexAt(plTemp2->numVerts(), CConvertUtil::ToPoint2d(ptArrGet.at(i)), 0, 0, 0);
+		}
+
+		plTemp2->setClosed(Adesk::kTrue);
+
+		plTemp2->setColorIndex(2);
+
+		
+
+		double area2 = 0.0;
+
+		plTemp2->getArea(area2);
+		//plTemp2->close();
+
+
+
+		if ( area1<area2) {
+			AcDbObjectId pIdTemp1 = CDwgDataBaseUtil::PostToModelSpace(plTemp1);
+			plTemp1->close();
+
+			plTemp2->erase();
+			plTemp2->close();
+
+		}
+		else {
+			
+			AcDbObjectId pIdTemp2 = CDwgDataBaseUtil::PostToModelSpace(plTemp2);
+			plTemp2->close();
+
+			plTemp1->erase();
+			plTemp1->close();
+
+
+		}
+		
+		
+		/*AcDbLine * line = new AcDbLine(CConvertUtil::ToPoint3d(ptStart), CConvertUtil::ToPoint3d(ptEnd));
+
+		line->setColorIndex(3);
+
+		CDwgDataBaseUtil::PostToModelSpace(line);
+
+		line->close();*/
+
+
+
+			
+
+
+		}
+
+	}
+
+	static void ECDMyGroupEUnion() {
+
+		DrawRecJig recJig = DrawRecJig();
+
+		ads_point  pt;
+
+		AcDbPolyline *pl1 = NULL, *pl2 = NULL;
+
+
+		if (acedGetPoint(NULL, L"\n请选择插入点：", pt) == RTNORM) {
+
+			AcDbObjectId  oId1, oId2;
+
+			if (recJig.DoIt(asPnt3d(pt), oId1)) {
+
+				pl1 = AcDbPolyline::cast(recJig.entity());
+			}
+
+			if (recJig.DoIt(asPnt3d(pt), oId2)) {
+
+				pl2 = AcDbPolyline::cast(recJig.entity());
+			}
+
+			
+			AcDbVoidPtrArray curveSegments;
+			AcDbVoidPtrArray regions;
+
+			curveSegments.append(pl1);
+			curveSegments.append(pl2);
+
+
+			if (AcDbRegion::createFromCurves(curveSegments, regions) == Acad::eOk) {
+
+				AcDbRegion *region =(AcDbRegion *)regions[0];
+
+				region->booleanOper(AcDb::BoolOperType::kBoolUnite, (AcDbRegion *)regions[1]);			
+
+				CDwgDataBaseUtil::PostToModelSpace(region);
+
+				region->close();
+			}
+			pl1->close();
+			pl2->close();
+
+		}
+	}
 
 } ;
 
@@ -929,3 +1200,5 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, MyTestDotInPolyline, MyT
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EModalD, EModalD, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EMirroDim, EMirroDim, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EJigMove, EJigMove, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EJigRec, EJigRec, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EUnion, EUnion, ACRX_CMD_MODAL, NULL)

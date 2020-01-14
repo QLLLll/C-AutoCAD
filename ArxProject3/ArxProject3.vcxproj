@@ -97,7 +97,9 @@
     <ClCompile Include="MFCDialog.cpp" />
     <ClCompile Include="ModelessDialog.cpp" />
     <ClCompile Include="MoveJig.cpp" />
+    <ClCompile Include="MyTuBao.cpp" />
     <ClCompile Include="PolylineUtil.cpp" />
+    <ClCompile Include="RegionUtil.cpp" />
     <ClCompile Include="SelectUtil.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -125,7 +127,9 @@
     <ClInclude Include="MFCDialog.h" />
     <ClInclude Include="ModelessDialog.h" />
     <ClInclude Include="MoveJig.h" />
+    <ClInclude Include="MyTuBao.h" />
     <ClInclude Include="PolylineUtil.h" />
+    <ClInclude Include="RegionUtil.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectUtil.h" />
     <ClInclude Include="StdAfx.h" />

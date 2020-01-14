@@ -43,12 +43,30 @@ AcEdJig::DragStatus DrawRecJig::sampler()
 bool DrawRecJig::update()
 {
 	double dist = CConvertUtil::ToPoint2d(ptCenter).distanceTo(CConvertUtil::ToPoint2d(ptCurrent));
-	for (int i = 0; i < 4; i++)
+	/*for (int i = 0; i < 4; i++)
 	{
 		double angle = i*CMathUtil::PI()*0.5 + CMathUtil::PI()*0.25;
 		AcGePoint2d pt = CGePointUtil::PolarPoint(CConvertUtil::ToPoint2d(ptCenter), angle, dist);
 		pl->setPointAt(i, pt);
-	}
+	}*/
+
+	// 提取两个角点的坐标值
+	double x1 = ptCenter.x, x2 = ptCurrent.x;
+	double y1 = ptCenter.y, y2 = ptCurrent.y;
+
+	// 计算矩形的角点
+	AcGePoint2d ptLeftBottom(min(x1, x2), min(y1, y2));
+	AcGePoint2d ptRightBottom(max(x1, x2), min(y1, y2));
+	AcGePoint2d ptRightTop(max(x1, x2), max(y1, y2));
+	AcGePoint2d ptLeftTop(min(x1, x2), max(y1, y2));
+
+	pl->setPointAt(0, ptLeftBottom);
+	pl->setPointAt(1, ptLeftTop);
+	pl->setPointAt(2, ptRightTop);
+	pl->setPointAt(3, ptRightBottom);
+
+
+
 	return true;
 
 }
