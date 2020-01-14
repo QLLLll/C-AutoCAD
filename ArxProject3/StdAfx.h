@@ -33,7 +33,7 @@
 
 //-----------------------------------------------------------------------------
 #define STRICT
-
+#define _BREP_SUPPORT_
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN			//- Exclude rarely-used stuff from Windows headers
 #endif

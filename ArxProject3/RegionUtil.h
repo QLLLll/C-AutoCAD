@@ -4,6 +4,6 @@ class CRegionUtil
 public:
 	CRegionUtil();
 	~CRegionUtil();
-	static void r2p(AcDbRegion* pRegion);
+	static void GetRegionPoints(AcDbRegion * pRegion, AcGePoint3dArray & points);	
 };
 
