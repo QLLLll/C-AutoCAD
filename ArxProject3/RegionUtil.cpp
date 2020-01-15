@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "RegionUtil.h"
-//#import "C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\lib-x64\acgex22.lib"
-#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brbrep.h"
-#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brbftrav.h"
-#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brfltrav.h"
-#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brletrav.h"
-#include"DwgDataBaseUtil.h"
+//#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brbrep.h"
+//#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brbftrav.h"
+//#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brfltrav.h"
+//#include"C:Autodesk_ObjectARX_2018_Win_64_and_32_Bit\utils\brep\inc\brletrav.h"
+//#include"DwgDataBaseUtil.h"
 
 CRegionUtil::CRegionUtil()
 {

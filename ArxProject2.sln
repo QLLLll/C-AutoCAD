@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MouseWheelMsg", "MouseWheel
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ECDDrawGrider", "ECDDrawGrider\ECDDrawGrider.vcxproj", "{0E239082-457A-47AA-A20F-9AED0D86BFD9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TongJiAndLieBiao", "TongJiAndLieBiao\TongJiAndLieBiao.vcxproj", "{27495CA5-46DD-4933-BC49-C97EC97C6748}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +93,14 @@ Global
 		{0E239082-457A-47AA-A20F-9AED0D86BFD9}.Release|x64.Build.0 = Release|x64
 		{0E239082-457A-47AA-A20F-9AED0D86BFD9}.Release|x86.ActiveCfg = Release|Win32
 		{0E239082-457A-47AA-A20F-9AED0D86BFD9}.Release|x86.Build.0 = Release|Win32
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Debug|x64.ActiveCfg = Debug|x64
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Debug|x64.Build.0 = Debug|x64
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Debug|x86.ActiveCfg = Debug|Win32
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Debug|x86.Build.0 = Debug|Win32
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Release|x64.ActiveCfg = Release|x64
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Release|x64.Build.0 = Release|x64
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Release|x86.ActiveCfg = Release|Win32
+		{27495CA5-46DD-4933-BC49-C97EC97C6748}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
