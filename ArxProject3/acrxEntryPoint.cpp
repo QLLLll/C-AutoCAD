@@ -1157,7 +1157,6 @@ public:
 
 				pl2 = AcDbPolyline::cast(recJig.entity());
 			}
-
 			
 			AcDbVoidPtrArray curveSegments;
 			AcDbVoidPtrArray regions;
@@ -1165,13 +1164,11 @@ public:
 			curveSegments.append(pl1);
 			curveSegments.append(pl2);
 
-
 			if (AcDbRegion::createFromCurves(curveSegments, regions) == Acad::eOk) {
 
 				AcDbRegion *region =(AcDbRegion *)regions[0];
 
 				region->booleanOper(AcDb::BoolOperType::kBoolUnite, (AcDbRegion *)regions[1]);			
-
 
 				AcGePoint3dArray ptArr;
 
@@ -1187,13 +1184,9 @@ public:
 
 				}
 
-
-				//CDwgDataBaseUtil::PostToModelSpace(region);
-
 				region->close();
 
 				AcDbPolyline *plTemp1 = new AcDbPolyline();
-
 
 				for (int i = 0; i <ptArr.length(); i++)
 				{
@@ -1209,14 +1202,11 @@ public:
 
 				plTemp1->close();
 
-
 			}
 			pl1->close();
 			pl2->close();
-
 		}
 	}
-
 } ;
 
 //-----------------------------------------------------------------------------

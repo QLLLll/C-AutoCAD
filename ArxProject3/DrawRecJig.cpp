@@ -9,7 +9,6 @@ DrawRecJig::DrawRecJig()
 	pl = NULL;
 }
 
-
 DrawRecJig::~DrawRecJig()
 {
 }
@@ -36,20 +35,11 @@ AcEdJig::DragStatus DrawRecJig::sampler()
 		return AcEdJig::kNoChange;
 	}
 	return status;
-
-
 }
 
 bool DrawRecJig::update()
 {
 	double dist = CConvertUtil::ToPoint2d(ptCenter).distanceTo(CConvertUtil::ToPoint2d(ptCurrent));
-	/*for (int i = 0; i < 4; i++)
-	{
-		double angle = i*CMathUtil::PI()*0.5 + CMathUtil::PI()*0.25;
-		AcGePoint2d pt = CGePointUtil::PolarPoint(CConvertUtil::ToPoint2d(ptCenter), angle, dist);
-		pl->setPointAt(i, pt);
-	}*/
-
 	// 提取两个角点的坐标值
 	double x1 = ptCenter.x, x2 = ptCurrent.x;
 	double y1 = ptCenter.y, y2 = ptCurrent.y;
@@ -65,10 +55,7 @@ bool DrawRecJig::update()
 	pl->setPointAt(2, ptRightTop);
 	pl->setPointAt(3, ptRightBottom);
 
-
-
 	return true;
-
 }
 
 AcDbEntity * DrawRecJig::entity() const
@@ -93,6 +80,7 @@ bool DrawRecJig::DoIt(AcGePoint3d & ptCenter, AcDbObjectId &plId)
 
 	if (drag()==kNormal) {
 
+		//加入到模型空间的封装
 		plId=CDwgDataBaseUtil::PostToModelSpace(pl);
 
 		return true;
