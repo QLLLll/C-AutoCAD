@@ -20,6 +20,7 @@
 //#include"MyTuBao.h"
 #include"ConvertUtil.h"
 #include"RegionUtil.h"
+#include"FindTextAndBlock.h"
 CModelessDialog *pDialog = NULL;
 BOOL CloseDialog() {
 
@@ -1207,6 +1208,18 @@ public:
 			pl2->close();
 		}
 	}
+
+	static void ECDMyGroupEFindPos() {
+
+		CFindTextAndBlock * f1 = new CFindTextAndBlock(L"abc", L"0");
+		CFindTextAndBlock * f2 = new CFindTextAndBlock(L"LL", L"0",2);
+		f1->Command();
+		f2->Command();
+
+		delete f1;
+		delete f2;
+
+	}
 } ;
 
 //-----------------------------------------------------------------------------
@@ -1228,3 +1241,4 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EMirroDim, EMirroDim, AC
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EJigMove, EJigMove, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EJigRec, EJigRec, ACRX_CMD_MODAL, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EUnion, EUnion, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CArxProject3App, ECDMyGroup, EFindPos, EFindPos, ACRX_CMD_MODAL, NULL)

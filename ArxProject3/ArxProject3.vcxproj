@@ -92,6 +92,7 @@
     <ClCompile Include="DocData.cpp" />
     <ClCompile Include="DrawRecJig.cpp" />
     <ClCompile Include="DwgDataBaseUtil.cpp" />
+    <ClCompile Include="FindTextAndBlock.cpp" />
     <ClCompile Include="GetInputUtil.cpp" />
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="MFCDialog.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="DocData.h" />
     <ClInclude Include="DrawRecJig.h" />
     <ClInclude Include="DwgDataBaseUtil.h" />
+    <ClInclude Include="FindTextAndBlock.h" />
     <ClInclude Include="GePointUtil.h" />
     <ClInclude Include="GetInputUtil.h" />
     <ClInclude Include="MathUtil.h" />
