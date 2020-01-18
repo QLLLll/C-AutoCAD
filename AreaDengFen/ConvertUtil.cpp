@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ConvertUtil.h"
 
-//_wtof
+
 CConvertUtil::CConvertUtil()
 {
 }

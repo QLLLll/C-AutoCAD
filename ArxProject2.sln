@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TongJiAndLieBiao", "TongJiA
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImPortExcel", "ImPortExcel\ImPortExcel.vcxproj", "{2DFDCA00-7835-4D95-B301-6252FC99E166}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AreaDengFen", "AreaDengFen\AreaDengFen.vcxproj", "{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -111,6 +113,14 @@ Global
 		{2DFDCA00-7835-4D95-B301-6252FC99E166}.Release|x64.Build.0 = Release|x64
 		{2DFDCA00-7835-4D95-B301-6252FC99E166}.Release|x86.ActiveCfg = Release|Win32
 		{2DFDCA00-7835-4D95-B301-6252FC99E166}.Release|x86.Build.0 = Release|Win32
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Debug|x64.ActiveCfg = Debug|x64
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Debug|x64.Build.0 = Debug|x64
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Debug|x86.ActiveCfg = Debug|Win32
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Debug|x86.Build.0 = Debug|Win32
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Release|x64.ActiveCfg = Release|x64
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Release|x64.Build.0 = Release|x64
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Release|x86.ActiveCfg = Release|Win32
+		{1A51B940-7B89-4FCF-9861-3F8AEBAB53CE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
