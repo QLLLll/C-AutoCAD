@@ -11,7 +11,8 @@ public:
 	void Command();
 private:
 	int GetDirection();
-
+	AcGePoint3d GetQieDian(AcDbLine * &line1);
+	bool  GetPyPolyline(AcGePoint3d seedPoint,double &a);
 
 private :
 	AcDbPolyline *poly;
@@ -22,6 +23,7 @@ private :
 	vector<double>vecArea;
 	AcGePoint3d l1Pt, l2Pt;
 	AcGeVector3d pyXl;
+	AcDbObjectId plId;
 
 };
 
