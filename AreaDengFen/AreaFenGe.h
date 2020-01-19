@@ -24,6 +24,7 @@ private :
 	AcGePoint3d l1Pt, l2Pt;
 	AcGeVector3d pyXl;
 	AcDbObjectId plId;
+	double plHigh = 0.0;
 
 };
 

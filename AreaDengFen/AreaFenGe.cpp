@@ -50,38 +50,34 @@ CAreaFenGe::~CAreaFenGe()
 
 void CAreaFenGe::Command()
 {
-	acutPrintf(L"\ndir=%d", direction);
+	acutPrintf(L"\ndir=%d,%d", direction,plHigh);
 
-
+	ErrorStatus es;
 	AcDbLine * lQieXian = NULL;
 	AcGePoint3d ptQieDian = GetQieDian(lQieXian);
 
-	//delete lQieXian;
-
-	//lQieXian = NULL;
-
-	//return;
+	
 
 	acutPrintf(L"\nptQieDian=[%.2f,%.2f,%.2f]", ptQieDian.x, ptQieDian.y, ptQieDian.z);
 
-	ptQieDian.transformBy(AcGeMatrix3d::translation(pyXl.normal() * 3));
+	ptQieDian.transformBy(AcGeMatrix3d::translation(pyXl.normal() * 5));
 	acutPrintf(L"\nptQieDian2=[%.2f,%.2f,%.2f]", ptQieDian.x, ptQieDian.y, ptQieDian.z);
 	
 	if (ptQieDian.x==0&&ptQieDian.y==0) {
 		return;
 	}
-
+	
 
 	AcDbObjectId qxId;
-	lQieXian->transformBy(AcGeMatrix3d::translation(pyXl.normal() * 8));
+	lQieXian->transformBy(AcGeMatrix3d::translation(pyXl.normal() *12));
 
 	qxId = CDwgDataBaseUtil::PostToModelSpace(lQieXian);
 
 	lQieXian->close();
+
 	lQieXian = NULL;
 
-	double ljArea = 0.0;
-	double bujin = totalArea * 1 / 2000;
+	
 	for (int i = 0; i < (int)vecArea.size(); i++)
 	{
 		
@@ -99,48 +95,86 @@ void CAreaFenGe::Command()
 		double a = 0.0;
 
 		int times = 0;
+		double bujin = sqrt( totalArea * 1 / 2000);
+		double bujinT = 0.0;
 
-		while (abs(vecArea[i] - a)/totalArea >=0.05&&times<50) {
+		while (a<vecArea[i]&&times<100) {
+		
 			times++;
-			bool flag = GetPyPolyline(ptQieDian,a);
-			
-			if (!flag) {
+			bool flag = GetPyPolyline(ptQieDian, a);
 
+			if (!flag) {
 				return;
 			}
-
-			ErrorStatus es = acdbOpenObject(lQieXian, qxId, AcDb::kForWrite);
+			es = acdbOpenObject(lQieXian, qxId, AcDb::kForWrite);
 			lQieXian->transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin));
 
 			lQieXian->close();
 
-			ptCopyQd.transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin));
+			//ptCopyQd.transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin));
+			bujinT += bujin;
 
-			if (abs(a - totalArea) <= 10) {
-				break;
-			}
-
-
+		
 		}
-		ptCopyQd.transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin/2));
-		ptQieDian = ptCopyQd;
 
 		acdbOpenObject(lQieXian, qxId, AcDb::kForWrite);
 
+		//求面积合格时，移动后的切线和poly的焦点
 
+		es = acdbOpenObject(poly, plId, AcDb::kForRead);
+
+		AcGePoint3dArray ptJdArr;
+
+		poly->intersectWith(lQieXian, AcDb::Intersect::kOnBothOperands, ptJdArr, 0, 0);
+
+
+		if (ptJdArr.length() >= 2) {
+
+			AcDbLine* lFg = new AcDbLine(ptJdArr[0], ptJdArr[1]);
+
+			CDwgDataBaseUtil::PostToModelSpace(lFg);
+
+			lFg->close();
+
+		}
+		poly->close();
+
+	
 
 		AcDbPolyline *pCopyQx = (AcDbPolyline*)lQieXian->clone();
 		
+
+		pCopyQx->transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin));
+		
+		if (i != (int)vecArea.size() - 1) {
+
+			qxId = CDwgDataBaseUtil::PostToModelSpace(pCopyQx);
+
+			pCopyQx->close();
+			pCopyQx = NULL;
+		}
+		lQieXian->erase();
 		lQieXian->close();
 		lQieXian = NULL;
 
-		pCopyQx->transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin));
+		//当运行到最后一个面积时，就不复制了
+		if (i == (int)vecArea.size() - 1) {
 
-		qxId = CDwgDataBaseUtil::PostToModelSpace(pCopyQx);
+			delete pCopyQx;
+			pCopyQx = NULL;
 
-		pCopyQx->close();
-		pCopyQx = NULL;
+			break;
+		}
 
+		if (ptJdArr.length() >= 2) {
+
+			AcGePoint3d pt1 = ptJdArr[0], pt2 = ptJdArr[1];
+
+			ptQieDian = AcGePoint3d((pt1.x + pt2.x) / 2, (pt1.y + pt2.y) / 2, 0);
+
+			ptQieDian.transformBy(AcGeMatrix3d::translation(pyXl.normal() *bujin/2));	
+			acutPrintf(L"\nptQieDian3=[%.2f,%.2f,%.2f]", ptQieDian.x, ptQieDian.y, ptQieDian.z);
+		}
 
 	}
 
@@ -160,6 +194,7 @@ int CAreaFenGe::GetDirection()
 
 	AcGeVector3d lineDirc = l2Pt - l1Pt;
 
+	plHigh = abs(ptMax.y - ptMin.y);
 	AcGeVector3d centerPt((l2Pt.x + l1Pt.x) / 2, (l2Pt.y + l1Pt.y) / 2, 0);
 	//x=0的情况没判断
 	//左下
@@ -360,7 +395,7 @@ bool  CAreaFenGe::GetPyPolyline(AcGePoint3d seedPoint,double & a)
 	ErrorStatus es = acedTraceBoundary(seedPoint, false, ptrArr);
 
 	if (es != Acad::eOk) {
-	acutPrintf(L"\n%d", es);
+	acutPrintf(L"\nbound=%d", es);
 	return false;
 	}
 
