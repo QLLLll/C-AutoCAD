@@ -7,7 +7,7 @@
 #include"GetInputUtil.h"
 CAreaFenGe::CAreaFenGe(ACHAR *fenGeStr, AcDbPolyline *&p, AcDbLine *&l)
 {
-
+	direction = -1;
 	vector<CString> vec;
 
 	CStringUtil::Split(W2T(fenGeStr), L",", vec, false);
@@ -50,26 +50,31 @@ CAreaFenGe::~CAreaFenGe()
 
 void CAreaFenGe::Command()
 {
-	acutPrintf(L"\ndir=%d,%d", direction,plHigh);
+	acutPrintf(L"\ndir=%d,%d", direction, plHigh);
+
+	if (direction == -1) {
+		poly->close();
+		return;
+	}
 
 	ErrorStatus es;
 	AcDbLine * lQieXian = NULL;
 	AcGePoint3d ptQieDian = GetQieDian(lQieXian);
 
-	
+
 
 	acutPrintf(L"\nptQieDian=[%.2f,%.2f,%.2f]", ptQieDian.x, ptQieDian.y, ptQieDian.z);
 
 	ptQieDian.transformBy(AcGeMatrix3d::translation(pyXl.normal() * 5));
 	acutPrintf(L"\nptQieDian2=[%.2f,%.2f,%.2f]", ptQieDian.x, ptQieDian.y, ptQieDian.z);
-	
-	if (ptQieDian.x==0&&ptQieDian.y==0) {
+
+	if (ptQieDian.x == 0 && ptQieDian.y == 0) {
 		return;
 	}
-	
+
 
 	AcDbObjectId qxId;
-	lQieXian->transformBy(AcGeMatrix3d::translation(pyXl.normal() *12));
+	lQieXian->transformBy(AcGeMatrix3d::translation(pyXl.normal() * 12));
 
 	qxId = CDwgDataBaseUtil::PostToModelSpace(lQieXian);
 
@@ -77,10 +82,10 @@ void CAreaFenGe::Command()
 
 	lQieXian = NULL;
 
-	
+
 	for (int i = 0; i < (int)vecArea.size(); i++)
 	{
-		
+
 
 		AcGePoint3d ptCopyQd = ptQieDian;
 
@@ -95,11 +100,11 @@ void CAreaFenGe::Command()
 		double a = 0.0;
 
 		int times = 0;
-		double bujin = sqrt( totalArea * 1 / 2000);
+		double bujin = sqrt(totalArea * 1 / 2000);
 		double bujinT = 0.0;
 
-		while (a<vecArea[i]&&times<100) {
-		
+		while (a < vecArea[i] && times < 100) {
+
 			times++;
 			bool flag = GetPyPolyline(ptQieDian, a);
 
@@ -114,7 +119,7 @@ void CAreaFenGe::Command()
 			//ptCopyQd.transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin));
 			bujinT += bujin;
 
-		
+
 		}
 
 		acdbOpenObject(lQieXian, qxId, AcDb::kForWrite);
@@ -139,13 +144,13 @@ void CAreaFenGe::Command()
 		}
 		poly->close();
 
-	
+
 
 		AcDbPolyline *pCopyQx = (AcDbPolyline*)lQieXian->clone();
-		
+
 
 		pCopyQx->transformBy(AcGeMatrix3d::translation(pyXl.normal() * bujin));
-		
+
 		if (i != (int)vecArea.size() - 1) {
 
 			qxId = CDwgDataBaseUtil::PostToModelSpace(pCopyQx);
@@ -172,7 +177,7 @@ void CAreaFenGe::Command()
 
 			ptQieDian = AcGePoint3d((pt1.x + pt2.x) / 2, (pt1.y + pt2.y) / 2, 0);
 
-			ptQieDian.transformBy(AcGeMatrix3d::translation(pyXl.normal() *bujin/2));	
+			ptQieDian.transformBy(AcGeMatrix3d::translation(pyXl.normal() *bujin / 2));
 			acutPrintf(L"\nptQieDian3=[%.2f,%.2f,%.2f]", ptQieDian.x, ptQieDian.y, ptQieDian.z);
 		}
 
@@ -182,7 +187,7 @@ void CAreaFenGe::Command()
 
 int CAreaFenGe::GetDirection()
 {
-	
+
 	AcDbExtents ext;
 
 	poly->getGeomExtents(ext);
@@ -195,129 +200,175 @@ int CAreaFenGe::GetDirection()
 	AcGeVector3d lineDirc = l2Pt - l1Pt;
 
 	plHigh = abs(ptMax.y - ptMin.y);
-	AcGeVector3d centerPt((l2Pt.x + l1Pt.x) / 2, (l2Pt.y + l1Pt.y) / 2, 0);
-	//x=0的情况没判断
-	//左下
-	if (centerPt.x <= ptMin.x&&centerPt.y <= ptMin.y) {
+	AcGePoint3d centerPt((l2Pt.x + l1Pt.x) / 2, (l2Pt.y + l1Pt.y) / 2, 0);
+	AcGePoint3d ptCloset;
 
-		direction = 1;
+	poly->getClosestPointTo(centerPt, ptCloset, false);
 
-		//向量向左
-		if (lineDirc.x < 0) {
+	AcDbLine *line1 = AcDbLine::cast(line->clone());
+	AcDbLine *line2 = AcDbLine::cast(line->clone());
 
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2,AcGeVector3d::kZAxis);
 
-		}
-		else {
-			pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
 
-		}
+	double len = ptCloset.distanceTo(centerPt);
 
-	}//左
-	//左
-	else if (centerPt.x<ptMin.x && (centerPt.y>ptMin.y&&centerPt.y < ptMax2.y))
-	{
-		direction = 2;
+	AcGeVector3d pyXl1 = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+	AcGeVector3d pyXl2 = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
 
-		if (l1Pt.y < l2Pt.y) {
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+	line1->transformBy(AcGeMatrix3d::translation(pyXl1.normal()*len / 2.0));
+	line2->transformBy(AcGeMatrix3d::translation(pyXl2.normal()*len / 2.0));
 
-		}
-		else {
-			pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-		}
-	}	
-	//左上
-	else if (centerPt.x<ptMin.x&&centerPt.y>ptMax2.y) {
-		
-		direction = 3;
+	AcGePoint3d line1Pt1=line1->startPoint(), line1Pt2=line1->endPoint();
+	AcGePoint3d line2Pt1=line2->startPoint(), line2Pt2= line2->endPoint();
 
-		if (lineDirc.x < 0) {
+	AcGePoint3d pt1((line1Pt1.x + line1Pt2.x) / 2, (line1Pt1.y + line1Pt2.y) / 2, 0);
+	AcGePoint3d pt2((line2Pt1.x + line2Pt2.x) / 2, (line2Pt1.y + line2Pt2.y) / 2, 0);
 
-			pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+	double len1 = pt1.distanceTo(ptCloset);
+	double len2 = pt2.distanceTo(ptCloset);
 
-		}
-		else {
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+	if (len1 < len) {
 
-		}
-
+		pyXl = pyXl1;
 	}
-	//上
-	else if ((centerPt.x>ptMax2.x&&centerPt.x<ptMax.x) && centerPt.y>ptMax.y) {
-
-		direction = 4;
-
-		//向量向左
-		if (lineDirc.x < 0) {
-
-			pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-		else {
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-
-	}
-	//右上
-	else if (centerPt.x>ptMax.x&&centerPt.y > ptMax.y) {
-
-		direction = 5;
-
-		if (lineDirc.x < 0) {
-
-			pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-		else {
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-
-	}
-	//右
-	else if (centerPt.x>ptMax.x && (centerPt.y > ptMin2.y&&centerPt.y < ptMax.y)) {
-
-		direction = 6;
-
-		if (l1Pt.y < l2Pt.y) {
-			pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-		else {
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-		}
-
-	}
-    //右下
-	else if (centerPt.x < ptMin2.x&&centerPt.y < ptMin2.y) {
-		direction = 7;
-		//向量向左
-		if (lineDirc.x < 0) {
-
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-		else {
-			pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-	}
-	//下
 	else {
-		direction = 8;
-		//向量向左
-		if (lineDirc.x < 0) {
-
-			pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
-		else {
-			pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
-
-		}
+		pyXl = pyXl2;
 	}
+
+	delete line1;
+	line1 = NULL;
+	delete line2;
+	line2 = NULL;
+
+	direction = 1;
+
+
+	return direction;
+
+
+
+	////x=0的情况没判断
+	////左下
+	//if (centerPt.x <= ptMin.x&&centerPt.y <= ptMin.y) {
+
+	//	direction = 1;
+
+	//	//向量向左
+	//	if (lineDirc.x < 0) {
+
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2,AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+
+	//}//左
+	////左
+	//else if (centerPt.x<ptMin.x && (centerPt.y>ptMin.y&&centerPt.y < ptMax2.y))
+	//{
+	//	direction = 2;
+
+	//	if (l1Pt.y < l2Pt.y) {
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+	//	}
+	//}	
+	////左上
+	//else if (centerPt.x<ptMin.x&&centerPt.y>ptMax2.y) {
+	//	
+	//	direction = 3;
+
+	//	if (lineDirc.x < 0) {
+
+	//		pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+
+	//}
+	////上
+	//else if ((centerPt.x>ptMax2.x&&centerPt.x<ptMax.x) && centerPt.y>ptMax.y) {
+
+	//	direction = 4;
+
+	//	//向量向左
+	//	if (lineDirc.x < 0) {
+
+	//		pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+
+	//}
+	////右上
+	//else if (centerPt.x>ptMax.x&&centerPt.y > ptMax.y) {
+
+	//	direction = 5;
+
+	//	if (lineDirc.x < 0) {
+
+	//		pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+
+	//}
+	////右
+	//else if (centerPt.x>ptMax.x && (centerPt.y > ptMin2.y&&centerPt.y < ptMax.y)) {
+
+	//	direction = 6;
+
+	//	if (l1Pt.y < l2Pt.y) {
+	//		pyXl = lineDirc.rotateBy( CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+	//	}
+
+	//}
+ //   //右下
+	//else if (centerPt.x < ptMin2.x&&centerPt.y < ptMin2.y) {
+	//	direction = 7;
+	//	//向量向左
+	//	if (lineDirc.x < 0) {
+
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//}
+	////下
+	//else {
+	//	direction = 8;
+	//	//向量向左
+	//	if (lineDirc.x < 0) {
+
+	//		pyXl = lineDirc.rotateBy(-1 * CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//	else {
+	//		pyXl = lineDirc.rotateBy(CMathUtil::PI() / 2, AcGeVector3d::kZAxis);
+
+	//	}
+	//}
 
 	return direction;
 }
@@ -327,7 +378,7 @@ AcGePoint3d CAreaFenGe::GetQieDian(AcDbLine * &line1)
 {
 
 	line1 = new AcDbLine(l1Pt, l2Pt);
-	
+
 	AcGePoint3dArray ptArr;
 
 	int times = 0;
@@ -336,7 +387,7 @@ AcGePoint3d CAreaFenGe::GetQieDian(AcDbLine * &line1)
 
 		poly->intersectWith(line1, AcDb::Intersect::kOnBothOperands, ptArr, 0, 0);
 
-		  line1->transformBy(AcGeMatrix3d::translation(pyXl.normal() * 1));
+		line1->transformBy(AcGeMatrix3d::translation(pyXl.normal() * 1));
 
 		/*AcDbEntity * pEnt = NULL;
 		line1->getTransformedCopy(AcGeMatrix3d::translation(pyXl.normal() * 1), pEnt);
@@ -355,11 +406,11 @@ AcGePoint3d CAreaFenGe::GetQieDian(AcDbLine * &line1)
 		return ptArr[0];
 	else
 		return AcGePoint3d::kOrigin;
-		
+
 
 }
 
-bool  CAreaFenGe::GetPyPolyline(AcGePoint3d seedPoint,double & a)
+bool  CAreaFenGe::GetPyPolyline(AcGePoint3d seedPoint, double & a)
 {
 	//ads_name pent;
 
@@ -395,12 +446,12 @@ bool  CAreaFenGe::GetPyPolyline(AcGePoint3d seedPoint,double & a)
 	ErrorStatus es = acedTraceBoundary(seedPoint, false, ptrArr);
 
 	if (es != Acad::eOk) {
-	acutPrintf(L"\nbound=%d", es);
-	return false;
+		acutPrintf(L"\nbound=%d", es);
+		return false;
 	}
 
 	AcDbPolyline * pl = NULL;
-		pl=(AcDbPolyline*)ptrArr[0];
+	pl = (AcDbPolyline*)ptrArr[0];
 
 	pl->setColorIndex(1);
 
@@ -412,5 +463,5 @@ bool  CAreaFenGe::GetPyPolyline(AcGePoint3d seedPoint,double & a)
 	pl->close();
 	pl = NULL;
 	return true;
-	
+
 }
