@@ -58,7 +58,7 @@ public:
 		if (acedGetString(0, L"\n请输入分割比例(总和为1，逗号分割):\n", fenGeStr, 132) != RTNORM)
 			return;*/
 
-		ACHAR *fenGeStr = L"0.2,0.2,0.2,0.4";
+		ACHAR *fenGeStr = L"0.1,0.1,0.1,0.3,0.4";
 
 		if (CSelectUtil::PromptSelectEntity(L"\n请选择要分割的封闭多段线：", cls, (AcDbEntity*&)pEnt, pickPt) != true)
 		{
@@ -84,6 +84,7 @@ public:
 
 		CAreaFenGe *areaFg = new CAreaFenGe(fenGeStr, pEnt, line);
 		areaFg->Command();
+		areaFg->~CAreaFenGe();
 		delete areaFg;
 		areaFg = NULL;
 
