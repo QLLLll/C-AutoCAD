@@ -33,3 +33,8 @@
 *.app
 /ArxProject2.VC.db
 /ArxProject2.VC.VC.opendb
+*.tlog
+*.exp
+*.idb
+*.pdb
+*.log
