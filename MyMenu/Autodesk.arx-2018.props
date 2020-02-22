@@ -8,11 +8,11 @@
 	</PropertyGroup>
 	
 	<PropertyGroup>
-		<AcadDir Condition="'$(Platform)'=='x64'">C:\Program Files\Autodesk\AutoCAD 2018\</AcadDir>
-		<AcadDir Condition="'$(Platform)'=='Win32'">C:\Program Files\Autodesk\AutoCAD 2018\</AcadDir>
+		<AcadDir Condition="'$(Platform)'=='x64'">F:\Autodesk2018\AutoCAD 2018\</AcadDir>
+		<AcadDir Condition="'$(Platform)'=='Win32'">F:\Autodesk2018\AutoCAD 2018\</AcadDir>
 		<AcadExe Condition="'$(ArxAppType)'=='dbx' or '$(ArxAppType)'=='dbxnet' or '$(ArxAppType)'=='arx' or '$(ArxAppType)'=='arxnet'">acad.exe</AcadExe>
 		<AcadExe Condition="'$(ArxAppType)'=='crx' or '$(ArxAppType)'=='crxnet'">accoreconsole.exe</AcadExe>
-		<ArxSdkDir>C:\Autodesk\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\</ArxSdkDir>
+		<ArxSdkDir>C:\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\</ArxSdkDir>
 
 		<ArxSdkIncs Condition="'$(Platform)'=='Win32'">$(ArxSdkDir)\inc;$(ArxSdkDir)\inc-win32</ArxSdkIncs>
 		<ArxSdkIncs Condition="'$(Platform)'=='x64'">$(ArxSdkDir)\inc;$(ArxSdkDir)\inc-x64</ArxSdkIncs>

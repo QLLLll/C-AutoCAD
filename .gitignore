@@ -31,3 +31,5 @@
 *.exe
 *.out
 *.app
+/ArxProject2.VC.db
+/ArxProject2.VC.VC.opendb
