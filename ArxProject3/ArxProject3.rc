@@ -1,0 +1,211 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "ArxProject3 ObjectARX application"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "ArxProject3"
+            VALUE "LegalCopyright", "Copyright ?2012"
+            VALUE "OriginalFilename", "ECDArxProject3.arx"
+            VALUE "ProductName", "ArxProject3 Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MFC_MODAL DIALOGEX 0, 0, 309, 176
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MFC模态对话框"
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,198,155,50,14
+    PUSHBUTTON      "取消",IDCANCEL,252,155,50,14
+END
+
+IDD_ARX_MODAL DIALOGEX 0, 0, 167, 113
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "角度",IDC_BUTTON_ANGLE,7,84,50,14
+    PUSHBUTTON      "坐标",IDC_BUTTON_POINT,7,6,50,14
+    EDITTEXT        IDC_EDIT_XPT,119,6,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_YPT,120,36,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ZPT,119,60,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ANGLE,120,88,40,14,ES_AUTOHSCROLL
+    LTEXT           "x:",IDC_STATIC,93,14,8,8
+    LTEXT           "y:",IDC_STATIC,91,38,8,8
+    LTEXT           "z:",IDC_STATIC,89,66,8,8
+    LTEXT           "angle:",IDC_STATIC,88,87,21,8
+END
+
+IDD_DIALOG_MODELESS DIALOGEX 0, 0, 277, 152
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "非模态对话框——创建直线"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "终点",IDC_STATIC,145,14,119,100
+    PUSHBUTTON      "拾取点",IDC_BUTTON_PICK_ST,22,26,50,20
+    GROUPBOX        "起点",IDC_STATIC,18,14,121,100
+    LTEXT           "X=",IDC_STATIC,69,52,10,8
+    LTEXT           "Y=",IDC_STATIC,69,73,10,8
+    LTEXT           "Z=",IDC_STATIC,67,95,10,8
+    EDITTEXT        IDC_EDIT_STX,89,50,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_STZ,89,90,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_STY,89,71,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "拾取点",IDC_BUTTON_PICK_EN,151,26,50,20
+    LTEXT           "X=",IDC_STATIC,199,52,10,8
+    LTEXT           "Y=",IDC_STATIC,198,73,10,8
+    LTEXT           "Z=",IDC_STATIC,197,95,10,8
+    EDITTEXT        IDC_EDIT_ENX,218,50,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ENZ,219,90,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ENY,218,71,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "创建直线",IDC_BUTTON_LINE,145,121,50,19
+    PUSHBUTTON      "关闭(C)",IDC_BUTTON_CLOSE,211,121,50,19
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_MFC_MODAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 169
+    END
+
+    IDD_ARX_MODAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 160
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 106
+    END
+
+    IDD_DIALOG_MODELESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 270
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 145
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_MFC_MODAL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ARX_MODAL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_MODELESS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_PROJNAME            "ArxProject3"
+END
+
+#endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
