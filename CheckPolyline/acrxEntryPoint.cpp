@@ -96,6 +96,7 @@ public:
 			pt2dArr.append(temPt);
 
 		}
+		pl->close();
 		for (int i=0;i<pt2dArr.length()-1;i++)
 		{
 			StLine stLine;

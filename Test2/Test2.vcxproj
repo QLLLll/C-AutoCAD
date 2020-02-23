@@ -42,7 +42,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup Label="Globals">
     <TargetName Condition="'$(RDS)'!=''">$(RDS)$(ProjectName)</TargetName>
-    <ProjectGuid>{9312D5FC-794E-4C03-9F3B-21D4F0CFD435}</ProjectGuid>
+    <ProjectGuid>{3CFE7543-10B6-4D23-9BB8-D6F1B3F2DBCE}</ProjectGuid>
   </PropertyGroup>
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -70,31 +70,46 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <SmallerTypeCheck Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SmallerTypeCheck>
     </ClCompile>
     <Link>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
-    <ClCompile Include="CheckPolyline.cpp" />
+    <ClCompile Include="CGePointUtil.cpp" />
+    <ClCompile Include="ConvertUtil.cpp" />
     <ClCompile Include="DocData.cpp" />
+    <ClCompile Include="DrawRecJig.cpp" />
     <ClCompile Include="DwgDataBaseUtil.cpp" />
+    <ClCompile Include="GetInputUtil.cpp" />
+    <ClCompile Include="MathUtil.cpp" />
+    <ClCompile Include="SelectUtil.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StringUtil.cpp" />
+    <ClCompile Include="Test2.cpp" />
+    <ClCompile Include="TextFileUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConvertUtil.h" />
     <ClInclude Include="DocData.h" />
+    <ClInclude Include="DrawRecJig.h" />
     <ClInclude Include="DwgDataBaseUtil.h" />
+    <ClInclude Include="GePointUtil.h" />
+    <ClInclude Include="GetInputUtil.h" />
+    <ClInclude Include="MathUtil.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SelectUtil.h" />
     <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="StringUtil.h" />
+    <ClInclude Include="TextFileUtil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="CheckPolyline.rc" />
+    <ResourceCompile Include="Test2.rc" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

@@ -38,3 +38,6 @@
 *.idb
 *.pdb
 *.log
+*.ipch
+*.arx
+*.res
