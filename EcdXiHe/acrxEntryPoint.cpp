@@ -210,7 +210,6 @@ public:
 			
 			int tempIndex1, tempIndex2;
 
-
 			if (index1 > index2) {
 				tempIndex1 = index1;
 				index1 =index2;
@@ -252,8 +251,6 @@ public:
 				pl6->addVertexAt(i, pt, b, 0, 0);
 
 			}
-
-			
 
 				for (int i = index3,j=0; i <= index4; i++)
 				{
@@ -657,10 +654,6 @@ public:
 			arr.reverse();
 
 		}
-
-
-
-
 	}
 
 	static void insertPt(AcDbPolyline *pl, AcGePoint2dArray& plArr, AcGePoint3d& pt, int &index) {
@@ -687,9 +680,6 @@ public:
 		plArr.insertAt(index, AcGePoint2d(pt.x, pt.y));
 
 	}
-
-	
-
 };
 
 

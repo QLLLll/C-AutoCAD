@@ -69,8 +69,6 @@ public:
 
 			}
 
-
-
 			for (int i = 0; i < length; i++)
 			{
 				ads_name aName;
@@ -132,9 +130,6 @@ public:
 
 					}
 
-
-
-
 				}
 
 				pBlk->erase();
@@ -142,7 +137,6 @@ public:
 				pBlk->close();
 
 			}
-
 
 		}
 
@@ -252,10 +246,9 @@ public:
 
 			vecLines[i]->close();
 
+			
+
 		}
-
-
-
 
 		ads_name result;
 	
@@ -286,7 +279,7 @@ public:
 			RTNONE);
 		acutPrintf(L"%d", i);*/
 		/*int i = acedCommandS(RTSTR, _T("PEDIT"),
-			RTENAME, result,
+			RTENAME, result1,
 			RTSTR, _T("Y"),
 			RTSTR, _T("J"),
 			RTPICKS, result,
