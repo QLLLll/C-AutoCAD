@@ -41,3 +41,5 @@
 *.ipch
 *.arx
 *.res
+*.iobj
+*.ipdb
