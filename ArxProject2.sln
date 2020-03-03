@@ -49,6 +49,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qrencode", "qrencode\qrenco
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2dCode", "2dCode\2dCode.vcxproj", "{BB99A44D-3CBD-42B1-A136-DB4781CFC3F3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EcdXClip", "EcdXClip\EcdXClip.vcxproj", "{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -241,6 +243,14 @@ Global
 		{BB99A44D-3CBD-42B1-A136-DB4781CFC3F3}.Release|x64.Build.0 = Release|x64
 		{BB99A44D-3CBD-42B1-A136-DB4781CFC3F3}.Release|x86.ActiveCfg = Release|Win32
 		{BB99A44D-3CBD-42B1-A136-DB4781CFC3F3}.Release|x86.Build.0 = Release|Win32
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Debug|x64.ActiveCfg = Debug|x64
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Debug|x64.Build.0 = Debug|x64
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Debug|x86.ActiveCfg = Debug|Win32
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Debug|x86.Build.0 = Debug|Win32
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Release|x64.ActiveCfg = Release|x64
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Release|x64.Build.0 = Release|x64
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Release|x86.ActiveCfg = Release|Win32
+		{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
