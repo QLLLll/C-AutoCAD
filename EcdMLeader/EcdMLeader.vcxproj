@@ -42,7 +42,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup Label="Globals">
     <TargetName Condition="'$(RDS)'!=''">$(RDS)$(ProjectName)</TargetName>
-    <ProjectGuid>{1CC5EAB6-40ED-4075-BB1C-E68B5D126F11}</ProjectGuid>
+    <ProjectGuid>{8C668CB7-0EE6-4735-BA22-38C39A75EB22}</ProjectGuid>
   </PropertyGroup>
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -78,7 +78,7 @@
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
     <ClCompile Include="DocData.cpp" />
-    <ClCompile Include="EcdXClip.cpp" />
+    <ClCompile Include="EcdMLeader.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -92,7 +92,7 @@
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="EcdXClip.rc" />
+    <ResourceCompile Include="EcdMLeader.rc" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

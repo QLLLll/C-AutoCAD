@@ -45,7 +45,7 @@ public:
 
 		ads_point pt1;
 		ads_name ent;
-		if (acedEntSel(_T("Select xref:"), ent, pt1) != RTNORM)
+		if (acedEntSel(_T("选择块:"), ent, pt1) != RTNORM)
 			return;
 		GetBlockClippingPolyline(ent);
 	}
@@ -54,7 +54,7 @@ public:
 	{
 		ads_point pt1, pt2;
 		ads_name ent;
-		if (acedEntSel(_T("Select xref:"), ent, pt1) != RTNORM)
+		if (acedEntSel(_T("选择块:"), ent, pt1) != RTNORM)
 			return;
 		AcDbObjectId idXref;
 		if (acdbGetObjectId(idXref, ent) != Acad::eOk)
@@ -62,11 +62,11 @@ public:
 		AcDbObjectPointer<AcDbBlockReference> pRef(idXref, AcDb::kForRead);
 		if (pRef.openStatus() != Acad::eOk)
 		{
-			acutPrintf(_T("Not an xref!\n"));
+			acutPrintf(_T("不是一个块!\n"));
 			return;
 		}
 		AcGePoint2dArray pts;
-		if (acedGetPoint(NULL, _T("First point:"), pt1) != RTNORM)
+		if (acedGetPoint(NULL, _T("选择第一个点："), pt1) != RTNORM)
 			return;
 		
 		AcGeMatrix3d mat(pRef->blockTransform());
@@ -74,7 +74,7 @@ public:
 		AcGePoint3d pt3d(asPnt3d(pt1));
 		pt3d.transformBy(mat);
 		pts.append(AcGePoint2d(pt3d.x, pt3d.y));
-		while (acedGetPoint(pt1, _T("Next point:"), pt2) == RTNORM)
+		while (acedGetPoint(pt1, _T("选择第二个点："), pt2) == RTNORM)
 		{
 			acedGrDraw(pt1, pt2, 1, 1);
 			pt3d = asPnt3d(pt2);
@@ -113,7 +113,7 @@ public:
 			delete pFilter;
 		else
 		{
-			acutPrintf(_T("Filter has been succesfully added!\n"));
+			acutPrintf(_T("剪切块成功\n"));
 			pFilter->close();
 		}
 	}
@@ -342,7 +342,7 @@ public:
 
 				xfelev = pts3d[i].z;
 
-			assert(fabs(xfelev - pts3d.z) < 1.0e-10);
+			assert(fabs(xfelev - pts3d[i].z) < 1.0e-10);
 
 		}
 
