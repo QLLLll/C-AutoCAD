@@ -23,6 +23,9 @@ Adesk::Boolean CDatabaseJigEntity::subWorldDraw(AcGiWorldDraw * mode)
 			pEnt->close();
 		}
 	}
+
+
+
 	//这句不能少，恢复现场
 	mode->geometry().popModelTransform();
 	return (AcDbEntity::subWorldDraw(mode));
