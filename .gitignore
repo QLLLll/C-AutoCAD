@@ -43,3 +43,4 @@
 *.res
 *.iobj
 *.ipdb
+*.err
