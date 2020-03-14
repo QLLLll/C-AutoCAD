@@ -72,7 +72,7 @@ public:
 		int index = 2;
 		AcGePoint3d ptStart;
 		ads_point pt1;
-		if (/*!CGetInputUtil::GetPoint(L"\n请输入第一个点：", ptStart)*/acedGetPoint(NULL, L"\n请输入第一个点：", pt1) != RTNORM) {
+		if (acedGetPoint(NULL, L"\n请输入第一个点：", pt1) != RTNORM) {
 			return;
 		}
 		ptStart = asPnt3d(pt1);
@@ -160,9 +160,6 @@ public:
 					pl->erase();
 					pl->close();
 
-					
-
-					
 					AcDbPolyline * temp = AcDbPolyline::cast(vecPl[plIndex]->clone());
 
 					AcGePoint2d ptTemp;
@@ -200,7 +197,6 @@ public:
 					AcDbPolyline * plCo = AcDbPolyline::cast(pl->clone());
 					polyId = PostToModelSpace(pl);
 
-
 					vecPl.push_back(plCo);
 					plIndex++;
 
@@ -220,10 +216,7 @@ public:
 				}
 				else if (index > 2) {
 
-					
-
 					GetZjPt(vecVt, ptPrevious, ptCurrent, ptZj);
-
 
 					if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk)
 						return;
