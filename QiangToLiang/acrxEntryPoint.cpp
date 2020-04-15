@@ -158,12 +158,17 @@ public:
 		AcGeIntArray  delIndex;
 
 		vector<AcDbLine*>vvL;
-		for (int i = 0; i<(int)vecLines.size() && !delIndex.contains(i, 0); i++)
+		vector<AcGePoint3d>vecPt;
+		
+		for (int i = 0; i<(int)vecLines.size(); i++)
 		{
 			AcDbLine * l1 = vecLines[i];
+			
 			//记录被删除的元素个数
-			for (int j = 1; j<(int)vecLines.size() && !delIndex.contains(j, 0); j++)
+			for (int j = i+1; j<(int)vecLines.size(); j++)
 			{
+
+
 				AcDbLine *l2 = vecLines[j];
 
 				AcGeVector3d vec = l1->startPoint() - l2->endPoint();
@@ -171,80 +176,173 @@ public:
 
 				double angle = vec.angleTo(vec2);
 				double aa = angle / PI * 180;
-				AcGePoint3d ptClosed, ptC2;
+				//AcGePoint3d ptClosed, ptC2;
 
-				l1->getClosestPointTo(l2->startPoint(), ptClosed, Adesk::kTrue);
+				AcGePoint3d pt11 = l1->startPoint();
+				AcGePoint3d pt12 = l1->endPoint();
+
+				AcGePoint3d pt21 = l2->startPoint();
+				AcGePoint3d pt22 = l2->endPoint();
+				
+				
+
+				vecPt.push_back(pt11);
+				vecPt.push_back(pt12);
+				vecPt.push_back(pt21);
+				vecPt.push_back(pt22);
+
+				//寻找最短
+				int indexF = 0, indexE = 1;
+				double minDis = vecPt[0].distanceTo(vecPt[1]);
+				
+				
+					for (int k = 0; k < (int)vecPt.size(); k++)
+					{
+
+						for (int m = k + 1; m < (int)vecPt.size(); m++)
+						{
+
+							double d = vecPt[k].distanceTo(vecPt[m]);
+							if (d < minDis&&d>10) {
+								indexF = k;
+								indexE = m;
+								minDis = d;
+							}
+						}
+					}
+				
+
+
+				AcGeVector3d vec3 = vecPt[indexF] - vecPt[indexE];
+								
+				AcGeVector3d vec4 = l1->startPoint() - l1->endPoint();
+
+				if (vec3 == vec4) {
+					vec4 = l2->startPoint() - l2->endPoint();
+				}
+
+				double angle2 = vec3.angleTo(vec4);
+				double aa2 = angle2 / PI * 180;
+
+			
+
+			/*	l1->getClosestPointTo(l2->startPoint(), ptClosed, Adesk::kTrue);
 				l1->getClosestPointTo(l2->endPoint(), ptC2, Adesk::kTrue);
 
 				double dis = ptClosed.distanceTo(l2->startPoint());
-				double dis2 = ptC2.distanceTo(l2->endPoint());
+				double dis2 = ptC2.distanceTo(l2->endPoint());*/
 
 
 				//在同一直綫上
 				/*if(fabs(angle/PI*180)<=0.5||fabs(angle/PI*180)>=179.5){*/
-				if (fabs(aa)<0.3||fabs(aa-180)<0.3) {
-					AcGePoint3d pt1 = l1->startPoint();
-					AcGePoint3d pt12 = l1->endPoint();
+				if (fabs(aa2) < 0.3 || fabs(aa2 - 180) < 0.3) {
 
-					AcGePoint3d pt21 = l2->startPoint();
-					AcGePoint3d pt22 = l2->endPoint();
+					AcGePoint3d temp1, temp2;
 
-					double len1 = pt1.distanceTo(pt21);
-					double len2 = pt1.distanceTo(pt22);
+					if (fabs(vecPt[0].x - vecPt[1].x) < 1) {
 
-					double len3 = pt12.distanceTo(pt21);
-					double len4 = pt12.distanceTo(pt22);
+						if (vecPt[0].y > vecPt[1].y) {
+							temp1 = vecPt[0];
+							vecPt[0] = vecPt[1];
+							vecPt[1] = temp1;
+						}
 
-					double l1Len = pt1.distanceTo(pt12);
-					double l2Len = pt21.distanceTo(pt22);
+					}
+					else {
+						if (vecPt[0].x > vecPt[1].x)
+						{
+							temp1 = vecPt[0];
+							vecPt[0] = vecPt[1];
+							vecPt[1] = temp1;
+						}
+					}
 
-					vector<AcGePoint3d>vecPt;
+					if (fabs(vecPt[2].x - vecPt[3].x) < 1) {
 
-					vecPt.push_back(pt1);
-					vecPt.push_back(pt12);
-					vecPt.push_back(pt21);
-					vecPt.push_back(pt22);
+						if (vecPt[2].y > vecPt[3].y) {
+							temp2 = vecPt[2];
+							vecPt[2] = vecPt[3];
+							vecPt[3] = temp2;
+						}
 
-					sort(vecPt.begin(), vecPt.end(), comp);
-					//if(l1Len>=l2Len){
+					}
+					else {
+						if (vecPt[2].x > vecPt[3].x)
+						{
+							temp2 = vecPt[2];
+							vecPt[2] = vecPt[3];
+							vecPt[3] = temp2;
+						}
+					}
 
-					//	if(len1>len2){
-					//		l1->setEndPoint(pt21);
-					//	}
-					//	else{
-					//		l1->setEndPoint(pt22);
-					//	}
-					//	/*l2->erase();
-					//	l2->close();
-					//	l2=NULL;*/
-					//	vecLines.erase(vecLines.begin() + j - m, vecLines.begin() + j + 1 - m);
-					//	m++;//删除了一个，下标发生了变化，但是j还是原来的位置，所以要多减一个
+					AcGeVector3d vecT1 = vecPt[0] - vecPt[2];
+					AcGeVector3d vecT2 = vecPt[1] - vecPt[3];
 
-					//}
-					//else{
+					double angle3 = vecT1.angleTo(vecT2);
+					double aa3 = angle3 / PI * 180;
+					if ((vecPt[0]!=vecPt[2]&&vecPt[1]!=vecPt[3])&&(fabs(aa3) < 0.3 || fabs(aa3 - 180) < 0.3))
+						//寻找最长
+					{
+						int inF = 0, inE = 1;
+						double maxDis = vecPt[0].distanceTo(vecPt[1]);
 
-					//	if(len3>len4){
-					//		l1->setStartPoint(pt21);
-					//		l1->setEndPoint(pt12);
-					//	}else{
-					//		l1->setStartPoint(pt12);
-					//		l1->setEndPoint(pt22);
-					//	}
-					//	
-					//}
+						for (int k = 0; k < (int)vecPt.size(); k++)
+						{
 
-					/*l1->setStartPoint(vecPt[0]);
-					l1->setEndPoint(vecPt[3]);*/
-					AcDbLine *line = new AcDbLine(vecPt[0], vecPt[3]);
+							for (int m = k + 1; m < (int)vecPt.size(); m++)
+							{
 
-					vvL.push_back(line);
-					delIndex.append(j);
+								double d = vecPt[k].distanceTo(vecPt[m]);
+								if (d > maxDis) {
+									inF = k;
+									inE = m;
+									maxDis = d;
+								}
+							}
+						}
 
+
+
+						//sort(vecPt.begin(), vecPt.end(), comp);
+						//if(l1Len>=l2Len){
+
+						//	if(len1>len2){
+						//		l1->setEndPoint(pt21);
+						//	}
+						//	else{
+						//		l1->setEndPoint(pt22);
+						//	}
+						//	/*l2->erase();
+						//	l2->close();
+						//	l2=NULL;*/
+						//	vecLines.erase(vecLines.begin() + j - m, vecLines.begin() + j + 1 - m);
+						//	m++;//删除了一个，下标发生了变化，但是j还是原来的位置，所以要多减一个
+
+						//}
+						//else{
+
+						//	if(len3>len4){
+						//		l1->setStartPoint(pt21);
+						//		l1->setEndPoint(pt12);
+						//	}else{
+						//		l1->setStartPoint(pt12);
+						//		l1->setEndPoint(pt22);
+						//	}
+						//	
+						//}
+
+						/*l1->setStartPoint(vecPt[0]);
+						l1->setEndPoint(vecPt[3]);*/
+						AcDbLine *line = new AcDbLine(vecPt[inE], vecPt[inF]);
+
+						vvL.push_back(line);
+						delIndex.append(j);
+
+					}
 				}
-
-
+				vecPt.clear();
 			}
-
+			
 		}
 		acutPrintf(L"\ndelIndex=%d\n", delIndex.length());
 		acutPrintf(L"vvL=%d\n", vvL.size());
@@ -304,14 +402,16 @@ public:
 		return objId;
 	}
 	static bool comp(AcGePoint3d pt1, AcGePoint3d pt2) {
-
-		if (fabs(pt1.x - pt2.x) <= 0.001) {
+		double ax = pt1.x - pt2.x;
+		double ay = pt1.y - pt2.y;
+		if (fabs(ax) <fabs(ay)) {
 			return pt1.y < pt2.y;
 		}
 		else {
 			return pt1.x < pt2.x;
 		}
 	}
+
 } ;
 
 //-----------------------------------------------------------------------------
