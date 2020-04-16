@@ -9,6 +9,7 @@
 #define PI 3.1415926
 using namespace std;
 
+int queKou = 400;
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -126,6 +127,8 @@ public:
 	{
 		ErrorStatus es = ErrorStatus::eOk;
 
+
+
 		vector<AcDbLine*>vecLines;
 
 		ads_name aName;
@@ -158,7 +161,18 @@ public:
 
 			if (acdbOpenObject(l, ids[i], AcDb::kForWrite) == Acad::eOk) {
 
-				vecLines.push_back(l);
+				double len = 0;
+				l->getDistAtPoint(l->endPoint(), len);
+
+				if (len <= 500) {
+					l->erase();
+					l->close();
+					l = NULL;
+				}
+				else
+				{
+					vecLines.push_back(l);
+				}
 			}
 		}
 		acutPrintf(L"before=%d", vecLines.size());
@@ -177,6 +191,14 @@ public:
 			{
 
 				AcDbLine *l2 = vecLines[j];
+
+				AcGePoint3dArray temp;
+
+				l1->intersectWith(l2, AcDb::kOnBothOperands, temp, 0, 0);
+
+				if (temp.length() >= 1) {
+					continue;
+				}
 
 				AcGePoint3d pt11 = l1->startPoint();
 				AcGePoint3d pt12 = l1->endPoint();
@@ -297,12 +319,12 @@ public:
 						/*l1->setStartPoint(vecPt[inE]);
 						l1->setEndPoint(vecPt[inF]);*/
 
-AcDbLine * l = new AcDbLine(vecPt[inE], vecPt[inF]);
+						AcDbLine * l = new AcDbLine(vecPt[inE], vecPt[inF]);
 
-changeIndex.append(ww);
-delIndex.append(j);
+						changeIndex.append(ww);
+						delIndex.append(j);
 
-vvL.push_back(l);
+						vvL.push_back(l);
 					}
 				}
 
@@ -383,6 +405,14 @@ vvL.push_back(l);
 			{
 				AcDbLine *l2 = vecL2[j];
 
+				AcGePoint3dArray temp;
+
+				l1->intersectWith(l2, AcDb::kOnBothOperands, temp, 0, 0);
+
+				if (temp.length() >= 1) {
+					continue;
+				}
+
 				AcGePoint3d l2S = l2->startPoint();
 				AcGePoint3d l2E = l2->endPoint();
 				AcGeVector3d vecL2 = l2S - l2E;
@@ -390,21 +420,18 @@ vvL.push_back(l);
 				double angle2 = vecL1.angleTo(vecL2);
 				double aa2 = angle2 / PI * 180;
 
-
-
-
 				l1->intersectWith(l2, AcDb::kOnBothOperands, ptArr, 0, 0);
 
 				int n = ptArr.length();
-
+				//平行且没得交点
 				if ((fabs(aa2) < 1 || fabs(aa2 - 180) < 1) && n == 0)
 				{
 					continue;
 				}
 
 
-				AcGePoint3d ptC1, ptC2;
-				
+				//AcGePoint3d ptC1, ptC2;
+
 
 				/*l1->getClosestPointTo(l2S, ptC1, Adesk::kTrue);
 				l1->getClosestPointTo(l2E, ptC2, Adesk::kTrue);
@@ -422,14 +449,30 @@ vvL.push_back(l);
 
 				//InLine(l2, ptC1, vecSt);
 				//InLine(l2, ptC2, vecSt);
-				l1->intersectWith(l2, AcDb::kExtendBoth , ptArr, 0, 0);
+				l1->intersectWith(l2, AcDb::kExtendBoth, ptArr, 0, 0);
 
 				if (ptArr.length() >= 1) {
 
 					for (int n = 0; n < ptArr.length(); n++)
 					{
-						InLine(l1, ptArr[n],vecSt);
-						InLine(l2, ptArr[n], vecSt);
+						double dis1 = l1S.distanceTo(l1E);
+						double dis2 = l1S.distanceTo(ptArr[n]);
+						double dis3 = l1E.distanceTo(ptArr[n]);
+						double min1 = (dis2 > dis3 ? dis3 : dis2);
+						double max1 = (dis2 > dis3 ? dis2 : dis3);
+
+						double dis21 = l2S.distanceTo(l2E);
+						double dis22 = l2S.distanceTo(ptArr[n]);
+						double dis23 = l2E.distanceTo(ptArr[n]);
+						double min2 = (dis22 > dis23 ? dis23 : dis22);
+						double max2 = (dis22 > dis23 ? dis22 : dis23);
+						if (!((min1 > 3 * queKou) && (dis1 < max1) || (min2 > 3 * queKou) && (dis21 < max2))) {
+							InLine(l1, ptArr[n], vecSt);
+							InLine(l2, ptArr[n], vecSt);
+						}
+						else {
+							acutPrintf(L"\nInLine=false\n");
+						}
 					}
 
 				}
@@ -439,7 +482,7 @@ vvL.push_back(l);
 
 		for (int i = 0; i < (int)vecL2.size(); i++)
 		{
-			for (int j = 0; j < (int)vecSt.size();j++)
+			for (int j = 0; j < (int)vecSt.size(); j++)
 			{
 				if (vecSt[j].line == vecL2[i]) {
 
@@ -505,7 +548,7 @@ vvL.push_back(l);
 
 private:
 
-	static void InLine(AcDbLine * l1, const  AcGePoint3d & pt,vector<mySt>&vecSt)
+	static void InLine(AcDbLine * l1, const  AcGePoint3d & pt, vector<mySt>&vecSt)
 	{
 		static int colorI = 1;
 
@@ -526,7 +569,8 @@ private:
 
 		double minLen = (dis2 > dis3 ? dis3 : dis2);
 
-		if (minLen > 500) {
+		//缺口大小
+		if (minLen > queKou) {
 			return;
 		}
 
@@ -540,7 +584,7 @@ private:
 		if ((fabs(aa3) < 1 || fabs(aa3 - 180) < 1) && (fabs(aa2) < 1 || fabs(aa2 - 180) < 1))
 		{
 			if (dis2 > dis1) {
-				
+
 				if (max1 > 10 * dis1) {
 
 					return;
@@ -556,7 +600,7 @@ private:
 
 			}
 			else if (dis3 > dis1) {
-				
+
 				if (max1 > 10 * dis1) {
 					return;
 				}
@@ -565,7 +609,7 @@ private:
 				st.isStart = true;
 				st.pt = pt;
 				vecSt.push_back(st);
-				
+
 			}
 		}
 
