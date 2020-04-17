@@ -7,9 +7,10 @@
 #include "resource.h"
 #include<vector>
 #define PI 3.1415926
+#define ReadType 1
 using namespace std;
 
-int queKou = 400;
+int queKou = 900;
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -52,82 +53,13 @@ public:
 	virtual void RegisterServerComponents() {
 	}
 
-	// The ACED_ARXCOMMAND_ENTRY_AUTO macro can be applied to any static member 
-	// function of the CQiangToLiangApp class.
-	// The function should take no arguments and return nothing.
-	//
-	// NOTE: ACED_ARXCOMMAND_ENTRY_AUTO has overloads where you can provide resourceid and
-	// have arguments to define context and command mechanism.
 
-	// ACED_ARXCOMMAND_ENTRY_AUTO(classname, group, globCmd, locCmd, cmdFlags, UIContext)
-	// ACED_ARXCOMMAND_ENTRYBYID_AUTO(classname, group, globCmd, locCmdId, cmdFlags, UIContext)
-	// only differs that it creates a localized name using a string in the resource file
-	//   locCmdId - resource ID for localized command
 
-	// Modal Command with localized name
-	// ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDMyGroup, MyCommand, MyCommandLocal, ACRX_CMD_MODAL)
-	static void ECDMyGroupMyCommand() {
-		// Put your command code here
 
-	}
+	static void ECDQiangToLiangEcdWW(void) {
 
-	// Modal Command with pickfirst selection
-	// ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDMyGroup, MyPickFirst, MyPickFirstLocal, ACRX_CMD_MODAL | ACRX_CMD_USEPICKSET)
-	static void ECDMyGroupMyPickFirst() {
-		ads_name result;
-		int iRet = acedSSGet(ACRX_T("_I"), NULL, NULL, NULL, result);
-		if (iRet == RTNORM)
-		{
-			// There are selected entities
-			// Put your command using pickfirst set code here
-		}
-		else
-		{
-			// There are no selected entities
-			// Put your command code here
-		}
-	}
 
-	// Application Session Command with localized name
-	// ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDMyGroup, MySessionCmd, MySessionCmdLocal, ACRX_CMD_MODAL | ACRX_CMD_SESSION)
-	static void ECDMyGroupMySessionCmd() {
-		// Put your command code here
-	}
-
-	// The ACED_ADSFUNCTION_ENTRY_AUTO / ACED_ADSCOMMAND_ENTRY_AUTO macros can be applied to any static member 
-	// function of the CQiangToLiangApp class.
-	// The function may or may not take arguments and have to return RTNORM, RTERROR, RTCAN, RTFAIL, RTREJ to AutoCAD, but use
-	// acedRetNil, acedRetT, acedRetVoid, acedRetInt, acedRetReal, acedRetStr, acedRetPoint, acedRetName, acedRetList, acedRetVal to return
-	// a value to the Lisp interpreter.
-	//
-	// NOTE: ACED_ADSFUNCTION_ENTRY_AUTO / ACED_ADSCOMMAND_ENTRY_AUTO has overloads where you can provide resourceid.
-
-	//- ACED_ADSFUNCTION_ENTRY_AUTO(classname, name, regFunc) - this example
-	//- ACED_ADSSYMBOL_ENTRYBYID_AUTO(classname, name, nameId, regFunc) - only differs that it creates a localized name using a string in the resource file
-	//- ACED_ADSCOMMAND_ENTRY_AUTO(classname, name, regFunc) - a Lisp command (prefix C:)
-	//- ACED_ADSCOMMAND_ENTRYBYID_AUTO(classname, name, nameId, regFunc) - only differs that it creates a localized name using a string in the resource file
-
-	// Lisp Function is similar to ARX Command but it creates a lisp 
-	// callable function. Many return types are supported not just string
-	// or integer.
-	// ACED_ADSFUNCTION_ENTRY_AUTO(CQiangToLiangApp, MyLispFunction, false)
-	static int ads_MyLispFunction() {
-		//struct resbuf *args =acedGetArgs () ;
-
-		// Put your command code here
-
-		//acutRelRb (args) ;
-
-		// Return a value to the AutoCAD Lisp Interpreter
-		// acedRetNil, acedRetT, acedRetVoid, acedRetInt, acedRetReal, acedRetStr, acedRetPoint, acedRetName, acedRetList, acedRetVal
-
-		return (RTNORM);
-	}
-	static void ECDQiangToLiangEcdQ2L(void)
-	{
 		ErrorStatus es = ErrorStatus::eOk;
-
-
 
 		vector<AcDbLine*>vecLines;
 
@@ -164,7 +96,387 @@ public:
 				double len = 0;
 				l->getDistAtPoint(l->endPoint(), len);
 
-				if (len <= 500) {
+				if (len <= 900) {
+					l->erase();
+					l->close();
+					l = NULL;
+				}
+				else
+				{
+					vecLines.push_back(l);
+				}
+			}
+		}
+		acutPrintf(L"before=%d", vecLines.size());
+
+		AcGePoint3dArray temp1;
+		AcGePoint3dArray temp2;
+		temp1.append(AcGePoint3d::kOrigin);
+		temp2.append(AcGePoint3d::kOrigin);
+		temp1.removeAll();
+		temp2.removeAll();
+		//联通
+		for (int ww = 0; ww < (int)vecLines.size(); ww++)
+		{
+			AcDbLine * l1 = vecLines[ww];
+			
+
+			AcDbLine * l = NULL;
+		
+			
+			for (int j = ww + 1; j < (int)vecLines.size(); j++)
+			{
+				AcDbLine *l2 = vecLines[j];
+
+				l1->intersectWith(l2, AcDb::kOnBothOperands, temp1, 0, 0);
+
+				if (1 == temp1.length()) {
+
+					/*ptJdAll.append(temp1[0]);
+					CutLine(l1, temp1[0]);
+					CutLine(l2, temp1[0]);*/
+
+
+					temp1.removeAll();
+
+				}
+				else {
+					l1->intersectWith(l2, AcDb::kExtendBoth, temp2, 0, 0);
+					//ptNJdAll.append(temp2[0]);
+					if (temp2.length() > 0) {
+						ExtendLine(l1, temp2[0]);
+						ExtendLine(l2, temp2[0]);
+						temp2.removeAll();
+					}
+				}
+			}
+		}
+//削减
+#if 1
+
+
+		for (int ww = 0; ww < (int)vecLines.size(); ww++)
+		{
+			AcDbLine * l1 = vecLines[ww];
+
+
+			AcDbLine * l = NULL;
+
+			
+			for (int j = ww + 1; j < (int)vecLines.size(); j++)
+			{
+				AcDbLine *l2 = vecLines[j];
+				l1->intersectWith(l2, AcDb::kExtendBoth, temp2, 0, 0);
+				l1->intersectWith(l2, AcDb::kOnBothOperands, temp1, 0, 0);
+				
+				if (1 == temp1.length()) {
+					CutLine(l1, temp1[0]);
+					CutLine(l2, temp1[0]);
+					
+					temp1.removeAll();
+				}
+				else if (0) {
+					AcGePoint3d pt11 = l1->startPoint();
+					AcGePoint3d pt12 = l1->endPoint();
+					double disO = pt11.distanceTo(pt12);
+
+					double dis1 = pt11.distanceTo(temp2[0]);
+					double dis2 = pt12.distanceTo(temp2[0]);
+
+					double max1 = (dis2 > dis1 ? dis2 : dis1);
+
+					AcGePoint3d pt21 = l2->startPoint();
+					AcGePoint3d pt22 = l2->endPoint();
+					double disO2 = pt21.distanceTo(pt22);
+
+					double dis21 = pt21.distanceTo(temp2[0]);
+					double dis22 = pt22.distanceTo(temp2[0]);
+
+					double max21 = (dis22 > dis21 ? dis22 : dis21);
+					if (max21 > disO2&&max1 > disO) {
+
+					}
+					else {
+						CutLine(l1, temp2[0]);
+						CutLine(l2, temp2[0]);
+						
+					}
+					temp2.removeAll();
+				}
+				
+
+				
+				
+			}
+		}
+#endif
+		for (int i = 0; i < (int)vecLines.size(); i++)
+		{
+
+
+			vecLines[i]->setColorIndex(1);
+
+			vecLines[i]->close();
+
+		}
+		//补充
+#if 0
+		for (int ww = 0; ww < (int)vecLines.size(); ww++)
+		{
+			AcDbLine * l1 = vecLines[ww];
+
+
+			AcDbLine * l = NULL;
+
+			
+			for (int j = ww + 1; j < (int)vecLines.size(); j++)
+			{
+				AcDbLine *l2 = vecLines[j];
+
+				l1->intersectWith(l2, AcDb::kOnBothOperands, temp1, 0, 0);
+
+
+
+				if (1 == temp1.length()) {
+
+					temp1.removeAll();
+					continue;
+
+				}
+				else {
+					l1->intersectWith(l2, AcDb::kExtendBoth, temp2, 0, 0);
+					//ptNJdAll.append(temp2[0]);
+					if (temp2.length() > 0) {
+						AcGePoint3d pt11 = l1->startPoint();
+						AcGePoint3d pt12 = l1->endPoint();
+						double disO = pt11.distanceTo(pt12);
+
+						double dis1 = pt11.distanceTo(temp2[0]);
+						double dis2 = pt12.distanceTo(temp2[0]);
+
+						double max1 = (dis2 > dis1 ? dis2 : dis1);
+
+						AcGePoint3d pt21 = l2->startPoint();
+						AcGePoint3d pt22 = l2->endPoint();
+						double disO2 = pt21.distanceTo(pt22);
+
+						double dis21 = pt21.distanceTo(temp2[0]);
+						double dis22 = pt22.distanceTo(temp2[0]);
+
+						double max21 = (dis22 > dis21 ? dis22 : dis21);
+						if (max21 > disO2&&max1 > disO) {
+
+							/*ExtendLine(l1, temp2[0]);
+							ExtendLine(l2, temp2[0]);*/
+							if (max1 < disO + 1.5*queKou)
+							{
+								if (max1 == dis2) {
+
+									l1->setStartPoint(temp2[0]);
+								}
+								else {
+									l1->setEndPoint(temp2[0]);
+								}
+							}
+							if (max21 < disO2 + 1.5*queKou) {
+								if (max21 == dis22) {
+
+									l2->setStartPoint(temp2[0]);
+								}
+								else {
+									l2->setEndPoint(temp2[0]);
+								}
+							}
+						}
+						temp2.removeAll();
+					}
+				}
+			}
+		}
+#endif
+		
+
+	}
+	static void ECDQiangToLiangEcdEE(void) {
+		ErrorStatus es = ErrorStatus::eOk;
+
+		vector<AcDbLine*>vecLines;
+
+		ads_name aName;
+		if (acedSSGet(NULL, NULL, NULL, NULL, aName) != RTNORM) {
+			return;
+		}
+
+		int len = 0;
+		acedSSLength(aName, &len);
+
+		AcDbObjectIdArray ids;
+
+		for (int i = 0; i < len; i++)
+		{
+			ads_name temp;
+
+			acedSSName(aName, i, temp);
+
+			AcDbObjectId tempId;
+			acdbGetObjectId(tempId, temp);
+
+			ids.append(tempId);
+
+		}
+		acedSSFree(aName);
+
+		for (int i = 0; i < ids.length(); i++)
+		{
+			AcDbLine * l = NULL;
+
+			if (acdbOpenObject(l, ids[i], AcDb::kForWrite) == Acad::eOk) {
+
+				double len = 0;
+				l->getDistAtPoint(l->endPoint(), len);
+
+				if (len <= 900) {
+					l->erase();
+					l->close();
+					l = NULL;
+				}
+				else
+				{
+					vecLines.push_back(l);
+				}
+			}
+		}
+		acutPrintf(L"before=%d", vecLines.size());	
+		AcGePoint3dArray temp1;
+		AcGePoint3dArray temp2;
+		temp1.append(AcGePoint3d::kOrigin);
+		temp2.append(AcGePoint3d::kOrigin);
+		temp1.removeAll();
+		temp2.removeAll();
+
+		for (int ww = 0; ww < (int)vecLines.size(); ww++)
+		{
+			AcDbLine * l1 = vecLines[ww];
+
+
+			AcDbLine * l = NULL;
+
+
+			for (int j = ww + 1; j < (int)vecLines.size(); j++)
+			{
+				AcDbLine *l2 = vecLines[j];
+
+				l1->intersectWith(l2, AcDb::kOnBothOperands, temp1, 0, 0);
+
+
+
+				if (1 == temp1.length()) {
+
+					temp1.removeAll();
+					continue;
+
+				}
+				else {
+					l1->intersectWith(l2, AcDb::kExtendBoth, temp2, 0, 0);
+					//ptNJdAll.append(temp2[0]);
+					if (temp2.length() > 0) {
+						AcGePoint3d pt11 = l1->startPoint();
+						AcGePoint3d pt12 = l1->endPoint();
+						double disO = pt11.distanceTo(pt12);
+
+						double dis1 = pt11.distanceTo(temp2[0]);
+						double dis2 = pt12.distanceTo(temp2[0]);
+
+						double max1 = (dis2 > dis1 ? dis2 : dis1);
+
+						AcGePoint3d pt21 = l2->startPoint();
+						AcGePoint3d pt22 = l2->endPoint();
+						double disO2 = pt21.distanceTo(pt22);
+
+						double dis21 = pt21.distanceTo(temp2[0]);
+						double dis22 = pt22.distanceTo(temp2[0]);
+
+						double max21 = (dis22 > dis21 ? dis22 : dis21);
+						if (max21 > disO2&&max1 > disO) {
+
+							/*ExtendLine(l1, temp2[0]);
+							ExtendLine(l2, temp2[0]);*/
+							if (max1 < disO + 1.5*queKou)
+							{
+								if (max1 == dis2) {
+
+									l1->setStartPoint(temp2[0]);
+								}
+								else {
+									l1->setEndPoint(temp2[0]);
+								}
+							}
+							if (max21 < disO2 + 1.5*queKou) {
+								if (max21 == dis22) {
+
+									l2->setStartPoint(temp2[0]);
+								}
+								else {
+									l2->setEndPoint(temp2[0]);
+								}
+							}
+						}
+						temp2.removeAll();
+					}
+				}
+			}
+		}
+		for (int i = 0; i < (int)vecLines.size(); i++)
+		{
+
+
+			vecLines[i]->setColorIndex(1);
+
+			vecLines[i]->close();
+
+		}
+	}
+	static void ECDQiangToLiangEcdQ2L(void)
+	{
+
+		ErrorStatus es = ErrorStatus::eOk;
+
+		vector<AcDbLine*>vecLines;
+
+		ads_name aName;
+		if (acedSSGet(NULL, NULL, NULL, NULL, aName) != RTNORM) {
+			return;
+		}
+
+		int len = 0;
+		acedSSLength(aName, &len);
+
+		AcDbObjectIdArray ids;
+
+		for (int i = 0; i < len; i++)
+		{
+			ads_name temp;
+
+			acedSSName(aName, i, temp);
+
+			AcDbObjectId tempId;
+			acdbGetObjectId(tempId, temp);
+
+			ids.append(tempId);
+
+		}
+		acedSSFree(aName);
+
+		for (int i = 0; i < ids.length(); i++)
+		{
+			AcDbLine * l = NULL;
+
+			if (acdbOpenObject(l, ids[i], AcDb::kForWrite) == Acad::eOk) {
+
+				double len = 0;
+				l->getDistAtPoint(l->endPoint(), len);
+
+				if (len <= 900) {
 					l->erase();
 					l->close();
 					l = NULL;
@@ -185,29 +497,32 @@ public:
 		for (int ww = 0; ww < (int)vecLines.size(); ww++)
 		{
 			AcDbLine * l1 = vecLines[ww];
+			AcGePoint3d pt11 = l1->startPoint();
+			AcGePoint3d pt12 = l1->endPoint();
 
+			AcDbLine * l = NULL;
+			vecPt.push_back(pt11);
+			vecPt.push_back(pt12);
 			//记录被删除的元素个数
 			for (int j = ww + 1; j < (int)vecLines.size(); j++)
 			{
 
 				AcDbLine *l2 = vecLines[j];
 
-				AcGePoint3dArray temp;
+				/*AcGePoint3dArray temp;
 
 				l1->intersectWith(l2, AcDb::kOnBothOperands, temp, 0, 0);
 
 				if (temp.length() >= 1) {
 					continue;
-				}
+				}*/
 
-				AcGePoint3d pt11 = l1->startPoint();
-				AcGePoint3d pt12 = l1->endPoint();
+
 
 				AcGePoint3d pt21 = l2->startPoint();
 				AcGePoint3d pt22 = l2->endPoint();
 
-				vecPt.push_back(pt11);
-				vecPt.push_back(pt12);
+
 				vecPt.push_back(pt21);
 				vecPt.push_back(pt22);
 
@@ -315,23 +630,36 @@ public:
 								}
 							}
 						}
+						if (l == NULL) {
 
-						/*l1->setStartPoint(vecPt[inE]);
-						l1->setEndPoint(vecPt[inF]);*/
+							l = new AcDbLine();
+						}
 
-						AcDbLine * l = new AcDbLine(vecPt[inE], vecPt[inF]);
+						l->setStartPoint(vecPt[inE]);
+						l->setEndPoint(vecPt[inF]);
 
-						changeIndex.append(ww);
+						AcGePoint3d tt1 = vecPt[inE];
+						AcGePoint3d tt2 = vecPt[inF];
+
 						delIndex.append(j);
 
-						vvL.push_back(l);
+						vecPt.clear();
+
+						vecPt.push_back(tt1);
+						vecPt.push_back(tt2);
 					}
 				}
 
-				vecPt.clear();
+				//vecPt.clear();
 			}
+			if (l != NULL) {
+				changeIndex.append(ww);
+				vvL.push_back(l);
 
+			}
+			vecPt.clear();
 		}
+
 		acutPrintf(L"\ndelIndex=%d\n", delIndex.length());
 		acutPrintf(L"vvL=%d\n", vvL.size());
 		acutPrintf(L"after=%d", vecLines.size());
@@ -341,7 +669,7 @@ public:
 		{
 
 			if (changeIndex.contains(i) && cI < vvL.size()) {
-				vecLines[i]->setColorIndex(2);
+				vecLines[i]->setColorIndex(3);
 				vecLines[i]->setStartPoint(vvL[cI]->startPoint());
 				vecLines[i]->setEndPoint(vvL[cI]->endPoint());
 				delete vvL[cI];
@@ -351,7 +679,8 @@ public:
 				++cI;
 			}
 			else if (delIndex.contains(i)) {
-				vecLines[i]->erase();
+				vecLines[i]->setColorIndex(2);
+				//vecLines[i]->erase();
 				vecLines[i]->close();
 				vecLines[i] = NULL;
 			}
@@ -361,6 +690,8 @@ public:
 				vecLines[i]->close();
 			}
 		}
+#if 0
+
 
 		vector<AcDbLine*>vecL2;
 		for (size_t i = 0; i < vecLines.size(); i++)
@@ -373,22 +704,14 @@ public:
 
 					vecL2.push_back(l);
 					l->setColorIndex(1);
+					l->close();
 				}
 			}
 		}
+#endif
 
+#if 0
 
-		/*vecLines.clear();
-
-		for (int i = 0; i < ids.length(); i++)
-		{
-			AcDbLine * l = NULL;
-
-			if (acdbOpenObject(l, ids[i], AcDb::kForWrite) == Acad::eOk) {
-
-				vecLines.push_back(l);
-			}
-		}*/
 
 		AcGePoint3dArray ptArr;
 		vector<mySt>vecSt;
@@ -429,26 +752,6 @@ public:
 					continue;
 				}
 
-
-				//AcGePoint3d ptC1, ptC2;
-
-
-				/*l1->getClosestPointTo(l2S, ptC1, Adesk::kTrue);
-				l1->getClosestPointTo(l2E, ptC2, Adesk::kTrue);
-
-				AcDbLine *ll = new AcDbLine(ptC1, ptC2);
-
-				ll->setColorIndex(2);
-
-				PostToModelSpace(ll);
-
-				ll->close();*/
-
-				//InLine(l1, ptC1, vecSt);
-				//InLine(l1, ptC2, vecSt);
-
-				//InLine(l2, ptC1, vecSt);
-				//InLine(l2, ptC2, vecSt);
 				l1->intersectWith(l2, AcDb::kExtendBoth, ptArr, 0, 0);
 
 				if (ptArr.length() >= 1) {
@@ -500,6 +803,7 @@ public:
 			vecL2[i]->close();
 		}
 
+#endif			
 	}
 	static AcDbObjectId PostToModelSpace(AcDbEntity *pEnt, AcDbDatabase *pDb = acdbHostApplicationServices()->workingDatabase()) {
 
@@ -547,73 +851,155 @@ public:
 	}
 
 private:
+	static void CutLine(AcDbLine * l1, const  AcGePoint3d & pt) {
+		AcGePoint3d pt11 = l1->startPoint();
+		AcGePoint3d pt12 = l1->endPoint();
+		double disO = pt11.distanceTo(pt12);
 
-	static void InLine(AcDbLine * l1, const  AcGePoint3d & pt, vector<mySt>&vecSt)
-	{
-		static int colorI = 1;
+		double dis1 = pt11.distanceTo(pt);
+		double dis2 = pt12.distanceTo(pt);
 
-		AcGePoint3d pt1 = l1->startPoint();
-		AcGePoint3d pt2 = l1->endPoint();
+		if (disO > dis1&&disO > dis2) {
 
-		if (pt1 == pt || pt2 == pt) {
-			return;
-		}
+			if (dis1 <= queKou&&dis2 <= queKou) {
 
-		double dis1 = pt1.distanceTo(pt2);
-		double dis2 = pt1.distanceTo(pt);
-		double dis3 = pt2.distanceTo(pt);
-
-		AcGeVector3d vec1 = pt1 - pt2;
-		AcGeVector3d vec2 = pt1 - pt;
-		AcGeVector3d vec3 = pt2 - pt;
-
-		double minLen = (dis2 > dis3 ? dis3 : dis2);
-
-		//缺口大小
-		if (minLen > queKou) {
-			return;
-		}
-
-		double angle2 = vec1.angleTo(vec2);
-		double aa2 = angle2 / PI * 180;
-
-		double angle3 = vec1.angleTo(vec3);
-		double aa3 = angle3 / PI * 180;
-		double max1 = (dis2 > dis3 ? dis2 : dis3);
-
-		if ((fabs(aa3) < 1 || fabs(aa3 - 180) < 1) && (fabs(aa2) < 1 || fabs(aa2 - 180) < 1))
-		{
-			if (dis2 > dis1) {
-
-				if (max1 > 10 * dis1) {
-
-					return;
-
-				}
-
-				mySt st;
-				st.line = l1;
-				st.isStart = false;
-				st.pt = pt;
-
-				vecSt.push_back(st);
+				AfxMessageBox(L"某个地方处理不了");
 
 			}
-			else if (dis3 > dis1) {
+			else {
 
-				if (max1 > 10 * dis1) {
-					return;
+				if (dis1 < dis2) {
+
+					l1->setStartPoint(pt);
+
 				}
-				mySt st;
-				st.line = l1;
-				st.isStart = true;
-				st.pt = pt;
-				vecSt.push_back(st);
+				else {
+					l1->setEndPoint(pt);
+				}
 
 			}
+
 		}
 
 	}
+	static void ExtendLine(AcDbLine * l1, const  AcGePoint3d & pt) {
+		AcGePoint3d pt11 = l1->startPoint();
+		AcGePoint3d pt12 = l1->endPoint();
+		double disO = pt11.distanceTo(pt12);
+
+		double dis1 = pt11.distanceTo(pt);
+		double dis2 = pt12.distanceTo(pt);
+
+		double max = (dis2 > dis1 ? dis2 : dis1);
+
+		if (max > disO + 1.5*queKou|| max < disO) {
+
+			return;
+		}
+		else {
+
+			if (max==dis2) {
+
+				l1->setStartPoint(pt);
+
+			}
+			else {
+				l1->setEndPoint(pt);
+			}
+
+		}
+
+	
+
+}
+static void InLine(AcDbLine * l1, const  AcGePoint3d & pt, vector<mySt>&vecSt)
+{
+	static int colorI = 1;
+
+	AcGePoint3d pt1 = l1->startPoint();
+	AcGePoint3d pt2 = l1->endPoint();
+
+	if (pt1 == pt || pt2 == pt) {
+		return;
+	}
+
+	double dis1 = pt1.distanceTo(pt2);
+	double dis2 = pt1.distanceTo(pt);
+	double dis3 = pt2.distanceTo(pt);
+
+	AcGeVector3d vec1 = pt1 - pt2;
+	AcGeVector3d vec2 = pt1 - pt;
+	AcGeVector3d vec3 = pt2 - pt;
+
+	double minLen = (dis2 > dis3 ? dis3 : dis2);
+
+	//缺口大小
+	if (minLen > queKou) {
+		return;
+	}
+
+	double angle2 = vec1.angleTo(vec2);
+	double aa2 = angle2 / PI * 180;
+
+	double angle3 = vec1.angleTo(vec3);
+	double aa3 = angle3 / PI * 180;
+	double max1 = (dis2 > dis3 ? dis2 : dis3);
+
+	if ((fabs(aa3) < 1 || fabs(aa3 - 180) < 1) && (fabs(aa2) < 1 || fabs(aa2 - 180) < 1))
+	{
+		if (dis2 > dis1) {
+
+			if (max1 > 10 * dis1) {
+
+				return;
+
+			}
+
+			mySt st;
+			st.line = l1;
+			st.isStart = false;
+			st.pt = pt;
+
+			vecSt.push_back(st);
+
+		}
+		else if (dis3 > dis1) {
+
+			if (max1 > 10 * dis1) {
+				return;
+			}
+			mySt st;
+			st.line = l1;
+			st.isStart = true;
+			st.pt = pt;
+			vecSt.push_back(st);
+
+		}
+	}
+
+}
+static bool GetReal(const TCHAR * prompt, double defaultVal, int precision, double & ret)
+{
+	CString strPrompt = prompt;
+	strPrompt.TrimRight();
+	strPrompt.TrimRight(TEXT(":"));
+	CString strDefaultValue;
+	strDefaultValue.Format(TEXT("<%%.%df>:"), precision);
+
+	strPrompt.Format(strPrompt + strDefaultValue, defaultVal);
+	ret = defaultVal;
+	int rc = acedGetReal(strPrompt, &ret);
+
+	if (rc == RTNORM || rc == RTNONE) {
+
+		return true;
+	}
+	else {
+		return false;
+	}
+
+}
+
 
 
 };
@@ -621,8 +1007,6 @@ private:
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CQiangToLiangApp)
 
-ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDMyGroup, MyCommand, MyCommandLocal, ACRX_CMD_MODAL, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDMyGroup, MyPickFirst, MyPickFirstLocal, ACRX_CMD_MODAL | ACRX_CMD_USEPICKSET, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDMyGroup, MySessionCmd, MySessionCmdLocal, ACRX_CMD_MODAL | ACRX_CMD_SESSION, NULL)
-ACED_ADSSYMBOL_ENTRY_AUTO(CQiangToLiangApp, MyLispFunction, false)
 ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdQ2L, EcdQ2L, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdWW, EcdWW, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdEE, EcdEE, ACRX_CMD_TRANSPARENT, NULL)
