@@ -10,7 +10,9 @@
 #define ReadType 1
 using namespace std;
 
-int queKou = 900;
+int queKou = 201;
+int queKou2 = 301;
+int quekou3 = 351;
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -96,7 +98,7 @@ public:
 				double len = 0;
 				l->getDistAtPoint(l->endPoint(), len);
 
-				if (len <= 900) {
+				if (len <queKou||len<queKou2||len<quekou3) {
 					l->erase();
 					l->close();
 					l = NULL;
@@ -268,7 +270,7 @@ public:
 
 							/*ExtendLine(l1, temp2[0]);
 							ExtendLine(l2, temp2[0]);*/
-							if (max1 < disO + 1.5*queKou)
+							if (max1 < disO + 0.5*(queKou+queKou2+quekou3))
 							{
 								if (max1 == dis2) {
 
@@ -278,7 +280,7 @@ public:
 									l1->setEndPoint(temp2[0]);
 								}
 							}
-							if (max21 < disO2 + 1.5*queKou) {
+							if (max21 < disO2 + 0.5*(queKou + queKou2 + quekou3)) {
 								if (max21 == dis22) {
 
 									l2->setStartPoint(temp2[0]);
@@ -335,7 +337,7 @@ public:
 				double len = 0;
 				l->getDistAtPoint(l->endPoint(), len);
 
-				if (len <= 900) {
+				if (len <queKou || len<queKou2 || len<quekou3) {
 					l->erase();
 					l->close();
 					l = NULL;
@@ -397,11 +399,11 @@ public:
 						double dis22 = pt22.distanceTo(temp2[0]);
 
 						double max21 = (dis22 > dis21 ? dis22 : dis21);
-						if (max21 > disO2&&max1 > disO) {
+						if (max21 >= disO2&&max1 >= disO) {
 
 							/*ExtendLine(l1, temp2[0]);
 							ExtendLine(l2, temp2[0]);*/
-							if (max1 < disO + 1.5*queKou)
+							if (max1 < disO + 0.5*(queKou + queKou2 + quekou3))
 							{
 								if (max1 == dis2) {
 
@@ -411,7 +413,7 @@ public:
 									l1->setEndPoint(temp2[0]);
 								}
 							}
-							if (max21 < disO2 + 1.5*queKou) {
+							if (max21 < disO2 + 0.5*(queKou + queKou2 + quekou3)) {
 								if (max21 == dis22) {
 
 									l2->setStartPoint(temp2[0]);
@@ -425,6 +427,236 @@ public:
 					}
 				}
 			}
+		}
+		for (int i = 0; i < (int)vecLines.size(); i++)
+		{
+
+
+			vecLines[i]->setColorIndex(1);
+
+			vecLines[i]->close();
+
+		}
+	}
+	static void ECDQiangToLiangEcdEE2(void) {
+		ErrorStatus es = ErrorStatus::eOk;
+
+		vector<AcDbLine*>vecLines;
+
+		ads_name aName;
+		if (acedSSGet(NULL, NULL, NULL, NULL, aName) != RTNORM) {
+			return;
+		}
+
+		int len = 0;
+		acedSSLength(aName, &len);
+
+		AcDbObjectIdArray ids;
+
+		for (int i = 0; i < len; i++)
+		{
+			ads_name temp;
+
+			acedSSName(aName, i, temp);
+
+			AcDbObjectId tempId;
+			acdbGetObjectId(tempId, temp);
+
+			ids.append(tempId);
+
+		}
+		acedSSFree(aName);
+
+		for (int i = 0; i < ids.length(); i++)
+		{
+			AcDbLine * l = NULL;
+
+			if (acdbOpenObject(l, ids[i], AcDb::kForWrite) == Acad::eOk) {
+
+				double len = 0;
+				l->getDistAtPoint(l->endPoint(), len);
+
+				if (len <queKou || len<queKou2 || len<quekou3) {
+					l->erase();
+					l->close();
+					l = NULL;
+				}
+				else
+				{
+					vecLines.push_back(l);
+				}
+			}
+		}
+		acutPrintf(L"before=%d", vecLines.size());
+		AcGePoint3dArray temp1;
+		AcGePoint3dArray temp2;
+		temp1.append(AcGePoint3d::kOrigin);
+		temp2.append(AcGePoint3d::kOrigin);
+		temp1.removeAll();
+		temp2.removeAll();
+
+		AcGePoint3dArray ptArrAll;
+		ptArrAll.append(AcGePoint3d::kOrigin);
+		ptArrAll.removeAll();
+
+		for (int i = 0; i < (int)vecLines.size(); i++)
+		{
+			AcDbLine * l1 = vecLines[i];
+
+			ptArrAll.append(l1->startPoint());
+			ptArrAll.append(l1->endPoint());
+
+
+		}
+
+		//acutPrintf(L"prePt=%d", ptArrAll.length());
+		double r = (queKou + queKou2 + quekou3) / 3*2;
+		for (int i=0;i<ptArrAll.length();i++)
+		{
+			AcGePoint3d ptCenter=ptArrAll[i];
+			
+			AcDbCircle *cir = new AcDbCircle(ptCenter, AcGeVector3d::kZAxis, r);
+
+			for (int j = i+1; j < ptArrAll.length(); j++) {
+			
+				AcGePoint3d pt2 = ptArrAll[j];
+
+				double dis = pt2.distanceTo(ptCenter);
+
+				if (dis <= r) {
+
+					ptArrAll.removeAt(j);
+
+				}
+			
+			}
+			delete cir;
+			cir = NULL;
+		}
+		//acutPrintf(L"afterPt=%d", ptArrAll.length());
+
+		for (int i = 0; i < ptArrAll.length(); i++)
+		{
+			AcGePoint3d ptCenter = ptArrAll[i];
+
+			AcDbCircle *cir = new AcDbCircle(ptCenter, AcGeVector3d::kZAxis, r);
+			vector<AcDbLine*>vecLL;
+			for (int ww = 0; ww < (int)vecLines.size(); ww++)
+			{
+
+				AcDbLine * l1 = vecLines[ww];
+
+				l1->intersectWith(cir, AcDb::kOnBothOperands, temp1, 0, 0);
+
+				if (temp1.length() > 0) {
+
+					vecLL.push_back(l1);
+					temp1.removeAll();
+
+				}
+
+			}
+			
+			delete cir;
+			cir = NULL;
+
+			AcGeIntArray intArr;
+
+			for (int m = 0; m < (int)vecLL.size(); m++)
+			{
+				AcDbLine * lT1 = vecLL[m];
+
+				for (int s = 0; s < (int)vecLL.size(); s++)
+				{
+					AcDbLine * lT2 = vecLL[s];
+
+					lT1->intersectWith(lT2, AcDb::kOnBothOperands, temp2, 0, 0);
+
+					if (temp2.length() > 0) {
+
+						intArr.append(m);
+						intArr.append(s);
+
+						temp2.removeAll();
+
+
+					}
+					
+				}
+
+			}
+			
+			for (int m = 0; m < (int)vecLL.size(); m++)
+			{
+				if (intArr.contains(m))
+				{
+					continue;
+				}
+
+				AcDbLine * lT1 = vecLL[m];
+
+				for (int s = 0; s < (int)vecLL.size() ; s++)
+				{
+					if (intArr.contains(s)) {
+					
+					continue;
+					}
+
+					AcDbLine * lT2 = vecLL[s];
+
+					
+						lT1->intersectWith(lT2, AcDb::kExtendBoth, temp2, 0, 0);
+						//ptNJdAll.append(temp2[0]);
+						if (temp2.length() > 0) {
+							AcGePoint3d pt11 = lT1->startPoint();
+							AcGePoint3d pt12 = lT1->endPoint();
+							double disO = pt11.distanceTo(pt12);
+
+							double dis1 = pt11.distanceTo(temp2[0]);
+							double dis2 = pt12.distanceTo(temp2[0]);
+
+							double max1 = (dis2 > dis1 ? dis2 : dis1);
+
+							AcGePoint3d pt21 = lT2->startPoint();
+							AcGePoint3d pt22 = lT2->endPoint();
+							double disO2 = pt21.distanceTo(pt22);
+
+							double dis21 = pt21.distanceTo(temp2[0]);
+							double dis22 = pt22.distanceTo(temp2[0]);
+
+							double max21 = (dis22 > dis21 ? dis22 : dis21);
+
+								if (max1 < disO + 0.5*(queKou + queKou2 + quekou3))
+								{
+									if (max1 == dis2) {
+
+										lT1->setStartPoint(temp2[0]);
+									}
+									else {
+										lT1->setEndPoint(temp2[0]);
+									}
+								}
+								if (max21 < disO2 + 0.5*(queKou + queKou2 + quekou3)) {
+									if (max21 == dis22) {
+
+										lT2->setStartPoint(temp2[0]);
+									}
+									else {
+										lT2->setEndPoint(temp2[0]);
+									}
+								}
+						
+								temp2.removeAll();
+						}
+						
+
+					
+				}
+
+			}
+			intArr.removeAll();
+
+			vecLL.clear();
 		}
 		for (int i = 0; i < (int)vecLines.size(); i++)
 		{
@@ -769,7 +1001,7 @@ public:
 						double dis23 = l2E.distanceTo(ptArr[n]);
 						double min2 = (dis22 > dis23 ? dis23 : dis22);
 						double max2 = (dis22 > dis23 ? dis22 : dis23);
-						if (!((min1 > 3 * queKou) && (dis1 < max1) || (min2 > 3 * queKou) && (dis21 < max2))) {
+						if (!((min1 > queKou + queKou2 + quekou3) && (dis1 < max1) || (min2 >queKou + queKou2 + quekou3) && (dis21 < max2))) {
 							InLine(l1, ptArr[n], vecSt);
 							InLine(l2, ptArr[n], vecSt);
 						}
@@ -861,7 +1093,7 @@ private:
 
 		if (disO > dis1&&disO > dis2) {
 
-			if (dis1 <= queKou&&dis2 <= queKou) {
+			if (dis1 <= (queKou + queKou2 + quekou3)/3&&dis2 <= (queKou + queKou2 + quekou3) / 3) {
 
 				AfxMessageBox(L"某个地方处理不了");
 
@@ -892,7 +1124,7 @@ private:
 
 		double max = (dis2 > dis1 ? dis2 : dis1);
 
-		if (max > disO + 1.5*queKou|| max < disO) {
+		if (max > disO + 1.5*(queKou + queKou2 + quekou3) / 3 || max < disO) {
 
 			return;
 		}
@@ -934,7 +1166,7 @@ static void InLine(AcDbLine * l1, const  AcGePoint3d & pt, vector<mySt>&vecSt)
 	double minLen = (dis2 > dis3 ? dis3 : dis2);
 
 	//缺口大小
-	if (minLen > queKou) {
+	if (minLen > (queKou + queKou2 + quekou3) / 3) {
 		return;
 	}
 
@@ -1007,6 +1239,6 @@ static bool GetReal(const TCHAR * prompt, double defaultVal, int precision, doub
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CQiangToLiangApp)
 
-ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdQ2L, EcdQ2L, ACRX_CMD_TRANSPARENT, NULL)
+//ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdQ2L, EcdQ2L, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdWW, EcdWW, ACRX_CMD_TRANSPARENT, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdEE, EcdEE, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CQiangToLiangApp, ECDQiangToLiang, EcdEE2, EcdEE2, ACRX_CMD_TRANSPARENT, NULL)
