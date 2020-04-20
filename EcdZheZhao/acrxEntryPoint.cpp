@@ -11,40 +11,40 @@ using namespace std;
 class CEcdZheZhaoApp : public AcRxArxApp {
 
 public:
-	CEcdZheZhaoApp () : AcRxArxApp () {}
+	CEcdZheZhaoApp() : AcRxArxApp() {}
 
-	virtual AcRx::AppRetCode On_kInitAppMsg (void *pkt) {
+	virtual AcRx::AppRetCode On_kInitAppMsg(void *pkt) {
 		// TODO: Load dependencies here
 
 		// You *must* call On_kInitAppMsg here
-		AcRx::AppRetCode retCode =AcRxArxApp::On_kInitAppMsg (pkt) ;
-		
+		AcRx::AppRetCode retCode = AcRxArxApp::On_kInitAppMsg(pkt);
+
 		// TODO: Add your initialization code here
 
-		return (retCode) ;
+		return (retCode);
 	}
 
-	virtual AcRx::AppRetCode On_kUnloadAppMsg (void *pkt) {
+	virtual AcRx::AppRetCode On_kUnloadAppMsg(void *pkt) {
 		// TODO: Add your code here
 
 		// You *must* call On_kUnloadAppMsg here
-		AcRx::AppRetCode retCode =AcRxArxApp::On_kUnloadAppMsg (pkt) ;
+		AcRx::AppRetCode retCode = AcRxArxApp::On_kUnloadAppMsg(pkt);
 
 		// TODO: Unload dependencies here
 
-		return (retCode) ;
+		return (retCode);
 	}
 
-	virtual void RegisterServerComponents () {
+	virtual void RegisterServerComponents() {
 	}
-	
+
 	// The ACED_ARXCOMMAND_ENTRY_AUTO macro can be applied to any static member 
 	// function of the CEcdZheZhaoApp class.
 	// The function should take no arguments and return nothing.
 	//
 	// NOTE: ACED_ARXCOMMAND_ENTRY_AUTO has overloads where you can provide resourceid and
 	// have arguments to define context and command mechanism.
-	
+
 	// ACED_ARXCOMMAND_ENTRY_AUTO(classname, group, globCmd, locCmd, cmdFlags, UIContext)
 	// ACED_ARXCOMMAND_ENTRYBYID_AUTO(classname, group, globCmd, locCmdId, cmdFlags, UIContext)
 	// only differs that it creates a localized name using a string in the resource file
@@ -52,8 +52,30 @@ public:
 
 	// Modal Command with localized name
 	// ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, MyCommand, MyCommandLocal, ACRX_CMD_MODAL)
-	static void ECDMyGroupTest () {
+	static void ECDMyGroupee() {
 
+		
+	}
+
+	static void ECDMyGroupTest () {
+		CString dicName = L"frame";
+		struct resbuf rb;
+		int i = acedGetVar(dicName, &rb);
+		int m = 2;
+		if (i == RTNORM) {
+			int m = rb.resval.rint;
+			rb.restype = RTSHORT;
+			rb.resval.rint = (short)2;
+
+
+			int r0 = acedSetVar(dicName, &rb);
+			if (r0 != RTNORM) {
+				acutPrintf(L"´íÎó£º%d\n", i);
+			}
+		}
+		else {
+			acutPrintf(L"´íÎó£º%d\n", i);
+		}
 		AcDbObjectId polyId;
 		 ECDMyPL(polyId);
 
@@ -65,28 +87,62 @@ public:
 		AcDbPolyline *pl = NULL;
 		AcGePoint2dArray ptArr;
 
-
+		AcDbPolyline *pl2 = NULL;
 		if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
 
 			pl->setClosed(true);
-			pl->close();
-			pl = NULL;
-		}
-		if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
-
-			
+			pl->setColorIndex(1);
+			double x = 0;
+			double y = 0;
 			for (int i = 0; i < (int)pl->numVerts(); i++)
 			{
 				AcGePoint2d pt;
 
 				pl->getPointAt(i, pt);
 
-				ptArr.append(pt);
+				x += pt.x;
+				y += pt.y;
 
 			}
+			x /= pl->numVerts();
+			y /= pl->numVerts();
+
+
+			/*AcGeMatrix3d mtx;
+			mtx.setToScaling(1.09, AcGePoint3d(x,y,0));
+
+		ErrorStatus es=	pl->transformBy(mtx);
+		acutPrintf(L"mtx=%d", es);*/
+			AcDbVoidPtrArray offsetCurves;
+			double wide = 10;//ÀýÈç
+			pl->getOffsetCurves(wide, offsetCurves);
+			pl2 = (AcDbPolyline*)offsetCurves[0];
 			pl->erase();
 			pl->close();
 			pl = NULL;
+			pl2->setClosed(true);
+			polyId = PostToModelSpace(pl2);
+			pl2->close();
+			pl2 = NULL;
+		}
+		if (acdbOpenObject(pl2, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
+
+			AcGePoint2d ptStart;
+			for (int i = 0; i < (int)pl2->numVerts(); i++)
+			{
+
+				AcGePoint2d pt;
+
+				pl2->getPointAt(i, pt);
+
+				ptArr.append(pt);
+
+			}
+			pl2->getPointAt(0, ptStart);
+			ptArr.append(ptStart);
+			pl2->erase();
+			pl2->close();
+			pl2 = NULL;
 		}
 
 		AcDbWipeout *pWipeout = new AcDbWipeout();
@@ -108,7 +164,23 @@ public:
 			PostToModelSpace(pWipeout);
 			pWipeout->close();
 		}
+		
+		 i= acedGetVar(dicName, &rb);
+		
+		if (i == RTNORM) {
+			int m = rb.resval.rint;
+			rb.restype = RTSHORT;
+			rb.resval.rint = (short)m;
 
+
+			int r0 = acedSetVar(dicName, &rb);
+			if (r0 != RTNORM) {
+				acutPrintf(L"´íÎó£º%d\n", i);
+			}
+		}
+		else {
+			acutPrintf(L"´íÎó£º%d\n", i);
+		}
 
 	}
 	static  void ECDMyPL(AcDbObjectId & polyId ) {
@@ -357,5 +429,5 @@ public:
 IMPLEMENT_ARX_ENTRYPOINT(CEcdZheZhaoApp)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, Test, Test, ACRX_CMD_MODAL, NULL)
-
+ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, ee, ee, ACRX_CMD_MODAL, NULL)
 

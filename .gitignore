@@ -44,3 +44,4 @@
 *.iobj
 *.ipdb
 *.err
+*.props

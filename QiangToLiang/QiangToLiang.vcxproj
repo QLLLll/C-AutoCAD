@@ -76,7 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="acrxEntryPoint.cpp" />
+    <ClCompile Include="acrxEntryPoint1.cpp" />
     <ClCompile Include="DocData.cpp" />
     <ClCompile Include="QiangToLiang.cpp" />
     <ClCompile Include="StdAfx.cpp">

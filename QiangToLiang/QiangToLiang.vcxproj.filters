@@ -21,10 +21,10 @@
     <ClCompile Include="DocData.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="acrxEntryPoint.cpp">
+    <ClCompile Include="QiangToLiang.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="QiangToLiang.cpp">
+    <ClCompile Include="acrxEntryPoint1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
