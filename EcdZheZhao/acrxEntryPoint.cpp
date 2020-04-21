@@ -2,6 +2,7 @@
 #include "resource.h"
 #include"dbwipe.h"
 #include<vector>
+#define  PI 3.1415926
 using namespace std;
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
@@ -37,27 +38,49 @@ public:
 
 	virtual void RegisterServerComponents() {
 	}
+	
+	static void setVisible() {
 
-	// The ACED_ARXCOMMAND_ENTRY_AUTO macro can be applied to any static member 
-	// function of the CEcdZheZhaoApp class.
-	// The function should take no arguments and return nothing.
-	//
-	// NOTE: ACED_ARXCOMMAND_ENTRY_AUTO has overloads where you can provide resourceid and
-	// have arguments to define context and command mechanism.
+		ads_name aName;
+		if (acedSSGet(NULL, NULL, NULL, NULL, aName) != RTNORM) {
+			return;
+		}
 
-	// ACED_ARXCOMMAND_ENTRY_AUTO(classname, group, globCmd, locCmd, cmdFlags, UIContext)
-	// ACED_ARXCOMMAND_ENTRYBYID_AUTO(classname, group, globCmd, locCmdId, cmdFlags, UIContext)
-	// only differs that it creates a localized name using a string in the resource file
-	//   locCmdId - resource ID for localized command
+		int len = 0;
+		acedSSLength(aName, &len);
 
-	// Modal Command with localized name
-	// ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, MyCommand, MyCommandLocal, ACRX_CMD_MODAL)
-	static void ECDMyGroupee() {
+		AcDbObjectIdArray ids;
 
-		
+		for (int i = 0; i < len; i++)
+		{
+			ads_name temp;
+
+			acedSSName(aName, i, temp);
+
+			AcDbObjectId tempId;
+			acdbGetObjectId(tempId, temp);
+
+			ids.append(tempId);
+
+		}
+		acedSSFree(aName);
+
+		for (int i = 0; i < ids.length(); i++)
+		{
+			AcDbEntity * ent = NULL;
+
+			if (acdbOpenObject(ent, ids[i], AcDb::kForWrite) == Acad::eOk) {
+
+				ent->setVisibility(AcDb::Visibility::kInvisible, true);
+				ent->close();
+				
+			}
+		}
+
 	}
 
-	static void ECDMyGroupTest () {
+	static void ECDMyGroupEcdCC() {
+# if 0
 		CString dicName = L"frame";
 		struct resbuf rb;
 		int i = acedGetVar(dicName, &rb);
@@ -76,45 +99,40 @@ public:
 		else {
 			acutPrintf(L"错误：%d\n", i);
 		}
-		AcDbObjectId polyId;
-		 ECDMyPL(polyId);
+#endif
+		
 
-		if (polyId.isNull()) {
-			AfxMessageBox(L"创建多段线出错。");
+		ads_point pt;
+		int nums;
+		double radius;
+
+		if (acedGetPoint(NULL, L"\n圆心：\n", pt) != RTNORM) {
+			return;
+		}
+		if (acedGetReal(L"\n半径：\n", &radius) != RTNORM) {
+			return;
+		}
+		if (acedGetInt(L"\n多边形边数：\n", &nums) != RTNORM) {
 			return;
 		}
 
-		AcDbPolyline *pl = NULL;
-		AcGePoint2dArray ptArr;
+		AcGePoint3d ptc = asPnt3d(pt);
 
+		AcDbObjectId polyId =CreatePolygon(AcGePoint2d(ptc.x, ptc.y), nums, radius, 0, 0);
+
+
+		AcDbPolyline *pl = NULL;
+		
+#if 0
 		AcDbPolyline *pl2 = NULL;
 		if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
 
 			pl->setClosed(true);
-			pl->setColorIndex(1);
-			double x = 0;
-			double y = 0;
-			for (int i = 0; i < (int)pl->numVerts(); i++)
-			{
-				AcGePoint2d pt;
-
-				pl->getPointAt(i, pt);
-
-				x += pt.x;
-				y += pt.y;
-
-			}
-			x /= pl->numVerts();
-			y /= pl->numVerts();
-
-
-			/*AcGeMatrix3d mtx;
-			mtx.setToScaling(1.09, AcGePoint3d(x,y,0));
-
-		ErrorStatus es=	pl->transformBy(mtx);
-		acutPrintf(L"mtx=%d", es);*/
+			
 			AcDbVoidPtrArray offsetCurves;
-			double wide = 10;//例如
+			
+
+			double wide = radius*0.07;
 			pl->getOffsetCurves(wide, offsetCurves);
 			pl2 = (AcDbPolyline*)offsetCurves[0];
 			pl->erase();
@@ -125,6 +143,7 @@ public:
 			pl2->close();
 			pl2 = NULL;
 		}
+		AcGePoint2dArray ptArr;
 		if (acdbOpenObject(pl2, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
 
 			AcGePoint2d ptStart;
@@ -144,7 +163,142 @@ public:
 			pl2->close();
 			pl2 = NULL;
 		}
+#endif		
+		AcGePoint2dArray ptArr;
+		if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
 
+			AcGePoint2d ptStart;
+			for (int i = 0; i < (int)pl->numVerts(); i++)
+			{
+
+				AcGePoint2d pt;
+
+				pl->getPointAt(i, pt);
+
+				ptArr.append(pt);
+
+			}
+			pl->getPointAt(0, ptStart);
+			ptArr.append(ptStart);
+			pl->erase();
+			pl->close();
+			pl = NULL;
+		}
+		AcDbWipeout *pWipeout = new AcDbWipeout();
+
+
+		ErrorStatus es;// = wipeOut->fitPointsToImage(ptArr, minPt, scale);
+		pWipeout->setDatabaseDefaults();
+		AcGePoint3d originPnt(AcGePoint3d::kOrigin);
+		AcGeVector3d Udirection(1, 0, 0);
+		AcGeVector3d Vdirection(0, -1, 0);
+		pWipeout->setOrientation(originPnt, Udirection, Vdirection);
+		pWipeout->setDisplayOpt(AcDbRasterImage::kTransparent, Adesk::kTrue);
+		pWipeout->setDisplayOpt(AcDbRasterImage::kShow, Adesk::kTrue);
+		es = pWipeout->setClipBoundaryToWholeImage();
+		es = pWipeout->setClipBoundary(AcDbRasterImage::kPoly, ptArr);
+
+		if (es == ErrorStatus::eOk) {
+
+			PostToModelSpace(pWipeout);
+			pWipeout->close();
+		}
+#if 0
+		i = acedGetVar(dicName, &rb);
+
+		if (i == RTNORM) {
+			int m = rb.resval.rint;
+			rb.restype = RTSHORT;
+			rb.resval.rint = (short)m;
+
+
+			int r0 = acedSetVar(dicName, &rb);
+			if (r0 != RTNORM) {
+				acutPrintf(L"错误：%d\n", i);
+			}
+		}
+		else {
+			acutPrintf(L"错误：%d\n", i);
+		}
+#endif
+	}
+
+	static void ECDMyGroupEcdNN () {
+#if 0
+		CString dicName = L"frame";
+		struct resbuf rb;
+		int i = acedGetVar(dicName, &rb);
+		int m = 2;
+		if (i == RTNORM) {
+			int m = rb.resval.rint;
+			rb.restype = RTSHORT;
+			rb.resval.rint = (short)2;
+
+
+			int r0 = acedSetVar(dicName, &rb);
+			if (r0 != RTNORM) {
+				acutPrintf(L"错误：%d\n", i);
+			}
+		}
+		else {
+			acutPrintf(L"错误：%d\n", i);
+		}
+#endif
+		
+
+		AcDbObjectId polyId;
+		 ECDMyPL(polyId);
+
+		if (polyId.isNull()) {
+			AfxMessageBox(L"创建多段线出错。");
+			return;
+		}
+
+		AcDbPolyline *pl = NULL;
+		AcGePoint2dArray ptArr;
+
+		AcDbPolyline *pl2 = NULL;
+		double dis = 0.0;
+
+		if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
+
+			pl->setClosed(true);
+			pl->close();
+			pl = NULL;
+			/*AcDbVoidPtrArray offsetCurves;
+			double wide =dis*0.01;
+
+			pl->getOffsetCurves(wide, offsetCurves);
+			pl2 = (AcDbPolyline*)offsetCurves[0];
+			pl->erase();
+			pl->close();
+			pl = NULL;
+			pl2->setClosed(true);
+			polyId = PostToModelSpace(pl2);
+			pl2->close();
+			pl2 = NULL;*/
+		}
+		
+		if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) == ErrorStatus::eOk) {
+
+			AcGePoint2d ptStart;
+			for (int i = 0; i < (int)pl->numVerts(); i++)
+			{
+
+				AcGePoint2d pt;
+
+				pl->getPointAt(i, pt);
+
+				ptArr.append(pt);
+
+			}
+			pl2->getPointAt(0, ptStart);
+			//ptArr.append(ptStart);
+			pl->erase();
+			pl->close();
+			pl= NULL;
+		}
+		
 		AcDbWipeout *pWipeout = new AcDbWipeout();
 
 		
@@ -163,8 +317,9 @@ public:
 
 			PostToModelSpace(pWipeout);
 			pWipeout->close();
+			
 		}
-		
+#if 0		
 		 i= acedGetVar(dicName, &rb);
 		
 		if (i == RTNORM) {
@@ -181,8 +336,9 @@ public:
 		else {
 			acutPrintf(L"错误：%d\n", i);
 		}
-
+#endif
 	}
+
 	static  void ECDMyPL(AcDbObjectId & polyId ) {
 
 		int index = 2;
@@ -198,179 +354,46 @@ public:
 		ptPrevious = ptStart;
 		double *ptPre = asDblArray(ptPrevious);
 
-		
-
 		int rc;
-		TCHAR keyword[20];
 
 		AcDbPolyline * pl = NULL;
 		int plIndex = 0;
 
-		vector<AcDbPolyline*>vecPl;
-		//vector<AcGeVector3d>vecVt;
-		acedInitGet(NULL, TEXT("U Y O"));
-		rc = acedGetPoint(ptPre, L"\n请输入下一个点或[回退U/返回退Y/完成O]:", ptCur);
+		rc = acedGetPoint(ptPre, L"\n请输入下一个点：", ptCur);
 
-		while (rc == RTKWORD || rc == RTNORM) {
+		while ( rc == RTNORM) {
 			switch (rc) {
-			case RTKWORD:
-				if (acedGetInput(keyword) != RTNORM)
-					return;
-
-				if (_tcscmp(keyword, TEXT("U")) == 0) {
-
-					plIndex--;
-
-					if (plIndex <= 0) {
-						plIndex = 0;
-						acedInitGet(NULL, TEXT("U Y O"));
-
-						rc = acedGetPoint(ptPre, L"\n请输入下一个点或[回退U/返回退Y/完成O]:", ptCur);
-						continue;
-					}
-
-					if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk)
-					{
-						acedInitGet(NULL, TEXT("U Y O"));
-
-						rc = acedGetPoint(ptPre, L"\n请输入下一个点或[回退U/返回退Y/完成O]:", ptCur);
-						continue;
-					}
-
-					pl->erase();
-					pl->close();
-
-
-
-					AcDbPolyline * temp = AcDbPolyline::cast(vecPl[plIndex - 1]->clone());
-
-					AcGePoint2d ptTemp;
-
-					temp->getPointAt(temp->numVerts() - 1, ptTemp);
-
-					ptPrevious = AcGePoint3d(ptTemp.x, ptTemp.y, 0);
-					ptPre = asDblArray(ptPrevious);
-					polyId = PostToModelSpace(temp);
-					temp->close();
-
-
-				}
-				else if (_tcscmp(keyword, TEXT("Y")) == 0) {
-					plIndex++;
-					if (plIndex >= vecPl.size()) {
-						plIndex = (int)vecPl.size() - 1;
-						acedInitGet(NULL, TEXT("U Y O"));
-
-						rc = acedGetPoint(ptPre, L"\n请输入下一个点或[回退U/返回退Y/完成O]:", ptCur);
-						continue;
-					}
-
-					if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk)
-					{
-						acedInitGet(NULL, TEXT("U Y O"));
-
-						rc = acedGetPoint(ptPre, L"\n请输入下一个点或[回退U/返回退Y/完成O]:", ptCur);
-						continue;
-					}
-
-					pl->erase();
-					pl->close();
-
-					AcDbPolyline * temp = AcDbPolyline::cast(vecPl[plIndex]->clone());
-
-					AcGePoint2d ptTemp;
-
-					temp->getPointAt(temp->numVerts() - 1, ptTemp);
-
-					ptPrevious = AcGePoint3d(ptTemp.x, ptTemp.y, 0);
-					ptPre = asDblArray(ptPrevious);
-					polyId = PostToModelSpace(temp);
-					temp->close();
-
-				}
-				else if (_tcscmp(keyword, TEXT("O")) == 0) {
-					for (size_t i = 0; i < vecPl.size(); i++)
-					{
-						delete vecPl[i];
-						vecPl[i] = NULL;
-
-					}
-					return;
-
-				}
-
-				break;
 			case RTNORM:
+
 				ptCurrent = asPnt3d(ptCur);
 
 				if (index == 2) {
 					pl = new AcDbPolyline();
 
-					//pl->assertWriteEnabled(false, true);
-
 					pl->addVertexAt(pl->numVerts(), AcGePoint2d(ptPrevious.x, ptPrevious.y));
 					pl->addVertexAt(pl->numVerts(), AcGePoint2d(ptCurrent.x, ptCurrent.y));
-					AcDbPolyline * plCo = AcDbPolyline::cast(pl->clone());
+					
 					polyId = PostToModelSpace(pl);
-
-					vecPl.push_back(plCo);
 					plIndex++;
 
 					pl->close();
 					pl = NULL;
-
-					/*AcGeVector3d vec1 = (ptCurrent - ptPrevious).normal();
-
-					AcGeVector3d vec2 = vec1.rotateBy(3.1415926 / 2, AcGeVector3d::kZAxis);
-					AcGeVector3d vec3 = -vec2;
-
-					vecVt.push_back(vec1);
-					vecVt.push_back(vec2);
-					vecVt.push_back(vec3);*/
-
-
 				}
 				else if (index > 2) {
-
-					//GetZjPt(vecVt, ptPrevious, ptCurrent, ptZj);
 
 					if (acdbOpenObject(pl, polyId, AcDb::OpenMode::kForWrite) != ErrorStatus::eOk)
 						return;
 					pl->addVertexAt(index - 1, AcGePoint2d(ptCurrent.x, ptCurrent.y), 0, 0, 0);
-
-					AcDbPolyline * plCo = AcDbPolyline::cast(pl->clone());
-
-					vecPl.push_back(plCo);
 					plIndex++;
-					pl->close();
-					//vecVt.clear();
-
-					/*	AcGeVector3d vec1 = (ptZj - ptPrevious).normal();
-
-						AcGeVector3d vec2 = vec1.rotateBy(3.1415926 / 2, AcGeVector3d::kZAxis);
-						AcGeVector3d vec3 = -vec2;
-
-						vecVt.push_back(vec1);
-						vecVt.push_back(vec2);
-						vecVt.push_back(vec3);*/
-
-
+					pl->close();					
 				}
 				index++;
 				ptPrevious = ptCurrent;
 
-				/*if (index > 3)
-					ptPrevious = ptCurrent;
-				else {
-					ptPrevious = ptCurrent;
-				}*/
 				ptPre = asDblArray(ptPrevious);
 				break;
-
 			}
-			acedInitGet(NULL, TEXT("U Y O"));
-
-			rc = acedGetPoint(ptPre, L"\n请输入下一个点或[回退U/返回退Y/完成O]:", ptCur);
+			rc = acedGetPoint(ptPre, L"\n请输入下一个点:", ptCur);
 		}
 		
 	}
@@ -423,11 +446,53 @@ public:
 
 		return objId;
 	}
+	static AcDbObjectId CreatePolygon(AcGePoint2d ptCenter, int number,
+		double radius, double rotation, double width)
+	{
+		AcGePoint2dArray points;
+		double angle = 2 *PI / (double)number;
+		for (int i = 0; i < number; i++)
+		{
+			AcGePoint2d pt;
+			pt.x = ptCenter.x + radius * cos(i * angle);
+			pt.y = ptCenter.y + radius * sin(i * angle);
+			points.append(pt);
+		}
+
+		AcDbObjectId polyId = CreatePolyline(points, width);
+
+		// 将其闭合
+		AcDbEntity *pEnt;
+		acdbOpenAcDbEntity(pEnt, polyId, AcDb::kForWrite);
+		AcDbPolyline *pPoly = AcDbPolyline::cast(pEnt);
+		if (pPoly != NULL)
+		{
+			pPoly->setClosed(Adesk::kTrue);
+		}
+
+		pEnt->close();
+		
+		return polyId;
+	}
+
+	static AcDbObjectId CreatePolyline(AcGePoint2dArray points, double width)
+	{
+		int numVertices = points.length();
+		AcDbPolyline *pPoly = new AcDbPolyline(numVertices);
+		for (int i = 0; i < numVertices; i++)
+		{
+			pPoly->addVertexAt(i, points.at(i), 0, width, width);
+		}
+		AcDbObjectId polyId;
+		polyId =PostToModelSpace(pPoly);
+		return polyId;
+	}
+
 } ;
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CEcdZheZhaoApp)
 
-ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, Test, Test, ACRX_CMD_MODAL, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, ee, ee, ACRX_CMD_MODAL, NULL)
+//ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, EcdNN, EcdNN, ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CEcdZheZhaoApp, ECDMyGroup, EcdCC, EcdCC, ACRX_CMD_MODAL, NULL)
 
