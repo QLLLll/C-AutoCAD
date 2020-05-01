@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArxProject3", "ArxProject3\ArxProject3.vcxproj", "{4AE72970-BEED-4455-B21F-F0BE7DE2766C}"
 EndProject
@@ -66,6 +66,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QiangToLiang", "QiangToLiang\QiangToLiang.vcxproj", "{55B9BFE0-A89B-4174-A054-8CFFAE36A277}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EcdZheZhao", "EcdZheZhao\EcdZheZhao.vcxproj", "{847FD319-A597-4D83-AA3B-ECDAFEC83C4D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EcdMirror", "EcdMirror\EcdMirror.vcxproj", "{91F4A77D-238F-45E8-8D37-4DF0B9387A55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -331,6 +333,14 @@ Global
 		{847FD319-A597-4D83-AA3B-ECDAFEC83C4D}.Release|x64.Build.0 = Release|x64
 		{847FD319-A597-4D83-AA3B-ECDAFEC83C4D}.Release|x86.ActiveCfg = Release|Win32
 		{847FD319-A597-4D83-AA3B-ECDAFEC83C4D}.Release|x86.Build.0 = Release|Win32
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Debug|x64.ActiveCfg = Debug|x64
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Debug|x64.Build.0 = Debug|x64
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Debug|x86.ActiveCfg = Debug|Win32
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Debug|x86.Build.0 = Debug|Win32
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Release|x64.ActiveCfg = Release|x64
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Release|x64.Build.0 = Release|x64
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Release|x86.ActiveCfg = Release|Win32
+		{91F4A77D-238F-45E8-8D37-4DF0B9387A55}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
