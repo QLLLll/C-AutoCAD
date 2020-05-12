@@ -151,7 +151,7 @@ public:
 			AcDbObjectId tempId;
 			pBlkTblRcdltr->getEntityId(tempId);
 			
-			if(es2==ErrorStatus::eWasOpenForRead){
+			if(es2!=ErrorStatus::eOk){
 				continue;
 				es2=pEnt->upgradeOpen();
 				if(es2==ErrorStatus::eOk){
@@ -271,7 +271,7 @@ public:
 			ErrorStatus es =ErrorStatus::eOk;
 			AcDbLine * aixLine=new AcDbLine(formPt,jig.m_ToPoint);
 
-			DeleteFile(cPath);
+			
 			acutPrintf(L"更新成功");
 			AcDbExtents ext;
 			AcGePoint3d ptO;
@@ -756,10 +756,19 @@ public:
 		AcDbObjectId stdId, anoId;
 		pStyleTable->getAt(L"Standard", stdId);
 		pStyleTable->getAt(L"Annotative", anoId);
-
+		AcDbTextStyleTableRecord *txtRec=NULL;
 		for (pIterator->start(); !pIterator->done(); pIterator->step())
 		{
 			AcDbObjectId styleId = AcDbObjectId::kNull;
+
+			
+				if ((es = pIterator->getRecord(txtRec,AcDb::kForRead)) != Acad::eOk){
+					if(txtRec!=NULL){
+						txtRec->close();
+					}
+					continue;
+				}
+
 			if ((es = pIterator->getRecordId(styleId)) == Acad::eOk)
 			{
 				AcDbTextStyleTableRecord* pNewRec = NULL;
@@ -775,8 +784,8 @@ public:
 					pNewRec = new AcDbTextStyleTableRecord;
 				}
 
-				AcGiTextStyle *pTextStyle = new AcGiTextStyle(pToDataDes);
-				if ((es = fromAcDbTextStyle(*pTextStyle, styleId)) == Acad::eOk)
+				//AcGiTextStyle *pTextStyle = new AcGiTextStyle(pToDataDes);
+				if (true/*(es = fromAcDbTextStyle(*pTextStyle, styleId)) == Acad::eOk*/)
 				{
 					ACHAR * pTypeface = NULL;
 					Adesk::Boolean bold;
@@ -784,45 +793,54 @@ public:
 					int  charset;
 					int  pitchAndFamily;
 					//Autodesk::AutoCAD::PAL::FontUtils::FontFamily fontFamily;
-
+					ACHAR *na,*na1;
+					txtRec->getName(na);
+					txtRec->fileName(na1);
 					if (styleId != stdId&&styleId != anoId) {
-						setSymbolName(pNewRec, pTextStyle->styleName());
-						pNewRec->setFileName(pTextStyle->fileName());
-						pNewRec->setBigFontFileName(_T(""));
+						setSymbolName(pNewRec,na );
+						es=pNewRec->setFileName(na1);
+						es=pNewRec->setBigFontFileName(_T(""));
 					}
 
 
 					/*待完善*/
-
-					es = pTextStyle->font(pTypeface, bold, italic, charset, pitchAndFamily);
+					    es =   txtRec->font(pTypeface, bold, italic, charset, pitchAndFamily);  
+					//es = pTextStyle->font(pTypeface, bold, italic, charset, pitchAndFamily);
 					if (es == Acad::eOk)
-						pNewRec->setFont(pTypeface, bold, italic, charset, pitchAndFamily);
+						es=pNewRec->setFont(pTypeface, bold, italic, charset, pitchAndFamily);
 
 					// must explicitly set to ""
 					if (styleId != stdId&&styleId != anoId)
 					{
-						pNewRec->setTextSize(pTextStyle->textSize());
+						es=pNewRec->setTextSize(pNewRec->textSize());
 
-						pNewRec->setXScale(pTextStyle->xScale());
+						es=pNewRec->setXScale(pNewRec->xScale());
 					}
-					pNewRec->setObliquingAngle(pTextStyle->obliquingAngle());
+					es=pNewRec->setObliquingAngle(pNewRec->obliquingAngle());
 
 					if (styleId == stdId || styleId == anoId) {
-						pNewRec->close();
+						es=pNewRec->close();
 
 					}
 					else {
-						addToSymbolTableAndClose(pNewRec, pToDataDes);
+						es=pNewSt->close();
+						pNewSt=NULL;
+						bool flag=false;
+						flag=addToSymbolTableAndClose(pNewRec, pToDataDes);
 					}
 				}
-				if (pTextStyle != NULL)
+				if(txtRec!=NULL){
+					es=txtRec->close();
+					txtRec=NULL;
+				}
+				/*if (pTextStyle != NULL)
 				{
 					delete pTextStyle;
 					pTextStyle = NULL;
-				}
+				}*/
 			}
 		}
-		pNewSt->close();
+		//pNewSt->close();
 		if (pIterator != NULL)
 		{
 			delete pIterator;
@@ -866,7 +884,7 @@ public:
 		if (es != Acad::eOk)
 		{
 			symTextTbl->close();
-			systemTextRec->close();
+			es=systemTextRec->close();
 			return FALSE;
 		}
 		else

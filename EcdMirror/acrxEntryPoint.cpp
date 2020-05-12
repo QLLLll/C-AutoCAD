@@ -150,8 +150,8 @@ public:
 			
 			AcDbObjectId tempId;
 			pBlkTblRcdltr->getEntityId(tempId);
-			
-			if(es2==ErrorStatus::eWasOpenForRead){
+
+			if (es2 != ErrorStatus::eOk) {
 				continue;
 				es2=pEnt->upgradeOpen();
 				if(es2==ErrorStatus::eOk){
@@ -756,9 +756,16 @@ public:
 		AcDbObjectId stdId, anoId;
 		pStyleTable->getAt(L"Standard", stdId);
 		pStyleTable->getAt(L"Annotative", anoId);
-
+		AcDbTextStyleTableRecord *txtRec = NULL;
 		for (pIterator->start(); !pIterator->done(); pIterator->step())
 		{
+			if ((es = pIterator->getRecord(txtRec, AcDb::kForRead)) != Acad::eOk) {
+				if (txtRec != NULL) {
+					txtRec->close();
+				}
+				continue;
+			}
+
 			AcDbObjectId styleId = AcDbObjectId::kNull;
 			if ((es = pIterator->getRecordId(styleId)) == Acad::eOk)
 			{
@@ -775,8 +782,8 @@ public:
 					pNewRec = new AcDbTextStyleTableRecord;
 				}
 
-				AcGiTextStyle *pTextStyle = new AcGiTextStyle(pToDataDes);
-				if ((es = fromAcDbTextStyle(*pTextStyle, styleId)) == Acad::eOk)
+				//AcGiTextStyle *pTextStyle = new AcGiTextStyle(pToDataDes);
+				if (true/*(es = fromAcDbTextStyle(*pTextStyle, styleId)) == Acad::eOk*/)
 				{
 					ACHAR * pTypeface = NULL;
 					Adesk::Boolean bold;
@@ -784,45 +791,54 @@ public:
 					Charset  charset;
 					Autodesk::AutoCAD::PAL::FontUtils::FontPitch  pitchAndFamily;
 					Autodesk::AutoCAD::PAL::FontUtils::FontFamily fontFamily;
-
+					ACHAR *na, *na1;
+					txtRec->getName(na);
+					txtRec->fileName(na1);
 					if (styleId != stdId&&styleId != anoId) {
-						setSymbolName(pNewRec, pTextStyle->styleName());
-						pNewRec->setFileName(pTextStyle->fileName());
+						setSymbolName(pNewRec, na);
+						pNewRec->setFileName(na1);
 						pNewRec->setBigFontFileName(_T(""));
 					}
 
 
 					/*´ýÍêÉÆ*/
-
-					es = pTextStyle->font(pTypeface, bold, italic, charset, pitchAndFamily, fontFamily);
+					es = txtRec->font(pTypeface, bold, italic, charset, pitchAndFamily, fontFamily);
+					//es = pTextStyle->font(pTypeface, bold, italic, charset, pitchAndFamily, fontFamily);
 					if (es == Acad::eOk)
 						pNewRec->setFont(pTypeface, bold, italic, charset, pitchAndFamily, fontFamily);
 
 					// must explicitly set to ""
 					if (styleId != stdId&&styleId != anoId)
 					{
-						pNewRec->setTextSize(pTextStyle->textSize());
+						pNewRec->setTextSize(txtRec->textSize());
 
-						pNewRec->setXScale(pTextStyle->xScale());
+						pNewRec->setXScale(txtRec->xScale());
 					}
-					pNewRec->setObliquingAngle(pTextStyle->obliquingAngle());
+					pNewRec->setObliquingAngle(txtRec->obliquingAngle());
 
 					if (styleId == stdId || styleId == anoId) {
 						pNewRec->close();
 
 					}
 					else {
-						addToSymbolTableAndClose(pNewRec, pToDataDes);
+						es = pNewSt->close();
+						pNewSt = NULL;
+						bool flag = false;
+						flag = addToSymbolTableAndClose(pNewRec, pToDataDes);
 					}
 				}
-				if (pTextStyle != NULL)
+				if (txtRec != NULL) {
+					es = txtRec->close();
+					txtRec = NULL;
+				}
+				/*if (pTextStyle != NULL)
 				{
 					delete pTextStyle;
 					pTextStyle = NULL;
-				}
+				}*/
 			}
 		}
-		pNewSt->close();
+		
 		if (pIterator != NULL)
 		{
 			delete pIterator;
