@@ -377,61 +377,66 @@ public:
 		if (jig.m_idsC.length() == 0) {
 			return;
 		}
+		CString tt;
+		
+		/*tt.Format(L"m_idsC=%d",jig.m_idsC.length());
+		AfxMessageBox(tt);*/
+
 
 	//CString strHdl;
 
 //写xData
-	for (int i = 0; i < oIds.length(); i++)
-		{
-			AcDbEntity * l = NULL;
+	//for (int i = 0; i < oIds.length(); i++)
+	//	{
+	//		AcDbEntity * l = NULL;
 
-			if (acdbOpenObject(l, oIds[i], AcDb::kForWrite) == Acad::eOk) {
+	//		if (acdbOpenObject(l, oIds[i], AcDb::kForWrite) == Acad::eOk) {
 
-				CString appName = "XDataDCZ";
+	//			CString appName = "XDataDCZ";
 
-				resbuf * rb = l->xData(appName);
+	//			resbuf * rb = l->xData(appName);
 
-				if (rb == NULL) {
+	//			if (rb == NULL) {
 
-					acdbRegApp(appName);
+	//				acdbRegApp(appName);
 
-				}
-				else {
-					rb = NULL;
-					l->setXData(rb);
-				}
+	//			}
+	//			else {
+	//				rb = NULL;
+	//				l->setXData(rb);
+	//			}
 
-				rb = acutBuildList(AcDb::kDxfRegAppName, appName,
-					AcDb::kDxfXdInteger16, 1,
-					AcDb::kDxfXdWorldXCoord, pt1,
-					AcDb::kDxfXdWorldXCoord, asDblArray(jig.m_ToPoint),
-					RTNONE);
+	//			rb = acutBuildList(AcDb::kDxfRegAppName, appName,
+	//				AcDb::kDxfXdInteger16, 1,
+	//				AcDb::kDxfXdWorldXCoord, pt1,
+	//				AcDb::kDxfXdWorldXCoord, asDblArray(jig.m_ToPoint),
+	//				RTNONE);
 
-				l->setXData(rb);
+	//			l->setXData(rb);
 
-				acutRelRb(rb);
-				l->close();
+	//			acutRelRb(rb);
+	//			l->close();
 
-			}
-		
-			/*AcDbHandle h=oIds[i].handle();
+	//		}
+	//	
+	//		/*AcDbHandle h=oIds[i].handle();
 
-			Adesk::UInt32 high=h.high();
-			Adesk::UInt32 low=h.low();
+	//		Adesk::UInt32 high=h.high();
+	//		Adesk::UInt32 low=h.low();
 
-			CString strNum;
-			strNum.Format(L"%d%d",high,low);
+	//		CString strNum;
+	//		strNum.Format(L"%d%d",high,low);
 
-			int num=_ttoi(strNum);
+	//		int num=_ttoi(strNum);
 
-			strNum="";
-			strNum.Format(L"%X",num);
+	//		strNum="";
+	//		strNum.Format(L"%X",num);
 
-			strHdl+=strNum+"&";*/
+	//		strHdl+=strNum+"&";*/
 
 
-			
-		}
+	//		
+	//	}
 //克隆原实体		
 	for (int i = 0; i < oIds.length(); i++)
 	{
@@ -487,12 +492,13 @@ public:
 			f.Write(wStr,wStr.GetLength()*sizeof(wchar_t));
 			f.Flush();
 			f.Close();
+			
 		}
 	}
 	else{
 
 		CString strE;
-		if (f.Open(aixPath, CFile::modeReadWrite, NULL)) {
+		if (f.Open(aixPath, CFile::modeReadWrite, NULL)!=0) {
 			
 			strE=ReadUnicode(f);
 			f.Close();
@@ -524,13 +530,14 @@ public:
 
 		}
 	}
-
+	
 	DeepClone(jig.m_idsC,newPath);
 	
 	AcDbLine * aixLine=new AcDbLine(fPt,jig.m_ToPoint);
 	
 	AcDbExtents ext;
 	AcGePoint3d ptO;
+	bool hasPt=false;
 	for (int i=0;i<(int)vecEnt.size();i++){
 
 		AcDbEntity * ent1=vecEnt[i];
@@ -538,18 +545,27 @@ public:
 		es=ent1->getGeomExtents(ext);
 		if(es==ErrorStatus::eOk){
 			ptO=ext.maxPoint();
+			hasPt=true;
 			break;
 		}
 	}
 	
-	AcGePoint3d ptOnL;
+	if(hasPt){
 
-	aixLine->getClosestPointTo(ptO,ptOnL,Adesk::kTrue);
+		AcGePoint3d ptOnL;
 
-	AcGeVector3d vec=(ptO-ptOnL).normal();
+		aixLine->getClosestPointTo(ptO,ptOnL,Adesk::kTrue);
+
+		AcGeVector3d vec=(ptO-ptOnL).normal();
+
+		DeleteOnDesDb(vec,newPath,aixLine);
+	}else{
+		delete aixLine;
+		aixLine=NULL;
+	}
 
 
-	DeleteOnDesDb(vec,newPath,aixLine);
+	
 
 //镜像实体删除
 	for (int i=0;i<jig.m_idsC.length();i++)
@@ -572,7 +588,7 @@ public:
 
 		PostToModelSpace(vecEnt[i]);
 
-		vecEnt[i]->close();
+		//vecEnt[i]->close();
 
 	}
 
@@ -683,16 +699,16 @@ public:
 
 
 		AcDbDatabase* pTempDb = new AcDbDatabase();
-
-		pTempDb->setLtscale(acdbHostApplicationServices()->workingDatabase()->ltscale());
-		pTempDb->setLineWeightDisplay(acdbHostApplicationServices()->workingDatabase()->lineWeightDisplay());
-		pTempDb->setFillmode(acdbHostApplicationServices()->workingDatabase()->fillmode());
+		
+		es=pTempDb->setLtscale(acdbHostApplicationServices()->workingDatabase()->ltscale());
+		es=pTempDb->setLineWeightDisplay(acdbHostApplicationServices()->workingDatabase()->lineWeightDisplay());
+		es=pTempDb->setFillmode(acdbHostApplicationServices()->workingDatabase()->fillmode());
 		
 		AcDbIdMapping idMap;
 		es = idMap.setDestDb(pTempDb);
-
+		
 		if (!CopyTextStyleIdInfo(acdbHostApplicationServices()->workingDatabase(), pTempDb)) {
-
+			AfxMessageBox(L"CopyTextStyleIdInfo false");
 			return false;
 		}
 
@@ -718,11 +734,8 @@ public:
 		}
 		delete pTempDb;
 		pTempDb=NULL;
+		
 		return true;
-
-
-
-
 	}
 
 	static	bool CopyTextStyleIdInfo(AcDbDatabase *pFromDataSrc/*in*/, AcDbDatabase *pToDataDes/*in*/)
@@ -730,17 +743,31 @@ public:
 
 		if (pFromDataSrc == NULL || pToDataDes == NULL)
 			return false;
-
-		AcDbTextStyleTable *pStyleTable = NULL, *pNewSt = NULL;
+		
+		AcDbTextStyleTable *pStyleTable = NULL;
+		AcDbTextStyleTable *pNewSt = NULL;
 		Acad::ErrorStatus es = Acad::eOk;
 		es = pFromDataSrc->getSymbolTable(pStyleTable, AcDb::kForRead);
 		if (es != Acad::eOk)
-			return false;
+		{
+			CString ttt;
+			ttt.Format(L"pStyleTable open false=%d",es);
+			AfxMessageBox(ttt);
 
+			return false;
+		}
 		es = pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
 		if (es != Acad::eOk)
+		{
+			CString ttt;
+			ttt.Format(L"pNewSt open false=%d",es);
+			AfxMessageBox(ttt);
+
+			pStyleTable->close();
+			pStyleTable=NULL;
 			return false;
 
+		}
 
 
 
@@ -748,21 +775,36 @@ public:
 		es = pStyleTable->newIterator(pIterator);
 		if (es != Acad::eOk)
 		{
+			CString ttt;
+			ttt.Format(L"pStyleTable->newIterator false=%d",es);
+			AfxMessageBox(ttt);
+
 			pStyleTable->close();
 			pStyleTable = NULL;
+
+			pNewSt->close();
+			pNewSt=NULL;
 			return false;
 		}
 
+		
+
 		AcDbObjectId stdId, anoId;
 		pStyleTable->getAt(L"Standard", stdId);
+		
 		pStyleTable->getAt(L"Annotative", anoId);
+		
 		AcDbTextStyleTableRecord *txtRec=NULL;
 		for (pIterator->start(); !pIterator->done(); pIterator->step())
 		{
 			AcDbObjectId styleId = AcDbObjectId::kNull;
-
+			
 			
 				if ((es = pIterator->getRecord(txtRec,AcDb::kForRead)) != Acad::eOk){
+					CString ttt;
+					ttt.Format(L"pIterator->getRecord(txtRec,AcDb::kForRead))=%d",es);
+					AfxMessageBox(ttt);
+
 					if(txtRec!=NULL){
 						txtRec->close();
 					}
@@ -774,11 +816,11 @@ public:
 				AcDbTextStyleTableRecord* pNewRec = NULL;
 				if (styleId == stdId) {
 
-					pNewSt->getAt(L"Standard", pNewRec, AcDb::kForWrite);
-
+					es=pNewSt->getAt(L"Standard", pNewRec, AcDb::kForWrite);
 				}
 				else if (styleId == anoId) {
-					pNewSt->getAt(L"Annotative", pNewRec, AcDb::kForWrite);
+					es=pNewSt->getAt(L"Annotative", pNewRec, AcDb::kForWrite);
+					
 				}
 				else {
 					pNewRec = new AcDbTextStyleTableRecord;
@@ -793,7 +835,7 @@ public:
 					int  charset;
 					int  pitchAndFamily;
 					//Autodesk::AutoCAD::PAL::FontUtils::FontFamily fontFamily;
-					ACHAR *na,*na1;
+					ACHAR *na,*na1;					
 					txtRec->getName(na);
 					txtRec->fileName(na1);
 					if (styleId != stdId&&styleId != anoId) {
@@ -801,15 +843,10 @@ public:
 						es=pNewRec->setFileName(na1);
 						es=pNewRec->setBigFontFileName(_T(""));
 					}
-
-
-					/*待完善*/
 					    es =   txtRec->font(pTypeface, bold, italic, charset, pitchAndFamily);  
-					//es = pTextStyle->font(pTypeface, bold, italic, charset, pitchAndFamily);
+					
 					if (es == Acad::eOk)
 						es=pNewRec->setFont(pTypeface, bold, italic, charset, pitchAndFamily);
-
-					// must explicitly set to ""
 					if (styleId != stdId&&styleId != anoId)
 					{
 						es=pNewRec->setTextSize(pNewRec->textSize());
@@ -820,34 +857,45 @@ public:
 
 					if (styleId == stdId || styleId == anoId) {
 						es=pNewRec->close();
-
+						
 					}
 					else {
 						es=pNewSt->close();
 						pNewSt=NULL;
 						bool flag=false;
+						
 						flag=addToSymbolTableAndClose(pNewRec, pToDataDes);
+						
+						pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
 					}
+			
 				}
 				if(txtRec!=NULL){
 					es=txtRec->close();
+
 					txtRec=NULL;
+					
+					
 				}
-				/*if (pTextStyle != NULL)
-				{
-					delete pTextStyle;
-					pTextStyle = NULL;
-				}*/
+				
 			}
 		}
-		//pNewSt->close();
+		
+		if(pNewSt!=NULL){
+			es=pNewSt->close();
+			pNewSt=NULL;
+			
+		}
 		if (pIterator != NULL)
 		{
 			delete pIterator;
 			pIterator = NULL;
-			pStyleTable->close();
+			es=pStyleTable->close();
+
 			pStyleTable = NULL;
+			
 		}
+		
 		return true;
 	}
 

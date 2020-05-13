@@ -825,6 +825,7 @@ public:
 						pNewSt = NULL;
 						bool flag = false;
 						flag = addToSymbolTableAndClose(pNewRec, pToDataDes);
+						pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
 					}
 				}
 				if (txtRec != NULL) {
