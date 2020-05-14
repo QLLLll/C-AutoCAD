@@ -9,6 +9,7 @@
 #include"StringUtil.h"
 #include "algorithm" //sort函数、交并补函数
 #include "iterator" //求交并补使用到的迭代器
+#include"dbmleaderstyle.h"
 
 //#pragma comment(lib,"Shlwapi.lib")
 
@@ -709,8 +710,9 @@ public:
 		
 		AcDbObjectIdArray tblIds;
 		CopyTableStyle(acdbHostApplicationServices()->workingDatabase(), pTempDb, tblIds);
-
-
+		
+		CopyMleaderStyle(acdbHostApplicationServices()->workingDatabase(), pTempDb);
+		
 		pTempDb->getSymbolTable(pBT1, AcDb::kForRead);
 		pBT1->getAt(ACDB_MODEL_SPACE, modelSpaceId);
 		
@@ -768,14 +770,11 @@ public:
 			return false;
 		}
 
-		AcDbObjectId stdId, anoId, tch_dim, tch_dyn, tch_window, ashade;
+		AcDbObjectId stdId, anoId;
 		pStyleTable->getAt(L"Standard", stdId);
-		pStyleTable->getAt(L"Annotative", anoId);
-		pStyleTable->getAt(L"_TCH_DIM", tch_dim);
-		pStyleTable->getAt(L"_TCH_DYN", tch_dyn);
-		pStyleTable->getAt(L"_TCH_WINDOW", tch_window);
-		pStyleTable->getAt(L"ASHADE", ashade);
+		pStyleTable->getAt(L"Annotative", anoId);		
 		AcDbTextStyleTableRecord *txtRec = NULL;
+		int jk = 0;
 		for (pIterator->start(); !pIterator->done(); pIterator->step())
 		{
 			if ((es = pIterator->getRecord(txtRec, AcDb::kForRead)) != Acad::eOk) {
@@ -799,29 +798,10 @@ public:
 					es = pNewSt->getAt(L"Annotative", pNewRec, AcDb::kForWrite);
 
 				}
-				else if (styleId == tch_dim) {
-					es = pNewSt->getAt(L"_TCH_DIM", pNewRec, AcDb::kForWrite);
-
-				}
-				else if (styleId == tch_dyn) {
-					es = pNewSt->getAt(L"_TCH_DYN", pNewRec, AcDb::kForWrite);
-
-				}
-				else if (styleId == tch_window) {
-					es = pNewSt->getAt(L"_TCH_WINDOW", pNewRec, AcDb::kForWrite);
-
-				}
-				else if (styleId == ashade) {
-					es = pNewSt->getAt(L"ASHADE", pNewRec, AcDb::kForWrite);
-
-				}
-				else{
-					//acutPrintf(L"pnewSet open=%d",es);
-					
-						//txtIds.append(styleId);
-						isFound = false;
-						pNewRec = new AcDbTextStyleTableRecord;
-					
+				
+				else{									
+					txtRec->close();					
+					continue;
 
 				}
 
@@ -836,6 +816,7 @@ public:
 					Autodesk::AutoCAD::PAL::FontUtils::FontFamily fontFamily;
 					ACHAR *na, *na1, *bigFontN;
 					txtRec->getName(na);
+
 					txtRec->fileName(na1);
 					txtRec->bigFontFileName(bigFontN);
 					Adesk::UInt8 flagB = txtRec->flagBits();
@@ -854,9 +835,10 @@ public:
 						pNewRec->setFont(pTypeface, bold, italic, charset, pitchAndFamily, fontFamily);
 
 					// must explicitly set to ""
+					es = pNewRec->setTextSize(txtRec->textSize());
 					if (styleId != stdId&&styleId != anoId)
 					{
-						es = pNewRec->setTextSize(txtRec->textSize());
+						
 
 						es = pNewRec->setXScale(txtRec->xScale());
 					}
@@ -867,11 +849,9 @@ public:
 						pNewRec = NULL;
 					}
 					else if(!isFound&&pNewRec != NULL) {
-						es = pNewSt->close();
-						pNewSt = NULL;
-						bool flag = false;
-						flag = addToSymbolTableAndClose(pNewRec, pToDataDes);
-						pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
+						
+						bool flag = addToSymbolTableAndClose(pNewRec, pNewSt);
+						
 					}
 				}
 				if (txtRec != NULL) {
@@ -1019,8 +999,9 @@ public:
 
 				}*/
 				else {
-					pNewRec = new AcDbDimStyleTableRecord();
-					isFind = false;
+					txtRec->close();
+					txtRec = NULL;
+					continue;
 				}
 				ACHAR* na;
 
@@ -1236,36 +1217,27 @@ public:
 		return(es);
 	}
 	//添加文字样式块表记录
-	static BOOL addToSymbolTableAndClose(AcDbSymbolTableRecord* systemTextRec/*in*/, AcDbDatabase *pDataBase/*in*/)
+	static BOOL addToSymbolTableAndClose(AcDbSymbolTableRecord* systemTextRec/*in*/, AcDbTextStyleTable *symTextTbl/*in*/)
 	{
-		if (pDataBase == NULL || systemTextRec == NULL)
+		if (symTextTbl == NULL || systemTextRec == NULL)
 			return FALSE;
 
-		AcDbTextStyleTable* symTextTbl = NULL;
-		Acad::ErrorStatus es = Acad::eOk;
-		es = pDataBase->getTextStyleTable(symTextTbl, AcDb::kForWrite);
-		if (es != Acad::eOk)
-		{
-			if (systemTextRec != NULL)
-			{
-				delete systemTextRec;
-				systemTextRec = NULL;
-			}
-			return FALSE;
-		}
+		ErrorStatus es = ErrorStatus::eOk;
+		
+		
 		AcDbSymbolTable *pSysRec = AcDbTextStyleTable::cast(symTextTbl);
 		//覆盖字体样式
 		es = pSysRec->add(systemTextRec);
 		if (es != Acad::eOk)
 		{
-			symTextTbl->close();
+			//symTextTbl->close();
 			systemTextRec->close();
 			return FALSE;
 		}
 		else
 		{
 			systemTextRec->close();
-			symTextTbl->close();
+			//symTextTbl->close();
 		}
 		return TRUE;
 	}
@@ -1317,37 +1289,43 @@ public:
 		pFromDataSrc->getTableStyleDictionary(pDict, AcDb::kForRead);
 		pDataBase->getTableStyleDictionary(newDict, AcDb::kForWrite);
 
-		
+		bool flag=newDict->setName(L"Standard", L"oldStandard");
+
+
 
 		pDict->getAt(_T("Standard"), idTblStyle2);
 		AcDbDictionaryIterator *pIterator = pDict->newIterator();
 
 		AcDbObject* pObj=NULL;
 		AcDbTableStyle * pTStyle = NULL;
-		while (!pIterator->done()) {
+		//while (!pIterator->done()) {
 
-			AcDbTableStyle* newStl = NULL;
+		//	AcDbTableStyle* newStl = NULL;
 
-			idTblStyle = pIterator->objectId();
-			
-			pIterator->getObject(pObj, AcDb::kForWrite);
-			//bIds.append(idTblStyle);
-			pTStyle = AcDbTableStyle::cast(pObj);
+		//	idTblStyle = pIterator->objectId();
 
-			const ACHAR* n=NULL;
-			n = pIterator->name();
+		//	if (idTblStyle != idTblStyle2) {
+		//		continue;
+		//	}
+		//	
+		//	pIterator->getObject(pObj, AcDb::kForWrite);
+		//	//bIds.append(idTblStyle);
+		//	pTStyle = AcDbTableStyle::cast(pObj);
 
-			newStl = AcDbTableStyle::cast(pTStyle->clone());
+		//	const ACHAR* n=NULL;
+		//	n = pIterator->name();
 
-			es=newDict->setAt(n, newStl,idTblStyle);
+		//	newStl = AcDbTableStyle::cast(pTStyle->clone());
 
-			pObj->close();
-			pObj = NULL;
-			newStl->close();
-			newStl = NULL;
-				pIterator->next();
+		//	es=newDict->setAt(n, newStl,idTblStyle);
 
-		}
+		//	pObj->close();
+		//	pObj = NULL;
+		//	newStl->close();
+		//	newStl = NULL;
+		//		pIterator->next();
+
+		//}
 		if (newDict != NULL) {
 			newDict->close();
 			newDict = NULL;
@@ -1367,6 +1345,109 @@ public:
 		
 	}
 
+	static bool CopyMleaderStyle(AcDbDatabase *pFromDataSrc, AcDbDatabase *pDataBase) {
+		ErrorStatus es = ErrorStatus::eOk;
+
+		AcDbBlockTable *pBlkTbl, *newTbl;
+
+		pFromDataSrc->getBlockTable(pBlkTbl, AcDb::kForRead);
+		pDataBase->getBlockTable(newTbl, AcDb::kForWrite);
+
+		AcDbDictionary *pDict = NULL, *newDict = NULL;
+		AcDbObjectId idTblStyle, idTblStyle2;
+
+		pFromDataSrc->getMLeaderStyleDictionary(pDict, AcDb::kForRead);
+		pDataBase->getMLeaderStyleDictionary(newDict, AcDb::kForWrite);
+		bool flag = newDict->setName(L"Standard", L"oldStandard");
+
+		pDict->getAt(_T("Standard"), idTblStyle2);
+
+		AcDbDictionaryIterator *pIterator = pDict->newIterator();
+
+		AcDbObject* pObj = NULL;
+		AcDbMLeaderStyle * pTStyle = NULL;
+		//while (!pIterator->done()) {
+
+		//	AcDbMLeaderStyle* newStl = NULL;
+
+		//	idTblStyle = pIterator->objectId();
+
+		//	if (idTblStyle != idTblStyle2)
+		//	{
+		//		continue;
+		//	}
+		//	pIterator->getObject(pObj, AcDb::kForWrite);
+		//	//bIds.append(idTblStyle);
+		//	pTStyle = AcDbMLeaderStyle::cast(pObj);
+
+		//	const ACHAR* n = NULL;
+		//	n = pIterator->name();
+
+		//	newStl = AcDbMLeaderStyle::cast(pTStyle->clone());
+
+		//	es = newDict->setAt(n, newStl, idTblStyle);
+
+		//	pObj->close();
+		//	pObj = NULL;
+		//	newStl->close();
+		//	newStl = NULL;
+		//	pIterator->next();
+
+		//}
+		if (newDict != NULL) {
+			newDict->close();
+			newDict = NULL;
+			newTbl->close();
+			newTbl = NULL;
+		}
+
+		if (pIterator != NULL) {
+			delete pIterator;
+			pIterator = NULL;
+			es = pBlkTbl->close();
+			pBlkTbl = NULL;
+		}
+
+		return true;
+
+	}
+
+	static bool CopyMlStyle(AcDbDatabase *pFromDataSrc, AcDbDatabase *pDataBase) {
+		ErrorStatus es = ErrorStatus::eOk;
+
+		AcDbBlockTable *pBlkTbl, *newTbl;
+
+		pFromDataSrc->getBlockTable(pBlkTbl, AcDb::kForRead);
+		pDataBase->getBlockTable(newTbl, AcDb::kForWrite);
+
+		AcDbDictionary *pDict = NULL, *newDict = NULL;
+		AcDbObjectId idTblStyle, idTblStyle2;
+
+		pFromDataSrc->getMLStyleDictionary(pDict, AcDb::kForRead);
+		pDataBase->getMLStyleDictionary(newDict, AcDb::kForWrite);
+		bool flag = newDict->setName(L"Standard", L"oldStandard");
+
+		pDict->getAt(_T("Standard"), idTblStyle2);
+
+		AcDbDictionaryIterator *pIterator = pDict->newIterator();
+
+		if (newDict != NULL) {
+			newDict->close();
+			newDict = NULL;
+			newTbl->close();
+			newTbl = NULL;
+		}
+
+		if (pIterator != NULL) {
+			delete pIterator;
+			pIterator = NULL;
+			es = pBlkTbl->close();
+			pBlkTbl = NULL;
+		}
+
+		return true;
+
+	}
 
 	static AcDbObjectId PostToModelSpace(AcDbEntity *pEnt, AcDbDatabase *pDb = acdbHostApplicationServices()->workingDatabase()) {
 
