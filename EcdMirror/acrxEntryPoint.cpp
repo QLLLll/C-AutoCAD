@@ -618,7 +618,13 @@ public:
 
 			AcGeVector3d vec2=(ptO-ptOnL).normal();
 
-			if(vec2.x*vec.x>=0&&vec2.y*vec.y>=0){
+			if (fabs(vec2.x - vec.x) < 0.2&&fabs(vec2.y - vec.y) < 0.2) {
+
+				pEnt->close();
+			}
+
+
+			else if(vec2.x*vec.x>=0&&vec2.y*vec.y>=0){
 
 				pEnt->erase();
 
@@ -984,7 +990,7 @@ public:
 			{
 
 				AcDbDimStyleTableRecord* pNewRec = NULL;
-				bool isFind = true;
+				
 				if (styleId == stdId) {
 
 					es = pNewSt->getAt(L"Standard", pNewRec, AcDb::kForWrite);
@@ -1095,11 +1101,11 @@ public:
 				es = pNewRec->setDimunit(txtRec->dimunit());
 				es = pNewRec->setDimupt(txtRec->dimupt());
 				es = pNewRec->setDimzin(txtRec->dimzin());
-				if (isFind&&pNewRec!=NULL) {
+				if (pNewRec!=NULL) {
 					es = pNewRec->close();
 					pNewRec = NULL;
 				}
-				else if (isFind == false && pNewRec != NULL) {
+				/*else if (isFind == false && pNewRec != NULL) {
 					es = pNewSt->close();
 					pNewSt = NULL;
 					bool flag = false;
@@ -1108,7 +1114,7 @@ public:
 
 					pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
 
-				}
+				}*/
 			}
 			if (txtRec != NULL) {
 				es = txtRec->close();
@@ -1296,8 +1302,8 @@ public:
 		pDict->getAt(_T("Standard"), idTblStyle2);
 		AcDbDictionaryIterator *pIterator = pDict->newIterator();
 
-		AcDbObject* pObj=NULL;
-		AcDbTableStyle * pTStyle = NULL;
+		//AcDbObject* pObj=NULL;
+		//AcDbTableStyle * pTStyle = NULL;
 		//while (!pIterator->done()) {
 
 		//	AcDbTableStyle* newStl = NULL;

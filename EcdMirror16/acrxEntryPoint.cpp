@@ -9,7 +9,7 @@
 #include"StringUtil.h"
 #include "algorithm" //sort函数、交并补函数
 #include "iterator" //求交并补使用到的迭代器
-
+#include"dbmleaderstyle.h"
 //#pragma comment(lib,"Shlwapi.lib")
 
 using namespace std;
@@ -632,8 +632,11 @@ public:
 			aixLine->getClosestPointTo(ptO,ptOnL,Adesk::kTrue);
 
 			AcGeVector3d vec2=(ptO-ptOnL).normal();
+			if (fabs(vec2.x - vec.x) < 0.2&&fabs(vec2.y - vec.y) < 0.2) {
 
-			if(vec2.x*vec.x>=0&&vec2.y*vec.y>=0){
+				pEnt->close();
+			}
+			else if(vec2.x*vec.x>=0&&vec2.y*vec.y>=0){
 
 				pEnt->erase();
 
@@ -707,15 +710,35 @@ public:
 		AcDbIdMapping idMap;
 		es = idMap.setDestDb(pTempDb);
 		
-		if (!CopyTextStyleIdInfo(acdbHostApplicationServices()->workingDatabase(), pTempDb)) {
+		AcDbObjectIdArray txtIds;
+
+		if (!CopyTextStyleIdInfo(acdbHostApplicationServices()->workingDatabase(), pTempDb,txtIds)) {
 			AfxMessageBox(L"CopyTextStyleIdInfo false");
 			return false;
 		}
+		ids.append(txtIds);
+		if(!CopyDimStyle(acdbHostApplicationServices()->workingDatabase(), pTempDb)){
+			AfxMessageBox(L"CopyDimStyleIdInfo false");
+			return false;
+		}
+		DeleteDim(pTempDb);
+		AcDbObjectIdArray dimIds;
+		GetDimId(dimIds);
+		ids.append(dimIds);
 
+		AcDbObjectIdArray tblIds;
+		CopyTableStyle(acdbHostApplicationServices()->workingDatabase(), pTempDb, tblIds);
+
+		CopyMleaderStyle(acdbHostApplicationServices()->workingDatabase(), pTempDb);
+
+		//acutPrintf(L"dimIds=%d",dimIds.length());
 		pTempDb->getSymbolTable(pBT1, AcDb::kForRead);
 		pBT1->getAt(ACDB_MODEL_SPACE, modelSpaceId);
 		
 		pBT1->close();
+
+	
+
 
 		es = pTempDb->wblockCloneObjects(ids, modelSpaceId, idMap, AcDb::kDrcIgnore);
 		
@@ -738,12 +761,12 @@ public:
 		return true;
 	}
 
-	static	bool CopyTextStyleIdInfo(AcDbDatabase *pFromDataSrc/*in*/, AcDbDatabase *pToDataDes/*in*/)
+	static	bool CopyTextStyleIdInfo(AcDbDatabase *pFromDataSrc/*in*/, AcDbDatabase *pToDataDes/*in*/, AcDbObjectIdArray &txtIds)
 	{
 
 		if (pFromDataSrc == NULL || pToDataDes == NULL)
 			return false;
-		
+
 		AcDbTextStyleTable *pStyleTable = NULL;
 		AcDbTextStyleTable *pNewSt = NULL;
 		Acad::ErrorStatus es = Acad::eOk;
@@ -751,7 +774,7 @@ public:
 		if (es != Acad::eOk)
 		{
 			CString ttt;
-			ttt.Format(L"pStyleTable open false=%d",es);
+			ttt.Format(L"pStyleTable open false=%d", es);
 			AfxMessageBox(ttt);
 
 			return false;
@@ -760,11 +783,11 @@ public:
 		if (es != Acad::eOk)
 		{
 			CString ttt;
-			ttt.Format(L"pNewSt open false=%d",es);
+			ttt.Format(L"pNewSt open false=%d", es);
 			AfxMessageBox(ttt);
 
 			pStyleTable->close();
-			pStyleTable=NULL;
+			pStyleTable = NULL;
 			return false;
 
 		}
@@ -776,116 +799,454 @@ public:
 		if (es != Acad::eOk)
 		{
 			CString ttt;
-			ttt.Format(L"pStyleTable->newIterator false=%d",es);
+			ttt.Format(L"pStyleTable->newIterator false=%d", es);
 			AfxMessageBox(ttt);
 
 			pStyleTable->close();
 			pStyleTable = NULL;
 
 			pNewSt->close();
-			pNewSt=NULL;
+			pNewSt = NULL;
 			return false;
 		}
 
-		
+
 
 		AcDbObjectId stdId, anoId;
 		pStyleTable->getAt(L"Standard", stdId);
-		
 		pStyleTable->getAt(L"Annotative", anoId);
-		
-		AcDbTextStyleTableRecord *txtRec=NULL;
+
+
+		AcDbTextStyleTableRecord *txtRec = NULL;
 		for (pIterator->start(); !pIterator->done(); pIterator->step())
 		{
 			AcDbObjectId styleId = AcDbObjectId::kNull;
-			
-			
-				if ((es = pIterator->getRecord(txtRec,AcDb::kForRead)) != Acad::eOk){
-					CString ttt;
-					ttt.Format(L"pIterator->getRecord(txtRec,AcDb::kForRead))=%d",es);
-					AfxMessageBox(ttt);
 
-					if(txtRec!=NULL){
-						txtRec->close();
-					}
-					continue;
+
+			if ((es = pIterator->getRecord(txtRec, AcDb::kForRead)) != Acad::eOk) {
+				CString ttt;
+				ttt.Format(L"pIterator->getRecord(txtRec,AcDb::kForRead))=%d", es);
+				AfxMessageBox(ttt);
+
+				if (txtRec != NULL) {
+					txtRec->close();
 				}
-
+				continue;
+			}
+			bool isFound = true;
 			if ((es = pIterator->getRecordId(styleId)) == Acad::eOk)
 			{
 				AcDbTextStyleTableRecord* pNewRec = NULL;
+
 				if (styleId == stdId) {
 
-					es=pNewSt->getAt(L"Standard", pNewRec, AcDb::kForWrite);
+					es = pNewSt->getAt(L"Standard", pNewRec, AcDb::kForWrite);
+
 				}
 				else if (styleId == anoId) {
-					es=pNewSt->getAt(L"Annotative", pNewRec, AcDb::kForWrite);
-					
+					es = pNewSt->getAt(L"Annotative", pNewRec, AcDb::kForWrite);
+
 				}
 				else {
-					pNewRec = new AcDbTextStyleTableRecord;
+					txtRec->close();
+					continue;
+
 				}
 
+
 				//AcGiTextStyle *pTextStyle = new AcGiTextStyle(pToDataDes);
-				if (true/*(es = fromAcDbTextStyle(*pTextStyle, styleId)) == Acad::eOk*/)
+				if (pNewRec != NULL)
 				{
+
+
 					ACHAR * pTypeface = NULL;
 					Adesk::Boolean bold;
 					Adesk::Boolean italic;
 					int  charset;
 					int  pitchAndFamily;
 					//Autodesk::AutoCAD::PAL::FontUtils::FontFamily fontFamily;
-					ACHAR *na,*na1;					
+					ACHAR *na, *na1, *bigFontN;
 					txtRec->getName(na);
 					txtRec->fileName(na1);
-					if (styleId != stdId&&styleId != anoId) {
-						setSymbolName(pNewRec,na );
-						es=pNewRec->setFileName(na1);
-						es=pNewRec->setBigFontFileName(_T(""));
-					}
-					    es =   txtRec->font(pTypeface, bold, italic, charset, pitchAndFamily);  
-					
+					txtRec->bigFontFileName(bigFontN);
+					Adesk::UInt8 flagB = txtRec->flagBits();
+					setSymbolName(pNewRec, na);
+					es = pNewRec->setFileName(na1);
+					es = pNewRec->setBigFontFileName(bigFontN);
+					pNewRec->setFlagBits(flagB);
+					pNewRec->setIsVertical(txtRec->isVertical());
+					pNewRec->setIsShapeFile(txtRec->isShapeFile());
+
+					es = txtRec->font(pTypeface, bold, italic, charset, pitchAndFamily);
+
 					if (es == Acad::eOk)
-						es=pNewRec->setFont(pTypeface, bold, italic, charset, pitchAndFamily);
+						es = pNewRec->setFont(pTypeface, bold, italic, charset, pitchAndFamily);
+					es = pNewRec->setTextSize(txtRec->textSize());
+
 					if (styleId != stdId&&styleId != anoId)
 					{
-						es=pNewRec->setTextSize(pNewRec->textSize());
-
-						es=pNewRec->setXScale(pNewRec->xScale());
+						es = pNewRec->setXScale(txtRec->xScale());
 					}
-					es=pNewRec->setObliquingAngle(pNewRec->obliquingAngle());
 
-					if (styleId == stdId || styleId == anoId) {
-						es=pNewRec->close();
-						
+					es = pNewRec->setObliquingAngle(txtRec->obliquingAngle());
+
+					if (isFound&&pNewRec != NULL) {
+						es = pNewRec->close();
+						pNewRec = NULL;
 					}
-					else {
-						es=pNewSt->close();
-						pNewSt=NULL;
-						bool flag=false;
-						
-						flag=addToSymbolTableAndClose(pNewRec, pToDataDes);
-						
+					else if (isFound == false && pNewRec != NULL) {
+						es = pNewSt->close();
+						pNewSt = NULL;
+						bool flag = false;
+
+						flag = addToSymbolTableAndClose(pNewRec, pToDataDes);
+
 						pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
 					}
-			
-				}
-				if(txtRec!=NULL){
-					es=txtRec->close();
 
-					txtRec=NULL;
-					
-					
 				}
-				
+				if (txtRec != NULL) {
+					es = txtRec->close();
+
+					txtRec = NULL;
+
+
+				}
+
 			}
 		}
-		
-		if(pNewSt!=NULL){
-			es=pNewSt->close();
-			pNewSt=NULL;
-			
+
+		if (pNewSt != NULL) {
+			es = pNewSt->close();
+			pNewSt = NULL;
+
 		}
+		if (pIterator != NULL)
+		{
+			delete pIterator;
+			pIterator = NULL;
+			es = pStyleTable->close();
+
+			pStyleTable = NULL;
+
+		}
+
+		return true;
+	}
+	static bool  CopyDimStyle(AcDbDatabase *pFromDataSrc/*in*/, AcDbDatabase *pToDataDes/*in*/)
+	{
+
+
+		if (pFromDataSrc == NULL || pToDataDes == NULL)
+			return false;
+		ErrorStatus es2 = ErrorStatus::eOk;
+		ACHAR * styleName = L"LL_tiDai00";
+
+		AcDbDimStyleTable *pDimStyleTbl = NULL;
+		pToDataDes->getDimStyleTable(pDimStyleTbl, AcDb::kForWrite);
+
+
+		// 创建新的标注样式表记录
+		AcDbDimStyleTableRecord *pDimStyleTblRcd = NULL;
+		pDimStyleTblRcd = new AcDbDimStyleTableRecord();
+
+		// 设置标注样式的特性
+		es2=pDimStyleTblRcd->setName(styleName); // 样式名称
+		pDimStyleTblRcd->setDimasz(3);  // 箭头长度
+		pDimStyleTblRcd->setDimexe(3);  // 尺寸界线与标注点的偏移量
+		pDimStyleTblRcd->setDimtad(1);  // 文字位于标注线的上方
+		pDimStyleTblRcd->setDimtxt(3); // 标注文字的高度
+
+									   // 将标注样式表记录添加到标注样式表中
+		AcDbObjectId oId;
+		es2=pDimStyleTbl->add(oId, pDimStyleTblRcd);
+		pDimStyleTblRcd->close();
+		pDimStyleTbl->close();
+
+		es2=pToDataDes->setDimstyleData(oId);
+		es2 = pToDataDes->setDimstyle(oId);
+		return true;
+		AcDbDimStyleTable *pStyleTable = NULL;
+		AcDbDimStyleTable *pNewSt = NULL;
+		Acad::ErrorStatus es = Acad::eOk;
+		es = pFromDataSrc->getDimStyleTable(pStyleTable, AcDb::kForRead);
+		if (es != Acad::eOk)
+		{
+			CString ttt;
+			ttt.Format(L"pStyleTable open false=%d", es);
+			AfxMessageBox(ttt);
+
+			return false;
+		}
+		es = pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
+		if (es != Acad::eOk)
+		{
+			CString ttt;
+			ttt.Format(L"pNewSt open false=%d", es);
+			AfxMessageBox(ttt);
+
+			pStyleTable->close();
+			pStyleTable = NULL;
+			return false;
+
+		}
+
+
+
+		AcDbDimStyleTableIterator *pIterator = NULL;
+		es = pStyleTable->newIterator(pIterator);
+		if (es != Acad::eOk)
+		{
+			CString ttt;
+			ttt.Format(L"pStyleTable->newIterator false=%d", es);
+			AfxMessageBox(ttt);
+
+			pStyleTable->close();
+			pStyleTable = NULL;
+
+			pNewSt->close();
+			pNewSt = NULL;
+			return false;
+		}
+
+
+
+		AcDbObjectId stdId, anoId, iso_25;
+		pStyleTable->getAt(L"Standard", stdId);
+
+		pStyleTable->getAt(L"Annotative", anoId);
+
+
+		AcDbDimStyleTableRecord *txtRec = NULL;
+		for (pIterator->start(); !pIterator->done(); pIterator->step())
+		{
+			AcDbObjectId styleId = AcDbObjectId::kNull;
+
+			if ((es = pIterator->getRecord(txtRec, AcDb::kForRead)) != Acad::eOk) {
+				CString ttt;
+				ttt.Format(L"pIterator->getRecord(txtRec,AcDb::kForRead))=%d", es);
+				AfxMessageBox(ttt);
+
+				if (txtRec != NULL) {
+					txtRec->close();
+				}
+
+			}
+
+			if ((es = pIterator->getRecordId(styleId)) == Acad::eOk)
+			{
+
+				AcDbDimStyleTableRecord* pNewRec = NULL;
+				
+				if (styleId == stdId) {
+
+					es = pNewSt->getAt(L"Standard", pNewRec, AcDb::kForWrite);
+
+				}
+				else if (styleId == anoId) {
+					es = pNewSt->getAt(L"Annotative", pNewRec, AcDb::kForWrite);
+
+				}
+				/*else if (styleId == iso_25) {
+				es=pNewSt->getAt(L"ISO-25", pNewRec, AcDb::kForWrite);
+
+				}*/
+				else {
+					txtRec->close();
+					txtRec = NULL;
+					continue;
+				}
+				ACHAR* na;
+
+				txtRec->getName(na);
+				es = pNewRec->setName(na);
+				es = pNewRec->setDimadec(txtRec->dimadec());
+				es = pNewRec->setDimalt(txtRec->dimalt());
+				es = pNewRec->setDimaltd(txtRec->dimaltd());
+				es = pNewRec->setDimaltf(txtRec->dimaltf());
+				es = pNewRec->setDimaltmzf(txtRec->dimaltmzf());
+				es = pNewRec->setDimaltmzs(txtRec->dimaltmzs());
+				es = pNewRec->setDimaltrnd(txtRec->dimaltrnd());
+				es = pNewRec->setDimalttd(txtRec->dimalttd());
+				es = pNewRec->setDimalttz(txtRec->dimalttz());
+				es = pNewRec->setDimaltu(txtRec->dimaltu());
+				es = pNewRec->setDimaltz(txtRec->dimaltz());
+				es = pNewRec->setDimapost(txtRec->dimapost());
+				es = pNewRec->setDimarcsym(txtRec->dimarcsym());
+				es = pNewRec->setDimasz(txtRec->dimasz());
+				es = pNewRec->setDimatfit(txtRec->dimatfit());
+
+				es = pNewRec->setDimaunit(txtRec->dimaunit());
+				es = pNewRec->setDimazin(txtRec->dimazin());
+				es = pNewRec->setDimblk(txtRec->dimblk());
+				es = pNewRec->setDimblk1(txtRec->dimblk1());
+				es = pNewRec->setDimblk2(txtRec->dimblk2());
+				es = pNewRec->setDimcen(txtRec->dimcen());
+				es = pNewRec->setDimclrd(txtRec->dimclrd());
+				es = pNewRec->setDimclre(txtRec->dimclre());
+				es = pNewRec->setDimclrt(txtRec->dimclrt());
+				es = pNewRec->setDimdec(txtRec->dimdec());
+				es = pNewRec->setDimdle(txtRec->dimdle());
+
+				es = pNewRec->setDimdli(txtRec->dimdli());
+				es = pNewRec->setDimdsep(txtRec->dimdsep());
+
+				es = pNewRec->setDimexe(txtRec->dimexe());
+				es = pNewRec->setDimexo(txtRec->dimexo());
+
+				es = pNewRec->setDimfit(txtRec->dimfit());
+				es = pNewRec->setDimfrac(txtRec->dimfrac());
+				es = pNewRec->setDimfxlen(txtRec->dimfxlen());
+				es = pNewRec->setDimfxlenOn(txtRec->dimfxlenOn());
+
+				es = pNewRec->setDimgap(txtRec->dimgap());
+				es = pNewRec->setDimjogang(txtRec->dimjogang());
+				es = pNewRec->setDimjust(txtRec->dimjust());
+
+				es = pNewRec->setDimldrblk(txtRec->dimldrblk());
+				es = pNewRec->setDimlfac(txtRec->dimlfac());
+				es = pNewRec->setDimlim(txtRec->dimlim());
+				es = pNewRec->setDimltype(txtRec->dimltype());
+				es = pNewRec->setDimltex1(txtRec->dimltex1());
+				es = pNewRec->setDimltex2(txtRec->dimltex2());
+
+				es = pNewRec->setDimlunit(txtRec->dimlunit());
+				es = pNewRec->setDimlwd(txtRec->dimlwd());
+				es = pNewRec->setDimlwe(txtRec->dimlwe());
+
+				es = pNewRec->setDimmzf(txtRec->dimmzf());
+				es = pNewRec->setDimmzs(txtRec->dimmzs());
+				es = pNewRec->setDimpost(txtRec->dimpost());
+				es = pNewRec->setDimrnd(txtRec->dimrnd());
+
+				es = pNewRec->setDimsah(txtRec->dimsah());
+				es = pNewRec->setDimscale(txtRec->dimscale());
+				es = pNewRec->setDimsd1(txtRec->dimsd1());
+				es = pNewRec->setDimsd2(txtRec->dimsd2());
+				es = pNewRec->setDimse1(txtRec->dimse1());
+				es = pNewRec->setDimse2(txtRec->dimse2());
+				es = pNewRec->setDimsoxd(txtRec->dimsoxd());
+				es = pNewRec->setDimtad(txtRec->dimtad());
+				es = pNewRec->setDimtdec(txtRec->dimtdec());
+				es = pNewRec->setDimtfac(txtRec->dimtfac());
+				es = pNewRec->setDimtfill(txtRec->dimtfill());
+				es = pNewRec->setDimtfillclr(txtRec->dimtfillclr());
+				es = pNewRec->setDimtih(txtRec->dimtih());
+				es = pNewRec->setDimtix(txtRec->dimtix());
+				es = pNewRec->setDimtm(txtRec->dimtm());
+				es = pNewRec->setDimtmove(txtRec->dimtmove());
+				es = pNewRec->setDimtofl(txtRec->dimtofl());
+				es = pNewRec->setDimtoh(txtRec->dimtoh());
+				es = pNewRec->setDimtolj(txtRec->dimtolj());
+				es = pNewRec->setDimtp(txtRec->dimtp());
+				es = pNewRec->setDimtsz(txtRec->dimtsz());
+				es = pNewRec->setDimtvp(txtRec->dimtvp());
+				es = pNewRec->setDimtxsty(txtRec->dimtxsty());
+				es = pNewRec->setDimtxt(txtRec->dimtxt());
+				es = pNewRec->setDimtxtdirection(txtRec->dimtxtdirection());
+				es = pNewRec->setDimtzin(txtRec->dimtzin());
+				es = pNewRec->setDimunit(txtRec->dimunit());
+				es = pNewRec->setDimupt(txtRec->dimupt());
+				es = pNewRec->setDimzin(txtRec->dimzin());
+				if (pNewRec!=NULL) {
+					es = pNewRec->close();
+					pNewRec = NULL;
+				}
+				/*else if (isFind == false && pNewRec != NULL) {
+					es = pNewSt->close();
+					pNewSt = NULL;
+					bool flag = false;
+
+					flag = addToDimTableAndClose(pNewRec, pToDataDes);
+
+					pToDataDes->getSymbolTable(pNewSt, AcDb::kForWrite);
+
+				}*/
+			}
+			if (txtRec != NULL) {
+				es = txtRec->close();
+
+				txtRec = NULL;
+
+
+			}
+
+		}
+
+
+		if (pNewSt != NULL) {
+			es = pNewSt->close();
+			pNewSt = NULL;
+
+		}
+		if (pIterator != NULL)
+		{
+			delete pIterator;
+			pIterator = NULL;
+			es = pStyleTable->close();
+
+			pStyleTable = NULL;
+
+		}
+
+		return true;
+	}
+	static void DeleteDim(AcDbDatabase *pToDataDes){
+
+		AcDbDimStyleTable *pStyleTable = NULL;
+		pToDataDes->getSymbolTable(pStyleTable, AcDb::kForWrite);
+
+		AcDbDimStyleTableIterator *pIterator = NULL;
+		 pStyleTable->newIterator(pIterator);
+
+		 AcDbDimStyleTableRecord *txtRec=NULL;
+		 for (pIterator->start(); !pIterator->done(); pIterator->step())
+		 {
+			
+
+			 if (pIterator->getRecord(txtRec,AcDb::kForWrite) == Acad::eOk){
+				 
+				 txtRec->erase();
+
+				 txtRec->close();
+				 txtRec=NULL;
+
+			 }
+		 }
+	
+		 if (pIterator != NULL)
+		 {
+			 delete pIterator;
+			 pIterator = NULL;
+			 pStyleTable->close();
+
+			 pStyleTable = NULL;
+
+		 }
+	
+	}
+	
+	static void GetDimId(AcDbObjectIdArray & dimIds){
+		AcDbDimStyleTable *pStyleTable = NULL;
+		
+		Acad::ErrorStatus es = Acad::eOk;
+		
+		acdbHostApplicationServices()->workingDatabase()->getDimStyleTable(pStyleTable, AcDb::kForRead);
+		AcDbDimStyleTableIterator *pIterator = NULL;
+		es = pStyleTable->newIterator(pIterator);
+
+		AcDbObjectId styleId;
+
+		for (pIterator->start(); !pIterator->done(); pIterator->step())
+		{
+		    
+			es=pIterator->getRecordId(styleId);
+			if(es==ErrorStatus::eOk){
+				dimIds.append(styleId);
+			}
+
+		}
+
 		if (pIterator != NULL)
 		{
 			delete pIterator;
@@ -893,12 +1254,12 @@ public:
 			es=pStyleTable->close();
 
 			pStyleTable = NULL;
-			
-		}
-		
-		return true;
-	}
 
+		}
+
+
+	}
+	
 	static BOOL setSymbolName(AcDbSymbolTableRecord* newRec, LPCTSTR newName)
 	{
 		Acad::ErrorStatus es;
@@ -942,6 +1303,214 @@ public:
 		}
 		return TRUE;
 	}
+
+	static BOOL addToDimTableAndClose(AcDbSymbolTableRecord* systemTextRec/*in*/, AcDbDatabase *pDataBase/*in*/)
+	{
+		if (pDataBase == NULL || systemTextRec == NULL)
+			return FALSE;
+
+		AcDbDimStyleTable* symTextTbl = NULL;
+		Acad::ErrorStatus es = Acad::eOk;
+		es = pDataBase->getDimStyleTable(symTextTbl, AcDb::kForWrite);
+		if (es != Acad::eOk)
+		{
+			if (systemTextRec != NULL)
+			{
+				delete systemTextRec;
+				systemTextRec = NULL;
+			}
+			return FALSE;
+		}
+		AcDbSymbolTable *pSysRec = AcDbDimStyleTable::cast(symTextTbl);
+		//覆盖字体样式
+		es = pSysRec->add(systemTextRec);
+		if (es != Acad::eOk)
+		{
+			symTextTbl->close();
+			systemTextRec->close();
+			return FALSE;
+		}
+		else
+		{
+			systemTextRec->close();
+			symTextTbl->close();
+		}
+		return TRUE;
+	}
+
+	static bool CopyTableStyle(AcDbDatabase *pFromDataSrc, AcDbDatabase *pDataBase/*in*/,AcDbObjectIdArray &bIds) {
+		ErrorStatus es = ErrorStatus::eOk;
+
+		AcDbBlockTable *pBlkTbl,*newTbl;
+		pFromDataSrc->getBlockTable(pBlkTbl, AcDb::kForRead);
+		pDataBase->getBlockTable(newTbl, AcDb::kForWrite);
+
+		AcDbDictionary *pDict = NULL,*newDict=NULL;
+		AcDbObjectId idTblStyle, idTblStyle2;
+
+		pFromDataSrc->getTableStyleDictionary(pDict, AcDb::kForRead);
+		pDataBase->getTableStyleDictionary(newDict, AcDb::kForWrite);
+
+		bool flag=newDict->setName(L"Standard", L"oldStandard");
+
+
+
+		pDict->getAt(_T("Standard"), idTblStyle2);
+		AcDbDictionaryIterator *pIterator = pDict->newIterator();
+
+		//AcDbObject* pObj=NULL;
+		//AcDbTableStyle * pTStyle = NULL;
+		//while (!pIterator->done()) {
+
+		//	AcDbTableStyle* newStl = NULL;
+
+		//	idTblStyle = pIterator->objectId();
+
+		//	if (idTblStyle != idTblStyle2) {
+		//		continue;
+		//	}
+		//	
+		//	pIterator->getObject(pObj, AcDb::kForWrite);
+		//	//bIds.append(idTblStyle);
+		//	pTStyle = AcDbTableStyle::cast(pObj);
+
+		//	const ACHAR* n=NULL;
+		//	n = pIterator->name();
+
+		//	newStl = AcDbTableStyle::cast(pTStyle->clone());
+
+		//	es=newDict->setAt(n, newStl,idTblStyle);
+
+		//	pObj->close();
+		//	pObj = NULL;
+		//	newStl->close();
+		//	newStl = NULL;
+		//		pIterator->next();
+
+		//}
+		if (newDict != NULL) {
+			newDict->close();
+			newDict = NULL;
+			newTbl->close();
+			newTbl = NULL;
+		}
+
+		if (pIterator != NULL) {
+			delete pIterator;
+			pIterator = NULL;
+			es = pBlkTbl->close();
+			pBlkTbl = NULL;
+		}
+
+		return true;
+
+
+	}
+
+	static bool CopyMleaderStyle(AcDbDatabase *pFromDataSrc, AcDbDatabase *pDataBase) {
+		ErrorStatus es = ErrorStatus::eOk;
+
+		AcDbBlockTable *pBlkTbl, *newTbl;
+
+		pFromDataSrc->getBlockTable(pBlkTbl, AcDb::kForRead);
+		pDataBase->getBlockTable(newTbl, AcDb::kForWrite);
+
+		AcDbDictionary *pDict = NULL, *newDict = NULL;
+		AcDbObjectId idTblStyle, idTblStyle2;
+
+		pFromDataSrc->getMLeaderStyleDictionary(pDict, AcDb::kForRead);
+		pDataBase->getMLeaderStyleDictionary(newDict, AcDb::kForWrite);
+		bool flag = newDict->setName(L"Standard", L"oldStandard");
+
+		pDict->getAt(_T("Standard"), idTblStyle2);
+
+		AcDbDictionaryIterator *pIterator = pDict->newIterator();
+
+		AcDbObject* pObj = NULL;
+		AcDbMLeaderStyle * pTStyle = NULL;
+		//while (!pIterator->done()) {
+
+		//	AcDbMLeaderStyle* newStl = NULL;
+
+		//	idTblStyle = pIterator->objectId();
+
+		//	if (idTblStyle != idTblStyle2)
+		//	{
+		//		continue;
+		//	}
+		//	pIterator->getObject(pObj, AcDb::kForWrite);
+		//	//bIds.append(idTblStyle);
+		//	pTStyle = AcDbMLeaderStyle::cast(pObj);
+
+		//	const ACHAR* n = NULL;
+		//	n = pIterator->name();
+
+		//	newStl = AcDbMLeaderStyle::cast(pTStyle->clone());
+
+		//	es = newDict->setAt(n, newStl, idTblStyle);
+
+		//	pObj->close();
+		//	pObj = NULL;
+		//	newStl->close();
+		//	newStl = NULL;
+		//	pIterator->next();
+
+		//}
+		if (newDict != NULL) {
+			newDict->close();
+			newDict = NULL;
+			newTbl->close();
+			newTbl = NULL;
+		}
+
+		if (pIterator != NULL) {
+			delete pIterator;
+			pIterator = NULL;
+			es = pBlkTbl->close();
+			pBlkTbl = NULL;
+		}
+
+		return true;
+
+	}
+
+	static bool CopyMlStyle(AcDbDatabase *pFromDataSrc, AcDbDatabase *pDataBase) {
+		ErrorStatus es = ErrorStatus::eOk;
+
+		AcDbBlockTable *pBlkTbl, *newTbl;
+
+		pFromDataSrc->getBlockTable(pBlkTbl, AcDb::kForRead);
+		pDataBase->getBlockTable(newTbl, AcDb::kForWrite);
+
+		AcDbDictionary *pDict = NULL, *newDict = NULL;
+		AcDbObjectId idTblStyle, idTblStyle2;
+
+		pFromDataSrc->getMLStyleDictionary(pDict, AcDb::kForRead);
+		pDataBase->getMLStyleDictionary(newDict, AcDb::kForWrite);
+		bool flag = newDict->setName(L"Standard", L"oldStandard");
+
+		pDict->getAt(_T("Standard"), idTblStyle2);
+
+		AcDbDictionaryIterator *pIterator = pDict->newIterator();
+
+		if (newDict != NULL) {
+			newDict->close();
+			newDict = NULL;
+			newTbl->close();
+			newTbl = NULL;
+		}
+
+		if (pIterator != NULL) {
+			delete pIterator;
+			pIterator = NULL;
+			es = pBlkTbl->close();
+			pBlkTbl = NULL;
+		}
+
+		return true;
+
+	}
+
 
 	static AcDbObjectId PostToModelSpace(AcDbEntity *pEnt, AcDbDatabase *pDb = acdbHostApplicationServices()->workingDatabase()) {
 
