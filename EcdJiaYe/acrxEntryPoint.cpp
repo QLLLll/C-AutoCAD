@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "resource.h"
-
+#include<vector>
+using namespace std;
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("ECD")
 
@@ -9,6 +10,14 @@
 class CEcdJiaYeApp : public AcRxArxApp {
 
 public:
+
+	struct MyStut {
+		AcGeVector3d vec1;
+		AcGeVector3d vec2;
+		AcGePoint3d pt;
+
+	};
+
 	CEcdJiaYeApp () : AcRxArxApp () {}
 
 	virtual AcRx::AppRetCode On_kInitAppMsg (void *pkt) {
@@ -74,12 +83,180 @@ public:
 		}
 		AcDbPolyline * pl = (AcDbPolyline*)ptrArr[0];
 
+		AcGePoint3dArray ptArr;
+
+		for (int i = 0; i <(int)pl->numVerts();i++)
+		{
+			
+			AcGePoint2d pt2d;
+			pl->getPointAt(i, pt2d);
+			ptArr.append(AcGePoint3d(pt2d.x, pt2d.y, 0));
+
+		}
+		int total = ptArr.length();
+
+		vector<MyStut>vecStt;
+
+		for (int i = 0; i < total;i++)
+		{
+			AcGePoint3d ptC = ptArr[i];
+			AcGePoint3d ptPre, ptAfter;
+			ptPre = ptArr[(i + total - 1) % total];
+			ptAfter = ptArr[(i + 1) % total];
+
+			if (fabs(ptPre.x - ptC.x) <= 0.01&&fabs(ptPre.y - ptC.y) <= 0.01) {
+
+				ptPre= ptArr[(i + total - 2) % total];
+
+			}
+			if (fabs(ptAfter.x - ptC.x) <= 0.01&&fabs(ptAfter.y - ptC.y) <= 0.01) {
+
+				ptAfter = ptArr[(i + 2) % total];
+
+			}
+
+			double dis1 = ptC.distanceTo(ptPre);
+			double dis2 = ptC.distanceTo(ptAfter);
+
+			if (fabs(dis1 - dis2) <= 1.5) {
+
+				MyStut st;
 
 
+				AcGeVector3d v1 = (ptPre - ptC)*10;
+				AcGeVector3d v2 = (ptAfter - ptC)*10;
+				AcGePoint3d p1, p2;
+
+				CString str,str2;
+
+				str.Format(L"\nv1=[%5f,%5f,0]", v1.x, v1.y);
+				str2.Format(L"\nv2=[%5f,%5f,0]", v2.x, v2.y);
+
+				acutPrintf(str);
+				acutPrintf(str2);
+
+				if (fabs(v1.y) > fabs(v1.x))
+				{
+					
+
+						if (v1.y < 0) {
+							st.vec1 = AcGeVector3d::kYAxis * 1;
+						}
+						else {
+							st.vec1 = AcGeVector3d::kYAxis*-1;
+						}
+					
+				}
+				else {
+					if (v1.x < 0) {
+						st.vec1 = AcGeVector3d::kXAxis*1;
+					}
+					else {
+						st.vec1 = AcGeVector3d::kXAxis*-1;
+					}
+				}
+
+				if (fabs(v2.y) > fabs(v2.x))
+				{
+					if (v2.y <0) {
+						st.vec2 = AcGeVector3d::kYAxis*1;
+					}
+					else {
+						st.vec2 = AcGeVector3d::kYAxis*-1;
+					}
+				}
+				else {
+					if (v2.x < 0) {
+						st.vec2 = AcGeVector3d::kXAxis*1;
+					}
+					else {
+						st.vec2 = AcGeVector3d::kXAxis*-1;
+					}
+				}
+				st.pt = ptC;
+
+				vecStt.push_back(st);
+
+			}
+
+
+
+		}
+
+		vector<AcDbEntity*>vecEnts;
+		AcGePoint3dArray ptArr2;
+
+		for (int i = 0; i < (int)vecStt.size();i++)
+		{
+			MyStut m = vecStt[i];
+
+			AcGeVector3d v = (m.vec1 + m.vec2);
+
+			AcGePoint3d ptt = m.pt+v*dis;
+
+			AcDbLine* line = new AcDbLine(m.pt, ptt);
+
+			ptArr2.append(ptt);
+			vecEnts.push_back(line);
+
+		}
+
+		AcDbPolyline * pl2 = new AcDbPolyline();
+
+		for (int i = 0; i < ptArr2.length();i++)
+		{
+			pl2->addVertexAt(pl2->numVerts(), AcGePoint2d(ptArr2[i].x, ptArr2[i].y), 0, 0, 0);
+
+		}
+		pl2->addVertexAt(pl2->numVerts(), AcGePoint2d(ptArr2[0].x, ptArr2[0].y), 0, 0, 0);
+		vecEnts.push_back(pl2);
+
+		delete pl;
+		pl = NULL;
+
+		for (int i = 0; i < (int)vecEnts.size();i++)
+		{
+			vecEnts[i]->setColorIndex(1);
+
+			PostToModelSpace(vecEnts[i]);
+		}
 
 
 	}
+	static AcDbObjectId PostToModelSpace(AcDbEntity *pEnt, AcDbDatabase *pDb = acdbHostApplicationServices()->workingDatabase()) {
 
+		if (pEnt == NULL) {
+			return AcDbObjectId::kNull;
+		}
+		AcDbBlockTable *pTable;
+
+		AcDbBlockTableRecord *blkTblRec;
+
+		AcDbObjectId objId;
+
+		pDb->getBlockTable(pTable, AcDb::OpenMode::kForRead);
+		pTable->getAt(ACDB_MODEL_SPACE, blkTblRec, AcDb::OpenMode::kForWrite);
+
+		pTable->close();
+
+		Acad::ErrorStatus status = blkTblRec->appendAcDbEntity(objId, pEnt);
+
+		if (status != Acad::eOk) {
+
+			blkTblRec->close();
+
+			delete pEnt;
+			pEnt = NULL;
+
+			return AcDbObjectId::kNull;
+
+		}
+
+		blkTblRec->close();
+		pEnt->close();
+
+		return objId;
+	}
 	// Modal Command with pickfirst selection
 	// ACED_ARXCOMMAND_ENTRY_AUTO(CEcdJiaYeApp, ECDMyGroup, MyPickFirst, MyPickFirstLocal, ACRX_CMD_MODAL | ACRX_CMD_USEPICKSET)
 	static void ECDMyGroupMyPickFirst () {
